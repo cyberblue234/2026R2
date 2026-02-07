@@ -16,6 +16,14 @@
 
 namespace OperatorConstants {
 
-inline constexpr int kDriverControllerPort = 0;
+    inline constexpr int kDriverControllerPort = 0;
 
 }  // namespace OperatorConstants
+
+namespace RobotMap {
+    namespace Hopper {
+        constexpr int kFloorMotorID = 9;
+        constexpr int kFeederMotorID = 10;
+    }
+}
+
