@@ -25,5 +25,17 @@ namespace RobotMap {
         constexpr int kFloorMotorID = 9;
         constexpr int kFeederMotorID = 10;
     }
+    namespace Intake {
+        constexpr int kRollerMotorID = 11;
+        constexpr int kPivotMotorID = 12;
+    }
+
+     namespace Launcher {
+        constexpr int kLauncherMotor1ID = 13;
+        constexpr int kLauncherMotor2ID = 14;
+        constexpr int kLauncherMotor3ID = 15;
+        constexpr int kActuator1ID = 0;
+        constexpr int kActuator2ID = 1;
+    }
 }
 
