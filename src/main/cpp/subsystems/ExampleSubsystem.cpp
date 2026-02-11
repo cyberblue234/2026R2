@@ -11,7 +11,9 @@ ExampleSubsystem::ExampleSubsystem() {
 frc2::CommandPtr ExampleSubsystem::ExampleMethodCommand() {
   // Inline construction of command goes here.
   // Subsystem::RunOnce implicitly requires `this` subsystem.
-  return RunOnce([/* this */] { /* one-time action goes here */ });
+  return RunOnce([this] 
+    {
+    });
 }
 
 bool ExampleSubsystem::ExampleCondition() {

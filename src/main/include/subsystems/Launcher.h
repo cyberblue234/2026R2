@@ -17,12 +17,20 @@ public:
 
     void FeedLauncher();
     void SetLauncherPosition();
+    void SetLauncherSpeed(units::turns_per_second_t speed);
+    void StopLauncher();
+
+     frc2::CommandPtr RunLauncherCommand();
 
 
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
     hardware::TalonFX launcherMotor3{RobotMap::Launcher::kLauncherMotor3ID};
+
+    controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
+
+
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};

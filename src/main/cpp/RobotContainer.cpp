@@ -8,6 +8,9 @@
 
 #include "commands/Autos.h"
 #include "commands/ExampleCommand.h"
+#include "subsystems/Intake.h"
+#include "subsystems/Hopper.h"
+#include "subsystems/Launcher.h"
 
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
@@ -26,8 +29,12 @@ void RobotContainer::ConfigureBindings() {
 
   // Schedule `ExampleMethodCommand` when the Xbox controller's B button is
   // pressed, cancelling on release.
-  m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
-}
+  joystick.B().WhileTrue(m_subsystem.ExampleMethodCommand());
+  controlBoard.Button(2).WhileTrue(intake.IntakeOnCommand());
+
+  joystick.RightTrigger().WhileTrue(launcher.RunLauncherCommand().AlongWith(hopper.FeedLauncherCommand()));
+  
+} 
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   // An example command will be run in autonomous

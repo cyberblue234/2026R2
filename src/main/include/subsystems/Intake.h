@@ -14,12 +14,17 @@ public:
 
     Intake();
 
-    void FeedRoller();
-    void FeedPivot();
+    void SetIntakeOn();
+    void SetIntakeOff();
+    void IntakeToFloor();
+
+     frc2::CommandPtr IntakeOnCommand();
 
 private:
     hardware::TalonFX rollerMotor{RobotMap::Intake::kRollerMotorID};
     hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
+
+    controls::PositionVoltage pivotMotorPositionControl{0_tr};
 
     double rollerMotorSpeed = 0.5;
     double pivotMotorSpeed = 0.5;

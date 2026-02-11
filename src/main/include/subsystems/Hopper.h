@@ -14,7 +14,10 @@ public:
 
     Hopper();
 
-    void FeedLauncher();
+    void FeedLauncherOn();
+    void FeedLauncherOff();
+    frc2::CommandPtr FeedLauncherCommand();
+
 
 
 private:
