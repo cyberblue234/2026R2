@@ -10,10 +10,10 @@
 
 #include "Constants.h"
 
-#include "subsystems/ExampleSubsystem.h"
 #include "subsystems/Intake.h"
 #include "subsystems/Hopper.h"  
-#include "subsystems/Launcher.h"  
+#include "subsystems/Launcher.h" 
+#include "subsystems/Climber.h" 
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -36,11 +36,10 @@ class RobotContainer {
   frc2::CommandJoystick controlBoard{
     OperatorConstants::kControlBoardPort};
 
-  // The robot's subsystems are defined here...
-  ExampleSubsystem m_subsystem;
   Intake intake;
   Hopper hopper;
-  Launcher launcher;  
+  Launcher launcher;
+  Climber climber;
 
   void ConfigureBindings();
 };

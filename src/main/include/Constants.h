@@ -15,9 +15,18 @@
  */
 
 namespace OperatorConstants {
-
     inline constexpr int kDriverControllerPort = 0;
     inline constexpr int kControlBoardPort = 1;
+
+    constexpr int kLaunchButton = 1;
+    constexpr int kEjectButton = 2;
+    constexpr int kIntakeOnSwitch = 3;
+    constexpr int kIntakeOffSwitch = 4;
+    constexpr int kIntakeUpSwitch = 5;
+    constexpr int kIntakeDownSwitch = 6;
+    constexpr int kClimberExtendSwitch = 7;
+    constexpr int kClimberRetractSwitch = 8;
+
 
 }  // namespace OperatorConstants
 
@@ -41,6 +50,11 @@ namespace RobotMap {
 
      namespace Climber {
         constexpr int kClimberMotorID = 16;
+        constexpr int kClimberLimitSwitchID = 0;
     }
+}
+
+namespace ClimberConstants {
+    constexpr units::turn_t kMaxPosition = 100_tr;
 }
 

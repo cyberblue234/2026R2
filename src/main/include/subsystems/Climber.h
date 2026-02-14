@@ -4,6 +4,8 @@
 #include <frc2/command/SubsystemBase.h>
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
+#include <frc/DigitalInput.h>
+#include <frc2/command/button/Trigger.h>
 #include "Constants.h"
 
 using namespace ctre::phoenix6;
@@ -14,11 +16,25 @@ public:
 
     Climber();
 
-    void FeedClimber();
+    void ExtendClimber();
+    void RetractClimber();
+    void StopClimber();
+
+    units::turn_t GetClimberPosition()
+    {
+        return climberMotor.GetPosition().GetValue();
+    }
+
+    frc2::CommandPtr ResetClimberEncoderCommand();
+    frc2::CommandPtr StopClimberCommand();
+    frc2::CommandPtr ExtendClimberCommand();
+    frc2::CommandPtr RetractClimberCommand();
 
 
 private:
     hardware::TalonFX climberMotor{RobotMap::Climber::kClimberMotorID};
+    frc::DigitalInput climberLimitSwitch{RobotMap::Climber::kClimberLimitSwitchID};
+    frc2::Trigger climberLimitSwitchTrigger{[this] { return climberLimitSwitch.Get(); }};
 
     double climberMotorSpeed = 0.5;
 

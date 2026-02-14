@@ -1,6 +1,7 @@
 #include "subsystems/Launcher.h"
 
-Launcher::Launcher() {
+Launcher::Launcher()
+{
     launcherMotor1.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration launcherMotor1Config;
     launcherMotor1Config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -20,13 +21,12 @@ Launcher::Launcher() {
     launcherMotor3.GetConfigurator().Apply(launcherMotor3Config);
 }
 
-void Launcher::FeedLauncher() {
+void Launcher::FeedLauncher()
+{
     launcherMotor1.Set(launcherMotorSpeed);
     launcherMotor2.Set(launcherMotorSpeed);
-    launcherMotor3.Set(launcherMotorSpeed);  
+    launcherMotor3.Set(launcherMotorSpeed);
 }
-
-
 
 void Launcher::SetLauncherPosition()
 {
@@ -34,28 +34,32 @@ void Launcher::SetLauncherPosition()
     actuator2.SetSpeed(actuatorPosition);
 }
 
-void Launcher::SetLauncherSpeed(units::turns_per_second_t speed)
+void Launcher::SetLauncherSpeed(units::turns_per_second_t omega)
 {
-    launcherMotorVelocityControl.Velocity = speed;  
+    launcherMotorVelocityControl.Velocity = omega;
     launcherMotor1.SetControl(launcherMotorVelocityControl);
     launcherMotor2.SetControl(launcherMotorVelocityControl);
     launcherMotor3.SetControl(launcherMotorVelocityControl);
 }
 
-void Launcher::StopLauncher() {
+void Launcher::StopLauncher()
+{
     launcherMotor1.StopMotor();
     launcherMotor2.StopMotor();
     launcherMotor3.StopMotor();
 }
 
-frc2::CommandPtr Launcher::RunLauncherCommand() {
-  // Inline construction of command goes here.
-  // Subsystem::RunOnce implicitly requires `this` subsystem.
-  return Run([this] 
-    {
-        SetLauncherSpeed(100_tps);
-    }).FinallyDo([this] 
-    {
-        StopLauncher();
-    });
+frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
+{
+    return StartEnd
+    (
+        [this, omega]
+        {
+            SetLauncherSpeed(omega);
+        },
+        [this]
+        {
+            StopLauncher();
+        }
+    );
 }
