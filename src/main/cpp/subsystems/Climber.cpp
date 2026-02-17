@@ -1,6 +1,7 @@
 #include "subsystems/Climber.h"
 
-Climber::Climber() {
+Climber::Climber(int motorID, int limitSwitchID) : climberMotor(motorID), climberLimitSwitch(limitSwitchID)
+{
     climberMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration climberMotorConfig;
     climberMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -28,6 +29,7 @@ frc2::CommandPtr Climber::ResetClimberEncoderCommand() {
     return RunOnce([this] 
     {
         climberMotor.SetPosition(0_tr);
+        isRegistered = true;
     });
 }
 
@@ -49,6 +51,24 @@ frc2::CommandPtr Climber::ExtendClimberCommand()
         [this]
         {
             StopClimber();
+        }
+    );
+}
+
+frc2::CommandPtr Climber::ExtendClimberWithLimitCommand()
+{
+    return ExtendClimberCommand()
+    .OnlyIf
+    (
+        [this]
+        {
+            return isRegistered;
+        }
+    ).Until
+    (
+        [this] 
+        { 
+            return GetClimberPosition() > ClimberConstants::kMaxPosition; 
         }
     );
 }

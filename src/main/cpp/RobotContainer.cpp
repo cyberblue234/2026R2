@@ -18,14 +18,19 @@ void RobotContainer::ConfigureBindings()
 
 	controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
 	(
-		climber.ExtendClimberCommand()
-		.Until
+		frc2::cmd::Parallel
 		(
-			[this] 
-			{ 
-				return climber.GetClimberPosition() > ClimberConstants::kMaxPosition; 
-			}
+			climber1.ExtendClimberWithLimitCommand(),
+			climber2.ExtendClimberWithLimitCommand()
 		)
 	);
-	controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberCommand());
+
+	controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
+	(
+		frc2::cmd::Parallel
+		(
+			climber1.RetractClimberCommand(),
+			climber2.RetractClimberCommand()
+		)
+	);
 }

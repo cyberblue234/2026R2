@@ -49,8 +49,10 @@ namespace RobotMap {
     }
 
      namespace Climber {
-        constexpr int kClimberMotorID = 16;
-        constexpr int kClimberLimitSwitchID = 0;
+        constexpr int kClimberMotor1ID = 16;
+        constexpr int kClimberLimitSwitch1ID = 0;
+        constexpr int kClimberMotor2ID = 17;
+        constexpr int kClimberLimitSwitch2ID = 1;
     }
 }
 
