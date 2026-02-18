@@ -12,9 +12,9 @@
 #include "Constants.h"
 
 #include "subsystems/Intake.h"
-#include "subsystems/Hopper.h"  
-#include "subsystems/Launcher.h" 
-#include "subsystems/Climber.h" 
+#include "subsystems/Hopper.h"
+#include "subsystems/Launcher.h"
+#include "subsystems/Climber.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -23,25 +23,26 @@
  * scheduler calls).  Instead, the structure of the robot (including subsystems,
  * commands, and trigger mappings) should be declared here.
  */
-class RobotContainer {
- public:
-  RobotContainer();
+class RobotContainer
+{
+public:
+    RobotContainer();
 
-  frc2::CommandPtr GetAutonomousCommand();
+    frc2::CommandPtr GetAutonomousCommand();
 
- private:
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  frc2::CommandXboxController joystick{
-      OperatorConstants::kDriverControllerPort};
+private:
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    frc2::CommandXboxController joystick{
+        OperatorConstants::kDriverControllerPort};
 
-  frc2::CommandJoystick controlBoard{
-    OperatorConstants::kControlBoardPort};
+    frc2::CommandJoystick controlBoard{
+        OperatorConstants::kControlBoardPort};
 
-  Intake intake;
-  Hopper hopper;
-  Launcher launcher;
-  Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID};
-  Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID};
+    Intake intake;
+    Hopper hopper;
+    Launcher launcher;
+    Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID};
+    Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID};
 
-  void ConfigureBindings();
+    void ConfigureBindings();
 };

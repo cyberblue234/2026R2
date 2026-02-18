@@ -10,10 +10,9 @@
 
 using namespace ctre::phoenix6;
 
-
-class Climber : public frc2::SubsystemBase {
+class Climber : public frc2::SubsystemBase
+{
 public:
-
     Climber(int motorID, int limitSwitchID);
 
     void ExtendClimber();
@@ -31,15 +30,13 @@ public:
     frc2::CommandPtr ExtendClimberWithLimitCommand();
     frc2::CommandPtr RetractClimberCommand();
 
-
 private:
     hardware::TalonFX climberMotor;
     frc::DigitalInput climberLimitSwitch;
-    frc2::Trigger climberLimitSwitchTrigger{[this] { return climberLimitSwitch.Get(); }};
+    frc2::Trigger climberLimitSwitchTrigger{[this]
+                                            { return climberLimitSwitch.Get(); }};
 
     double climberMotorSpeed = 0.5;
 
     bool isRegistered = false;
-    
-
 };

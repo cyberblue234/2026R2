@@ -11,39 +11,38 @@ Climber::Climber(int motorID, int limitSwitchID) : climberMotor(motorID), climbe
     climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(StopClimberCommand().AndThen(ResetClimberEncoderCommand()));
 }
 
-void Climber::ExtendClimber() {
+void Climber::ExtendClimber()
+{
     climberMotor.Set(climberMotorSpeed);
-    
 }
 
-void Climber::RetractClimber() {
+void Climber::RetractClimber()
+{
     climberMotor.Set(-climberMotorSpeed);
-    
 }
 
-void Climber::StopClimber() {
+void Climber::StopClimber()
+{
     climberMotor.StopMotor();
 }
 
-frc2::CommandPtr Climber::ResetClimberEncoderCommand() {
-    return RunOnce([this] 
-    {
+frc2::CommandPtr Climber::ResetClimberEncoderCommand()
+{
+    return RunOnce([this]
+                   {
         climberMotor.SetPosition(0_tr);
-        isRegistered = true;
-    });
+        isRegistered = true; });
 }
 
-frc2::CommandPtr Climber::StopClimberCommand() {
-    return RunOnce([this] 
-    {
-        StopClimber();
-    });
+frc2::CommandPtr Climber::StopClimberCommand()
+{
+    return RunOnce([this]
+                   { StopClimber(); });
 }
 
 frc2::CommandPtr Climber::ExtendClimberCommand()
 {
-    return StartEnd
-    (
+    return StartEnd(
         [this]
         {
             ExtendClimber();
@@ -51,32 +50,27 @@ frc2::CommandPtr Climber::ExtendClimberCommand()
         [this]
         {
             StopClimber();
-        }
-    );
+        });
 }
 
 frc2::CommandPtr Climber::ExtendClimberWithLimitCommand()
 {
     return ExtendClimberCommand()
-    .OnlyIf
-    (
-        [this]
-        {
-            return isRegistered;
-        }
-    ).Until
-    (
-        [this] 
-        { 
-            return GetClimberPosition() > ClimberConstants::kMaxPosition; 
-        }
-    );
+        .OnlyIf(
+            [this]
+            {
+                return isRegistered;
+            })
+        .Until(
+            [this]
+            {
+                return GetClimberPosition() > ClimberConstants::kMaxPosition;
+            });
 }
 
 frc2::CommandPtr Climber::RetractClimberCommand()
 {
-    return StartEnd
-    (
+    return StartEnd(
         [this]
         {
             RetractClimber();
@@ -84,6 +78,5 @@ frc2::CommandPtr Climber::RetractClimberCommand()
         [this]
         {
             StopClimber();
-        }
-    );
+        });
 }

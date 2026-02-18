@@ -14,7 +14,8 @@
  * they are needed.
  */
 
-namespace OperatorConstants {
+namespace OperatorConstants
+{
     inline constexpr int kDriverControllerPort = 0;
     inline constexpr int kControlBoardPort = 1;
 
@@ -26,25 +27,28 @@ namespace OperatorConstants {
     constexpr int kIntakeSwitch = 4;
     constexpr int kIntakeHomeSwitch = 5;
     constexpr int kIntakeGroundSwitch = 6;
-    
+
     constexpr int kClimberExtendSwitch = 7;
     constexpr int kClimberRetractSwitch = 8;
 
+} // namespace OperatorConstants
 
-}  // namespace OperatorConstants
-
-namespace RobotMap {
-    namespace Hopper {
+namespace RobotMap
+{
+    namespace Hopper
+    {
         constexpr int kFloorMotorID = 9;
         constexpr int kFeederMotorID = 10;
     }
-    namespace Intake {
+    namespace Intake
+    {
         constexpr int kRollerMotorID = 11;
         constexpr int kPivotMotorID = 12;
         constexpr int kPivotCancoderID = 5;
     }
 
-     namespace Launcher {
+    namespace Launcher
+    {
         constexpr int kLauncherMotor1ID = 13;
         constexpr int kLauncherMotor2ID = 14;
         constexpr int kLauncherMotor3ID = 15;
@@ -52,7 +56,8 @@ namespace RobotMap {
         constexpr int kActuator2ID = 1;
     }
 
-     namespace Climber {
+    namespace Climber
+    {
         constexpr int kClimberMotor1ID = 16;
         constexpr int kClimberLimitSwitch1ID = 0;
         constexpr int kClimberMotor2ID = 17;
@@ -60,11 +65,13 @@ namespace RobotMap {
     }
 }
 
-namespace ClimberConstants {
+namespace ClimberConstants
+{
     constexpr units::turn_t kMaxPosition = 100_tr;
 }
 
-namespace IntakeConstants {
+namespace IntakeConstants
+{
     constexpr units::degree_t kGroundPosition = 90_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
     constexpr units::degree_t kBouncePosition = 45_deg;
@@ -78,4 +85,3 @@ namespace IntakeConstants {
     constexpr units::turn_t kMagnetOffset = 1_tr;
     constexpr double kPivotToCANcoderRatio = 50;
 }
-

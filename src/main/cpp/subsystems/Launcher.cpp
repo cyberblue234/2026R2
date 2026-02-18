@@ -51,8 +51,7 @@ void Launcher::StopLauncher()
 
 frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
 {
-    return StartEnd
-    (
+    return StartEnd(
         [this, omega]
         {
             SetLauncherSpeed(omega);
@@ -60,6 +59,5 @@ frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
         [this]
         {
             StopLauncher();
-        }
-    );
+        });
 }

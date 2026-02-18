@@ -9,10 +9,9 @@
 
 using namespace ctre::phoenix6;
 
-
-class Intake : public frc2::SubsystemBase {
+class Intake : public frc2::SubsystemBase
+{
 public:
-
     Intake();
 
     void SetRollerMotor(double speed);

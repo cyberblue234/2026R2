@@ -9,10 +9,9 @@
 
 using namespace ctre::phoenix6;
 
-
-class Launcher : public frc2::SubsystemBase {
+class Launcher : public frc2::SubsystemBase
+{
 public:
-
     Launcher();
 
     void FeedLauncher();
@@ -22,7 +21,6 @@ public:
 
     frc2::CommandPtr RunLauncherCommand(units::turns_per_second_t omega);
 
-
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
@@ -30,13 +28,10 @@ private:
 
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
 
-
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
 
     double launcherMotorSpeed = 0.5;
-    
+
     double actuatorPosition = 0.5;
-
-
 };

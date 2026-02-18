@@ -6,51 +6,25 @@
 
 RobotContainer::RobotContainer()
 {
-	// Initialize all of your commands and subsystems here
+    // Initialize all of your commands and subsystems here
 
-	// Configure the button bindings
-	ConfigureBindings();
+    // Configure the button bindings
+    ConfigureBindings();
 }
 
 void RobotContainer::ConfigureBindings()
 {
-	// Configure your trigger bindings here
+    // Configure your trigger bindings here
 
-	controlBoard.Button(OperatorConstants::kAutoIntakeSwitch).WhileTrue
-	(
-		intake.IntakeFuelCommand()
-	);
+    controlBoard.Button(OperatorConstants::kAutoIntakeSwitch).WhileTrue(intake.IntakeFuelCommand());
 
-	controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue
-	(
-		intake.ManualIntakeCommand()
-	);
+    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intake.ManualIntakeCommand());
 
-	controlBoard.Button(OperatorConstants::kIntakeGroundSwitch).WhileTrue
-	(
-		intake.SetPositionToGroundCommand()
-	);
+    controlBoard.Button(OperatorConstants::kIntakeGroundSwitch).WhileTrue(intake.SetPositionToGroundCommand());
 
-	controlBoard.Button(OperatorConstants::kIntakeHomeSwitch).WhileTrue
-	(
-		intake.SetPositionToHomeCommand()
-	);
+    controlBoard.Button(OperatorConstants::kIntakeHomeSwitch).WhileTrue(intake.SetPositionToHomeCommand());
 
-	controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
-	(
-		frc2::cmd::Parallel
-		(
-			climber1.ExtendClimberWithLimitCommand(),
-			climber2.ExtendClimberWithLimitCommand()
-		)
-	);
+    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand()));
 
-	controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
-	(
-		frc2::cmd::Parallel
-		(
-			climber1.RetractClimberCommand(),
-			climber2.RetractClimberCommand()
-		)
-	);
+    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()));
 }
