@@ -16,6 +16,26 @@ void RobotContainer::ConfigureBindings()
 {
 	// Configure your trigger bindings here
 
+	controlBoard.Button(OperatorConstants::kAutoIntakeSwitch).WhileTrue
+	(
+		intake.IntakeFuelCommand()
+	);
+
+	controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue
+	(
+		intake.ManualIntakeCommand()
+	);
+
+	controlBoard.Button(OperatorConstants::kIntakeGroundSwitch).WhileTrue
+	(
+		intake.SetPositionToGroundCommand()
+	);
+
+	controlBoard.Button(OperatorConstants::kIntakeHomeSwitch).WhileTrue
+	(
+		intake.SetPositionToHomeCommand()
+	);
+
 	controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
 	(
 		frc2::cmd::Parallel

@@ -19,11 +19,14 @@ namespace OperatorConstants {
     inline constexpr int kControlBoardPort = 1;
 
     constexpr int kLaunchButton = 1;
+
     constexpr int kEjectButton = 2;
-    constexpr int kIntakeOnSwitch = 3;
-    constexpr int kIntakeOffSwitch = 4;
-    constexpr int kIntakeUpSwitch = 5;
-    constexpr int kIntakeDownSwitch = 6;
+    constexpr int kAutoIntakeSwitch = 3;
+
+    constexpr int kIntakeSwitch = 4;
+    constexpr int kIntakeHomeSwitch = 5;
+    constexpr int kIntakeGroundSwitch = 6;
+    
     constexpr int kClimberExtendSwitch = 7;
     constexpr int kClimberRetractSwitch = 8;
 
@@ -38,6 +41,7 @@ namespace RobotMap {
     namespace Intake {
         constexpr int kRollerMotorID = 11;
         constexpr int kPivotMotorID = 12;
+        constexpr int kPivotCancoderID = 5;
     }
 
      namespace Launcher {
@@ -58,5 +62,20 @@ namespace RobotMap {
 
 namespace ClimberConstants {
     constexpr units::turn_t kMaxPosition = 100_tr;
+}
+
+namespace IntakeConstants {
+    constexpr units::degree_t kGroundPosition = 90_deg;
+    constexpr units::degree_t kHomePosition = 0_deg;
+    constexpr units::degree_t kBouncePosition = 45_deg;
+
+    constexpr units::degree_t kPivotTolerance = 5_deg;
+
+    constexpr double kIntakeRollerSpeed = 1.0;
+    constexpr double kEjectRollerSpeed = -1.0;
+
+    constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
+    constexpr units::turn_t kMagnetOffset = 1_tr;
+    constexpr double kPivotToCANcoderRatio = 50;
 }
 
