@@ -102,21 +102,25 @@ frc2::CommandPtr Intake::SetPositionToHomeCommand()
 
 frc2::CommandPtr Intake::IntakeFuelCommand()
 {
-    return Run([this]
+    return Run(
+               [this]
                {
-        SetPositionToGround();
-        if (IsPivotWithinTolerance())
-        {
-            SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
-        }
-        else 
-        {
-            pivotMotor.Feed();
-        } })
-        .FinallyDo([this]
+                   SetPositionToGround();
+                   if (IsPivotWithinTolerance())
                    {
-        StopPivotMotor();
-        StopRollerMotor(); });
+                       SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
+                   }
+                   else
+                   {
+                       pivotMotor.Feed();
+                   }
+               })
+        .FinallyDo(
+            [this]
+            {
+                StopPivotMotor();
+                StopRollerMotor();
+            });
 }
 
 frc2::CommandPtr Intake::BounceCommand()
@@ -145,6 +149,9 @@ frc2::CommandPtr Intake::BounceCommand()
                        }
                    }
                })
-        .FinallyDo([this]
-                   { StopPivotMotor(); });
+        .FinallyDo(
+            [this]
+            {
+                StopPivotMotor();
+            });
 }

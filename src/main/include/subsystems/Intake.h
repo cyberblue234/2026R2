@@ -39,3 +39,19 @@ private:
 
     bool setToGround;
 };
+
+namespace IntakeConstants
+{
+    constexpr units::degree_t kGroundPosition = 90_deg;
+    constexpr units::degree_t kHomePosition = 0_deg;
+    constexpr units::degree_t kBouncePosition = 45_deg;
+
+    constexpr units::degree_t kPivotTolerance = 5_deg;
+
+    constexpr double kIntakeRollerSpeed = 1.0;
+    constexpr double kEjectRollerSpeed = -1.0;
+
+    constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
+    constexpr units::turn_t kMagnetOffset = 0_tr;
+    constexpr double kPivotToCANcoderRatio = 50;
+}

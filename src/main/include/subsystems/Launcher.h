@@ -14,10 +14,10 @@ class Launcher : public frc2::SubsystemBase
 public:
     Launcher();
 
-    void FeedLauncher();
-    void SetLauncherPosition();
+    void SetLauncherPosition(double position);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
+    bool IsLauncherSpeedWithinTolerance();
 
     frc2::CommandPtr RunLauncherCommand(units::turns_per_second_t omega);
 
@@ -30,8 +30,4 @@ private:
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
-
-    double launcherMotorSpeed = 0.5;
-
-    double actuatorPosition = 0.5;
 };

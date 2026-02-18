@@ -40,3 +40,8 @@ private:
 
     bool isRegistered = false;
 };
+
+namespace ClimberConstants
+{
+    constexpr units::turn_t kMaxPosition = 100_tr;
+}
