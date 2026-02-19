@@ -21,17 +21,11 @@ Launcher::Launcher()
     launcherMotor3.GetConfigurator().Apply(launcherMotor3Config);
 }
 
-void Launcher::FeedLauncher()
-{
-    launcherMotor1.Set(launcherMotorSpeed);
-    launcherMotor2.Set(launcherMotorSpeed);
-    launcherMotor3.Set(launcherMotorSpeed);
-}
 
-void Launcher::SetLauncherPosition()
+void Launcher::SetLauncherPosition(double position)
 {
-    actuator1.SetSpeed(actuatorPosition);
-    actuator2.SetSpeed(actuatorPosition);
+    actuator1.SetSpeed(position);
+    actuator2.SetSpeed(position);
 }
 
 void Launcher::SetLauncherSpeed(units::turns_per_second_t omega)
@@ -51,8 +45,7 @@ void Launcher::StopLauncher()
 
 frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
 {
-    return StartEnd
-    (
+    return StartEnd(
         [this, omega]
         {
             SetLauncherSpeed(omega);
@@ -60,6 +53,5 @@ frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
         [this]
         {
             StopLauncher();
-        }
-    );
+        });
 }

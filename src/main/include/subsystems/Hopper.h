@@ -8,17 +8,14 @@
 
 using namespace ctre::phoenix6;
 
-
-class Hopper : public frc2::SubsystemBase {
+class Hopper : public frc2::SubsystemBase
+{
 public:
-
     Hopper();
 
     void FeedLauncherOn();
     void FeedLauncherOff();
     frc2::CommandPtr FeedLauncherCommand();
-
-
 
 private:
     hardware::TalonFX feederMotor{RobotMap::Hopper::kFeederMotorID};
@@ -26,5 +23,4 @@ private:
 
     double feederMotorSpeed = 0.5;
     double floorMotorSpeed = 0.5;
-
 };

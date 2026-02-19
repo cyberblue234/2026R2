@@ -1,6 +1,7 @@
 #include "subsystems/Intake.h"
 
-Intake::Intake() {
+Intake::Intake()
+{
     rollerMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration rollerMotorConfig;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -25,7 +26,7 @@ Intake::Intake() {
     pivotMotorConfig.Slot0.kP = 2;
     pivotMotorConfig.Slot0.kI = 0.0;
     pivotMotorConfig.Slot0.kD = 0.1;
-    
+
     pivotMotor.GetConfigurator().Apply(pivotMotorConfig);
 
     pivotCancoder.GetConfigurator().Apply(configs::CANcoderConfiguration{});
@@ -35,113 +36,122 @@ Intake::Intake() {
     pivotCancoder.GetConfigurator().Apply(pivotCancoderConfig);
 }
 
-void Intake::SetRollerMotor(double speed) {
-    rollerMotor.Set(speed); 
+void Intake::SetRollerMotor(double speed)
+{
+    rollerMotor.Set(speed);
 }
 
-void Intake::StopRollerMotor() {
+void Intake::StopRollerMotor()
+{
     rollerMotor.StopMotor();
 }
 
-void Intake::SetPosition(units::degree_t angle) {
+void Intake::SetPosition(units::degree_t angle)
+{
     pivotMotor.SetControl(pivotMotorPositionControl.WithPosition(angle));
 }
 
-void Intake::SetPositionToGround() {
+void Intake::SetPositionToGround()
+{
     SetPosition(IntakeConstants::kGroundPosition);
 }
 
-void Intake::SetPositionToHome() {
+void Intake::SetPositionToHome()
+{
     SetPosition(IntakeConstants::kHomePosition);
 }
 
-void Intake::SetPositionToBounce() {
+void Intake::SetPositionToBounce()
+{
     SetPosition(IntakeConstants::kBouncePosition);
 }
 
-void Intake::StopPivotMotor() {
+void Intake::StopPivotMotor()
+{
     pivotMotor.StopMotor();
 }
 
-bool Intake::IsPivotWithinTolerance() {
+bool Intake::IsPivotWithinTolerance()
+{
     return abs(pivotMotor.GetClosedLoopError().GetValue()) < IntakeConstants::kPivotTolerance.value();
 }
 
-frc2::CommandPtr Intake::ManualIntakeCommand() {
-  return Run([this] 
-    {
-        SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
-    }).FinallyDo([this] 
-    {
-        StopRollerMotor();
-    });
-}
-
-frc2::CommandPtr Intake::SetPositionToGroundCommand() {
+frc2::CommandPtr Intake::ManualIntakeCommand()
+{
     return Run([this]
-    {
-        SetPositionToGround();
-    }).FinallyDo([this]
-    {
-        StopPivotMotor();
-    });
+               { SetRollerMotor(IntakeConstants::kIntakeRollerSpeed); })
+        .FinallyDo([this]
+                   { StopRollerMotor(); });
 }
 
-frc2::CommandPtr Intake::SetPositionToHomeCommand() {
+frc2::CommandPtr Intake::SetPositionToGroundCommand()
+{
     return Run([this]
-    {
-        SetPositionToHome();
-    }).FinallyDo([this]
-    {
-        StopPivotMotor();
-    });
+               { SetPositionToGround(); })
+        .FinallyDo([this]
+                   { StopPivotMotor(); });
 }
 
-frc2::CommandPtr Intake::IntakeFuelCommand() {
+frc2::CommandPtr Intake::SetPositionToHomeCommand()
+{
     return Run([this]
-    {
-        SetPositionToGround();
-        if (IsPivotWithinTolerance())
-        {
-            SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
-        }
-        else 
-        {
-            pivotMotor.Feed();
-        }
-    }).FinallyDo([this]
-    {
-        StopPivotMotor();
-        StopRollerMotor();
-    });
+               { SetPositionToHome(); })
+        .FinallyDo([this]
+                   { StopPivotMotor(); });
 }
 
-frc2::CommandPtr Intake::BounceCommand() {
+frc2::CommandPtr Intake::IntakeFuelCommand()
+{
+    return Run(
+               [this]
+               {
+                   SetPositionToGround();
+                   if (IsPivotWithinTolerance())
+                   {
+                       SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
+                   }
+                   else
+                   {
+                       pivotMotor.Feed();
+                   }
+               })
+        .FinallyDo(
+            [this]
+            {
+                StopPivotMotor();
+                StopRollerMotor();
+            });
+}
+
+frc2::CommandPtr Intake::BounceCommand()
+{
     return StartRun(
-    [this] 
-    {
-        setToGround = true;
-    },
-    [this]
-    {
-        if (setToGround)
-        {
-            SetPositionToGround();
-            if (IsPivotWithinTolerance())
+               [this]
+               {
+                   setToGround = true;
+               },
+               [this]
+               {
+                   if (setToGround)
+                   {
+                       SetPositionToGround();
+                       if (IsPivotWithinTolerance())
+                       {
+                           setToGround = false;
+                       }
+                   }
+                   else
+                   {
+                       SetPositionToBounce();
+                       if (IsPivotWithinTolerance())
+                       {
+                           setToGround = true;
+                       }
+                   }
+               })
+        .FinallyDo(
+            [this]
             {
-                setToGround = false;
-            }
-        }
-        else 
-        {
-           SetPositionToBounce();
-            if (IsPivotWithinTolerance())
-            {
-                setToGround = true;
-            } 
-        }
-    }).FinallyDo([this]
-    {
-        StopPivotMotor();
-    });
+                StopPivotMotor();
+            });
 }
