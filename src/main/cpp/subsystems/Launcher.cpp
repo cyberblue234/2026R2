@@ -19,6 +19,12 @@ Launcher::Launcher()
     launcherMotor3Config.CurrentLimits.StatorCurrentLimitEnable = true;
     launcherMotor3Config.CurrentLimits.StatorCurrentLimit = 120_A;
     launcherMotor3.GetConfigurator().Apply(launcherMotor3Config);
+
+    deflectorCANcoder.GetConfigurator().Apply(configs::CANcoderConfiguration{});
+    configs::CANcoderConfiguration deflectorCANcoderConfig;
+    deflectorCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = LauncherConstants::kDiscontinuityPointAngle;
+    deflectorCANcoderConfig.MagnetSensor.MagnetOffset = LauncherConstants::kMagnetOffset;
+    deflectorCANcoder.GetConfigurator().Apply(deflectorCANcoderConfig);
 }
 
 
@@ -26,6 +32,11 @@ void Launcher::SetLauncherPosition(double position)
 {
     actuator1.SetSpeed(position);
     actuator2.SetSpeed(position);
+}
+
+void Launcher::SetLauncherAngle(units::degree_t angle)
+{   
+    
 }
 
 void Launcher::SetLauncherSpeed(units::turns_per_second_t omega)
@@ -41,6 +52,11 @@ void Launcher::StopLauncher()
     launcherMotor1.StopMotor();
     launcherMotor2.StopMotor();
     launcherMotor3.StopMotor();
+}
+
+frc2::CommandPtr Launcher::SetLauncherAngleCommand(units::degree_t angle)
+{
+    return Run([this, angle] { SetLauncherAngle(angle); });
 }
 
 frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)

@@ -54,6 +54,7 @@ namespace RobotMap
         constexpr int kLauncherMotor3ID = 15;
         constexpr int kActuator1ID = 0;
         constexpr int kActuator2ID = 1;
+        constexpr int kDeflectorCANcoderID = 6;
     }
 
     namespace Climber

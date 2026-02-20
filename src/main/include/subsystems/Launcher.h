@@ -6,6 +6,7 @@
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 #include <frc/PWM.h>
 #include <units/moment_of_inertia.h>
+#include <ctre/phoenix6/CANcoder.hpp>
 #include "Constants.h"
 
 using namespace ctre::phoenix6;
@@ -16,10 +17,12 @@ public:
     Launcher();
 
     void SetLauncherPosition(double position);
+    void SetLauncherAngle(units::degree_t angle);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance();
 
+    frc2::CommandPtr SetLauncherAngleCommand(units::degree_t angle);
     frc2::CommandPtr RunLauncherCommand(units::turns_per_second_t omega);
 
 private:
@@ -31,6 +34,8 @@ private:
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
+
+    hardware::CANcoder deflectorCANcoder{RobotMap::Launcher::kDeflectorCANcoderID};
 };
 
 struct LauncherState
@@ -50,4 +55,7 @@ namespace LauncherConstants
     constexpr units::kilogram_square_meter_t kFlywheelMomentOfInertia = (2.7_lb * units::math::pow<2>(1_in)) + (kStealthWheelMass * units::math::pow<2>(kFlywheelRadius));
     constexpr units::kilogram_t kFuelMass = 0.5_lb;
     constexpr double kLoss = 0; // 0% loss
+
+    constexpr units::degree_t kDiscontinuityPointAngle = 0_deg;
+    constexpr units::turn_t kMagnetOffset = 0_tr;
 };
