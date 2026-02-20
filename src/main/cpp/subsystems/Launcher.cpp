@@ -54,20 +54,30 @@ void Launcher::StopLauncher()
     launcherMotor3.StopMotor();
 }
 
-frc2::CommandPtr Launcher::SetLauncherAngleCommand(units::degree_t angle)
+bool Launcher::IsLauncherSpeedWithinTolerance()
 {
-    return Run([this, angle] { SetLauncherAngle(angle); });
+    return false;
 }
 
-frc2::CommandPtr Launcher::RunLauncherCommand(units::turns_per_second_t omega)
+frc2::CommandPtr Launcher::ManualSetPosition(double position)
 {
-    return StartEnd(
-        [this, omega]
-        {
-            SetLauncherSpeed(omega);
-        },
-        [this]
-        {
-            StopLauncher();
-        });
+    return RunOnce([this, position]
+    {
+        SetLauncherPosition(position);
+    });
+}
+
+frc2::CommandPtr Launcher::LaunchCommand(LauncherState setState)
+{
+    return RunOnce([this, setState]
+    {
+        currentState = setState;
+    }).AndThen([this]
+    {
+        SetLauncherSpeed(currentState.omega);
+        SetLauncherAngle(currentState.pitch);
+    }).FinallyDo([this]
+    {
+        StopLauncher();
+    });
 }

@@ -11,6 +11,13 @@
 
 using namespace ctre::phoenix6;
 
+struct LauncherState
+{
+    units::degree_t pitch;
+    units::radians_per_second_t omega;
+};
+
+
 class Launcher : public frc2::SubsystemBase
 {
 public:
@@ -22,8 +29,8 @@ public:
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance();
 
-    frc2::CommandPtr SetLauncherAngleCommand(units::degree_t angle);
-    frc2::CommandPtr RunLauncherCommand(units::turns_per_second_t omega);
+    frc2::CommandPtr ManualSetPosition(double position);
+    frc2::CommandPtr LaunchCommand(LauncherState setState);
 
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
@@ -31,17 +38,12 @@ private:
     hardware::TalonFX launcherMotor3{RobotMap::Launcher::kLauncherMotor3ID};
 
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
+    LauncherState currentState;
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
 
     hardware::CANcoder deflectorCANcoder{RobotMap::Launcher::kDeflectorCANcoderID};
-};
-
-struct LauncherState
-{
-    units::degree_t pitch;
-    units::radians_per_second_t omega;
 };
 
 namespace LauncherConstants
