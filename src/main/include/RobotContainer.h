@@ -38,7 +38,8 @@ private:
     frc2::CommandJoystick controlBoard{
         OperatorConstants::kControlBoardPort};
 
-    Intake intake;
+    IntakeRoller intakeRoller;
+    IntakePivot intakePivot;
     Hopper hopper;
     Launcher launcher;
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID};

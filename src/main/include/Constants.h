@@ -64,3 +64,8 @@ namespace RobotMap
         constexpr int kClimberLimitSwitch2ID = 1;
     }
 }
+
+namespace FieldConstants
+{
+    
+}

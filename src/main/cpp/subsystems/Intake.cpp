@@ -1,13 +1,44 @@
 #include "subsystems/Intake.h"
 
-Intake::Intake()
+// IntakeRoller
+
+IntakeRoller::IntakeRoller()
 {
     rollerMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration rollerMotorConfig;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
+}
 
+void IntakeRoller::SetRollerMotor(double speed)
+{
+    rollerMotor.Set(speed);
+}
+
+void IntakeRoller::StopRollerMotor()
+{
+    rollerMotor.StopMotor();
+}
+
+frc2::CommandPtr IntakeRoller::StartIntakeCommand()
+{
+    return Run([this] { SetRollerMotor(IntakeConstants::kIntakeRollerSpeed); })
+        .FinallyDo([this] { StopRollerMotor(); })
+        .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelSelf);
+}
+
+frc2::CommandPtr IntakeRoller::EjectCommand()
+{
+    return Run([this] { SetRollerMotor(-IntakeConstants::kIntakeRollerSpeed); })
+        .FinallyDo([this] { StopRollerMotor(); })
+        .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming); 
+}
+
+// IntakePivot
+
+IntakePivot::IntakePivot()
+{
     pivotMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration pivotMotorConfig;
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -36,94 +67,50 @@ Intake::Intake()
     pivotCancoder.GetConfigurator().Apply(pivotCancoderConfig);
 }
 
-void Intake::SetRollerMotor(double speed)
-{
-    rollerMotor.Set(speed);
-}
-
-void Intake::StopRollerMotor()
-{
-    rollerMotor.StopMotor();
-}
-
-void Intake::SetPosition(units::degree_t angle)
+void IntakePivot::SetPosition(units::degree_t angle)
 {
     pivotMotor.SetControl(pivotMotorPositionControl.WithPosition(angle));
 }
 
-void Intake::SetPositionToGround()
+void IntakePivot::SetPositionToGround()
 {
     SetPosition(IntakeConstants::kGroundPosition);
 }
 
-void Intake::SetPositionToHome()
+void IntakePivot::SetPositionToHome()
 {
     SetPosition(IntakeConstants::kHomePosition);
 }
 
-void Intake::SetPositionToBounce()
+void IntakePivot::SetPositionToBounce()
 {
     SetPosition(IntakeConstants::kBouncePosition);
 }
 
-void Intake::StopPivotMotor()
+void IntakePivot::StopPivotMotor()
 {
     pivotMotor.StopMotor();
 }
 
-bool Intake::IsPivotWithinTolerance()
+bool IntakePivot::IsPivotWithinTolerance()
 {
     return abs(pivotMotor.GetClosedLoopError().GetValue()) < IntakeConstants::kPivotTolerance.value();
 }
 
-frc2::CommandPtr Intake::ManualIntakeCommand()
+frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
-    return Run([this]
-               { SetRollerMotor(IntakeConstants::kIntakeRollerSpeed); })
-        .FinallyDo([this]
-                   { StopRollerMotor(); });
+    return Run([this] { SetPositionToGround(); })
+        .FinallyDo([this] { StopPivotMotor(); });
 }
 
-frc2::CommandPtr Intake::SetPositionToGroundCommand()
+frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return Run([this]
-               { SetPositionToGround(); })
-        .FinallyDo([this]
-                   { StopPivotMotor(); });
+    return Run([this] { SetPositionToHome(); })
+        .FinallyDo([this] { StopPivotMotor(); });
 }
 
-frc2::CommandPtr Intake::SetPositionToHomeCommand()
-{
-    return Run([this]
-               { SetPositionToHome(); })
-        .FinallyDo([this]
-                   { StopPivotMotor(); });
-}
 
-frc2::CommandPtr Intake::IntakeFuelCommand()
-{
-    return Run(
-               [this]
-               {
-                   SetPositionToGround();
-                   if (IsPivotWithinTolerance())
-                   {
-                       SetRollerMotor(IntakeConstants::kIntakeRollerSpeed);
-                   }
-                   else
-                   {
-                       pivotMotor.Feed();
-                   }
-               })
-        .FinallyDo(
-            [this]
-            {
-                StopPivotMotor();
-                StopRollerMotor();
-            });
-}
-
-frc2::CommandPtr Intake::BounceCommand()
+frc2::CommandPtr IntakePivot::BounceCommand()
 {
     return StartRun(
                [this]

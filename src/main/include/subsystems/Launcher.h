@@ -41,12 +41,13 @@ struct LauncherState
 
 namespace LauncherConstants
 {
-    constexpr units::meter_t kFlywheelRadius = 2_in; // Need to check
     constexpr units::meter_t kFuelRadius = 5.91_in / 2;
     constexpr units::meter_t kCompression = 1_in;
     constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression / 2;
-    constexpr units::kilogram_t kFlywheelMass = 0.98_lb;
-    // constexpr units::kilogram_square_meter_t = units::kilogram_square_meter_t{2};
+    constexpr units::meter_t kFlywheelRadius = 2_in;
+    constexpr units::kilogram_t kStealthWheelMass = 0.3_lb;
+    constexpr units::kilogram_t kFlywheelMass = 0.98_lb + 2 * kStealthWheelMass;
+    constexpr units::kilogram_square_meter_t kFlywheelMomentOfInertia = (2.7_lb * units::math::pow<2>(1_in)) + (kStealthWheelMass * units::math::pow<2>(kFlywheelRadius));
     constexpr units::kilogram_t kFuelMass = 0.5_lb;
     constexpr double kLoss = 0; // 0% loss
 };

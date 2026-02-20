@@ -16,15 +16,19 @@ void RobotContainer::ConfigureBindings()
 {
     // Configure your trigger bindings here
 
-    controlBoard.Button(OperatorConstants::kAutoIntakeSwitch).WhileTrue(intake.IntakeFuelCommand());
+    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.StartIntakeCommand().Repeatedly());
+    controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intake.ManualIntakeCommand());
+    controlBoard.Button(OperatorConstants::kIntakeGroundSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand()); // Mutually exclusive with kIntakeHomeSwitch
+    controlBoard.Button(OperatorConstants::kIntakeHomeSwitch).WhileTrue(intakePivot.SetPositionToHomeCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeGroundSwitch).WhileTrue(intake.SetPositionToGroundCommand());
+    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
+    (   
+        frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand())
+    );
 
-    controlBoard.Button(OperatorConstants::kIntakeHomeSwitch).WhileTrue(intake.SetPositionToHomeCommand());
-
-    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand()));
-
-    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()));
+    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
+    (
+        frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand())
+    );
 }
