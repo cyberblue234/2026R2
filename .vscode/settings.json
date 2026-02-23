@@ -16,7 +16,12 @@
   },
   "C_Cpp.default.configurationProvider": "vscode-wpilib",
   "files.associations": {
-    "*.inc": "cpp"
-  },
+    "*.inc": "cpp",
+    "list": "cpp",
+    "vector": "cpp",
+    "xstring": "cpp",
+    "deque": "cpp",
+    "string": "cpp"
+},
   "editor.detectIndentation": false
 }

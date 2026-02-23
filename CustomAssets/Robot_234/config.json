@@ -1,0 +1,19 @@
+{
+    "name": "Cyber Blue 234",
+    "disableSimplification": false,
+    "cameras": [
+    ],
+    "rotations": [
+        {
+            "axis": "x",
+            "degrees": 180
+        },
+        {
+            "axis": "z",
+            "degrees": 90
+        }
+    ],
+    "position": [0, 0, 0.10],
+    "components": [
+    ]
+  }

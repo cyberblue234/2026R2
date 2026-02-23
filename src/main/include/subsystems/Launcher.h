@@ -29,6 +29,24 @@ public:
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance();
 
+    std::function<units::angular_velocity::radians_per_second_t ()> GetLauncherOmegaSupplier()
+    {
+        return [this]
+        {
+            return 24.11_tps;
+        };
+        // return launcherMotor1.GetVelocity().AsSupplier();
+    }
+
+    std::function<units::angle::degree_t ()> GetLauncherAngleAsSupplier()
+    {
+        return [this]
+        {
+            return 55.77_deg;
+        };
+        // return deflectorCANcoder.GetAbsolutePosition().AsSupplier();
+    }
+
     frc2::CommandPtr ManualSetPosition(double position);
     frc2::CommandPtr LaunchCommand(LauncherState setState);
 
@@ -49,12 +67,13 @@ private:
 namespace LauncherConstants
 {
     constexpr units::meter_t kFuelRadius = 5.91_in / 2;
-    constexpr units::meter_t kCompression = 1_in;
-    constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression / 2;
+    constexpr units::meter_t kCompression = 0.5_in;
+    constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression;
     constexpr units::meter_t kFlywheelRadius = 2_in;
     constexpr units::kilogram_t kStealthWheelMass = 0.3_lb;
     constexpr units::kilogram_t kFlywheelMass = 0.98_lb + 2 * kStealthWheelMass;
     constexpr units::kilogram_square_meter_t kFlywheelMomentOfInertia = (2.7_lb * units::math::pow<2>(1_in)) + (kStealthWheelMass * units::math::pow<2>(kFlywheelRadius));
+    constexpr units::kilogram_square_meter_t kFuelMomentOfInertiaInFlywheel{0.000339};
     constexpr units::kilogram_t kFuelMass = 0.5_lb;
     constexpr double kLoss = 0; // 0% loss
 

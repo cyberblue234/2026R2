@@ -11,10 +11,13 @@
 
 #include "Constants.h"
 
+#include "subsystems/CommandSwerveDrivetrain.h"
 #include "subsystems/Intake.h"
 #include "subsystems/Hopper.h"
 #include "subsystems/Launcher.h"
 #include "subsystems/Climber.h"
+
+#include "sim/Fuel.hpp"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -27,7 +30,7 @@ class RobotContainer
 {
 public:
     RobotContainer();
-
+private:
     frc2::CommandPtr GetAutonomousCommand();
 
 private:
@@ -38,12 +41,26 @@ private:
     frc2::CommandJoystick controlBoard{
         OperatorConstants::kControlBoardPort};
 
+    units::meters_per_second_t MaxSpeed = TunerConstants::kSpeedAt12Volts;
+    units::radians_per_second_t MaxAngularRate = 1_tps; 
+
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
+        .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
+        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
+
+
+public:
+    CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
     IntakeRoller intakeRoller;
     IntakePivot intakePivot;
     Hopper hopper;
     Launcher launcher;
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID};
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID};
+
+    FuelManager simFuelManager;
+    frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel([this] { return drivetrain.GetState(); }, launcher.GetLauncherOmegaSupplier(), launcher.GetLauncherAngleAsSupplier());
 
     void ConfigureBindings();
 };

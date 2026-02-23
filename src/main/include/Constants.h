@@ -4,6 +4,103 @@
 
 #pragma once
 
+
+#include <units/acceleration.h>
+#include <units/angle.h>
+#include <units/angular_acceleration.h>
+#include <units/angular_velocity.h>
+#include <units/area.h>
+#include <units/capacitance.h>
+#include <units/charge.h>
+#include <units/concentration.h>
+#include <units/conductance.h>
+#include <units/current.h>
+#include <units/curvature.h>
+#include <units/data.h>
+#include <units/data_transfer_rate.h>
+#include <units/density.h>
+#include <units/dimensionless.h>
+#include <units/energy.h>
+#include <units/force.h>
+#include <units/frequency.h>
+#include <units/illuminance.h>
+#include <units/impedance.h>
+#include <units/inductance.h>
+#include <units/length.h>
+#include <units/luminous_flux.h>
+#include <units/luminous_intensity.h>
+#include <units/magnetic_field_strength.h>
+#include <units/magnetic_flux.h>
+#include <units/mass.h>
+#include <units/moment_of_inertia.h>
+#include <units/power.h>
+#include <units/pressure.h>
+#include <units/radiation.h>
+#include <units/solid_angle.h>
+#include <units/substance.h>
+#include <units/temperature.h>
+#include <units/time.h>
+#include <units/torque.h>
+#include <units/velocity.h>
+#include <units/voltage.h>
+#include <units/volume.h>
+
+#include <frc/geometry/Translation2d.h>
+#include <frc/geometry/Translation3d.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Pose3d.h>
+#include <frc/geometry/Rotation2d.h>
+#include <frc/geometry/Rotation3d.h>
+#include <frc/controller/SimpleMotorFeedforward.h>
+#include <frc/controller/ArmFeedforward.h>
+#include <frc/controller/ElevatorFeedforward.h>
+#include <frc/controller/ProfiledPIDController.h>
+#include <frc/trajectory/TrapezoidProfile.h>
+
+#include <pathplanner/lib/path/PathConstraints.h>
+#include <pathplanner/lib/config/ModuleConfig.h>
+#include <pathplanner/lib/config/RobotConfig.h>
+
+#include <frc/RobotController.h>
+#include <frc/RobotBase.h>
+
+#include <frc/DriverStation.h>
+#include <pathplanner/lib/util/FlippingUtil.h>
+
+#include <frc/smartdashboard/SmartDashboard.h>
+
+#include "networktables/NetworkTable.h"
+#include "networktables/NetworkTableInstance.h"
+#include <networktables/IntegerTopic.h>
+#include <networktables/IntegerArrayTopic.h>
+#include <networktables/DoubleTopic.h>
+#include <networktables/DoubleArrayTopic.h>
+#include <networktables/StringTopic.h>
+#include <networktables/StructTopic.h>
+#include <networktables/StructArrayTopic.h>
+
+#include <frc2/command/CommandPtr.h>
+#include <frc2/command/Commands.h>
+#include <frc2/command/StartEndCommand.h>
+#include <frc2/command/RunCommand.h>
+#include <frc2/command/SequentialCommandGroup.h>
+#include <frc2/command/InstantCommand.h>
+#include <frc2/command/WaitCommand.h>
+
+#include <ctre/phoenix6/swerve/SwerveDrivetrainConstants.hpp>
+#include <ctre/phoenix6/swerve/SwerveModuleConstants.hpp>
+#include <ctre/phoenix6/swerve/SwerveDrivetrain.hpp>
+
+#include <frc/apriltag/AprilTagFieldLayout.h>
+
+#include <numbers>
+#include <string>
+#include <array>
+#include <vector>
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
 /**
  * The Constants header provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants.  This should not be used for any other
@@ -68,5 +165,6 @@ namespace RobotMap
 
 namespace FieldConstants
 {
-    
+    const frc::Translation3d blueHubPose{4.63_m, 4.03_m, 1.8288_m};
+    const frc::Translation3d redHubPose{11.9_m, blueHubPose.Y(), blueHubPose.Z()};
 }
