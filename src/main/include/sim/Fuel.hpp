@@ -90,7 +90,7 @@ public:
                     ((
                         (
                             units::math::pow<2>(shooterOmega()) 
-                            * ((1 - LauncherConstants::kLoss) * LauncherConstants::kFlywheelMomentOfInertia - LauncherConstants::kFuelMomentOfInertiaInFlywheel)
+                            * ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel)
                         ) 
                         / LauncherConstants::kFuelMass
                     ).value())

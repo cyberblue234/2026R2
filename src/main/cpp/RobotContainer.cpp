@@ -64,7 +64,7 @@ void RobotContainer::ConfigureBindings()
                     units::meters_per_second_t vx = (hubPose.X() - turretPose.X()) / timeOfFlight - turretVx;
                     units::meters_per_second_t vy = (hubPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
                     units::meters_per_second_t v = units::math::sqrt(vx*vx + vy*vy + vz*vz);
-                    units::radians_per_second_t omega{sqrt(((LauncherConstants::kFuelMass * v*v).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kFlywheelMomentOfInertia - LauncherConstants::kFuelMomentOfInertiaInFlywheel).value()))};
+                    units::radians_per_second_t omega{sqrt(((LauncherConstants::kFuelMass * v*v).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                     setState.omega = omega;
                     units::degree_t pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
                     setState.pitch = pitch;

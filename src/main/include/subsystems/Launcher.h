@@ -7,9 +7,33 @@
 #include <frc/PWM.h>
 #include <units/moment_of_inertia.h>
 #include <ctre/phoenix6/CANcoder.hpp>
+#include <frc/simulation/FlywheelSim.h>
 #include "Constants.h"
 
 using namespace ctre::phoenix6;
+
+namespace LauncherConstants
+{
+    constexpr units::kilogram_t kFuelMass = 0.5_lb;
+    constexpr units::meter_t kFuelRadius = 5.91_in / 2;
+    constexpr units::meter_t kCompression = 0.5_in;
+    constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression;
+    constexpr units::meter_t kShooterRadius = 2_in;
+    constexpr units::kilogram_t kStealthWheelMass = 0.24_lb;
+    constexpr units::kilogram_t kFlywheelMass = 1.562_lb; // Calculated with CAD
+    constexpr units::kilogram_t kShooterMass = kFlywheelMass + 3 * kStealthWheelMass;
+    constexpr units::kilogram_square_meter_t kStealthWheelMOI = 0.634_lb * 1_in * 1_in; // Calculated with CAD
+    constexpr units::kilogram_square_meter_t kFlywheelMOI = 3.3_lb * 1_in * 1_in; // Calculated with CAD
+    constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
+    constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
+    
+    constexpr double kLoss = 0; // 0% loss
+
+    constexpr units::degree_t kDiscontinuityPointAngle = 0_deg;
+    constexpr units::turn_t kMagnetOffset = 0_tr;
+
+    constexpr frc::Translation3d kTurretOffset{0_m, 0_m, 0_m};
+};
 
 struct LauncherState
 {
@@ -54,23 +78,10 @@ private:
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
 
     hardware::CANcoder deflectorCANcoder{RobotMap::Launcher::kDeflectorCANcoderID};
-};
 
-namespace LauncherConstants
-{
-    constexpr units::meter_t kFuelRadius = 5.91_in / 2;
-    constexpr units::meter_t kCompression = 0.5_in;
-    constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression;
-    constexpr units::meter_t kFlywheelRadius = 2_in;
-    constexpr units::kilogram_t kStealthWheelMass = 0.3_lb;
-    constexpr units::kilogram_t kFlywheelMass = 0.98_lb + 2 * kStealthWheelMass;
-    constexpr units::kilogram_square_meter_t kFlywheelMomentOfInertia = (2.7_lb * units::math::pow<2>(1_in)) + (kStealthWheelMass * units::math::pow<2>(kFlywheelRadius));
-    constexpr units::kilogram_square_meter_t kFuelMomentOfInertiaInFlywheel{0.000339};
-    constexpr units::kilogram_t kFuelMass = 0.5_lb;
-    constexpr double kLoss = 0; // 0% loss
-
-    constexpr units::degree_t kDiscontinuityPointAngle = 0_deg;
-    constexpr units::turn_t kMagnetOffset = 0_tr;
-
-    constexpr frc::Translation3d kTurretOffset{0_m, 0_m, 0_m};
+    frc::sim::FlywheelSim launcherSim
+    {
+        frc::LinearSystemId::FlywheelSystem(frc::DCMotor::KrakenX60(1), LauncherConstants::kShooterMOI, 1),
+        frc::DCMotor::KrakenX60(1)
+    };
 };
