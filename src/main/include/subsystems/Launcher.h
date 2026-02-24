@@ -31,24 +31,16 @@ public:
 
     std::function<units::angular_velocity::radians_per_second_t ()> GetLauncherOmegaSupplier()
     {
-        return [this]
-        {
-            return 24.11_tps;
-        };
-        // return launcherMotor1.GetVelocity().AsSupplier();
+        return launcherMotor1.GetVelocity().AsSupplier();
     }
 
     std::function<units::angle::degree_t ()> GetLauncherAngleAsSupplier()
     {
-        return [this]
-        {
-            return 55.77_deg;
-        };
-        // return deflectorCANcoder.GetAbsolutePosition().AsSupplier();
+        return deflectorCANcoder.GetAbsolutePosition().AsSupplier();
     }
 
     frc2::CommandPtr ManualSetPosition(double position);
-    frc2::CommandPtr LaunchCommand(LauncherState setState);
+    frc2::CommandPtr LaunchCommand(std::function<LauncherState()> setState);
 
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
@@ -79,4 +71,6 @@ namespace LauncherConstants
 
     constexpr units::degree_t kDiscontinuityPointAngle = 0_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
+
+    constexpr frc::Translation3d kTurretOffset{0_m, 0_m, 0_m};
 };
