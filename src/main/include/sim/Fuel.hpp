@@ -102,7 +102,12 @@ public:
                 frc::SmartDashboard::PutNumber("vx", vx.value());
                 frc::SmartDashboard::PutNumber("vy", vy.value());
                 frc::SmartDashboard::PutNumber("vz", vz.value());
-                InstantiateFuel(frc::Pose3d(rPose), frc::Velocity3d{vx, vy, vz});
+                frc::Pose3d startPose
+                {
+                    rPose.X() + LauncherConstants::kTurretOffset.X(), rPose.Y() + LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.Z(),
+                    frc::Rotation3d{}
+                };
+                InstantiateFuel(startPose, frc::Velocity3d{vx, vy, vz});
             }
             units::second_t newTime = frc::Timer::GetFPGATimestamp();
             units::second_t dt = newTime - time;

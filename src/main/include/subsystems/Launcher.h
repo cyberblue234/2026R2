@@ -29,16 +29,24 @@ namespace LauncherConstants
     
     constexpr double kLoss = 0; // 0% loss
 
-    constexpr units::degree_t kDiscontinuityPointAngle = 0_deg;
+    constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
 
-    constexpr frc::Translation3d kTurretOffset{0_m, 0_m, 0_m};
+    constexpr frc::Translation3d kTurretOffset{11.5_in, 0_m, 23.25_in};
 };
 
 struct LauncherState
 {
     units::degree_t pitch;
     units::radians_per_second_t omega;
+
+    LauncherState() {}
+
+    LauncherState(units::degree_t pitch, units::radians_per_second_t omega)
+    {
+        this->pitch = pitch;
+        this->omega = omega;
+    }
 };
 
 
@@ -52,6 +60,16 @@ public:
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance();
+
+    void Periodic() override
+    {
+        frc::SmartDashboard::PutNumber("Shooter Omega", GetLauncherOmega().value());
+    }
+
+    units::radians_per_second_t GetLauncherOmega()
+    {
+        return launcherMotor1.GetVelocity().GetValue();
+    }
 
     std::function<units::angular_velocity::radians_per_second_t ()> GetLauncherOmegaSupplier()
     {

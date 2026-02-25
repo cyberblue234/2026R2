@@ -8,8 +8,11 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/CommandJoystick.h>
+#include <frc/Joystick.h>
 
 #include "Constants.h"
+
+#include "generated/FieldCentricFacingAngleProfiled.h"
 
 #include "subsystems/CommandSwerveDrivetrain.h"
 #include "subsystems/Intake.h"
@@ -40,6 +43,9 @@ private:
 
     frc2::CommandJoystick controlBoard{
         OperatorConstants::kControlBoardPort};
+    frc::Joystick controlBoardRegular{
+        OperatorConstants::kControlBoardPort
+    };
 
     units::meters_per_second_t MaxSpeed = TunerConstants::kSpeedAt12Volts;
     units::radians_per_second_t MaxAngularRate = 1_tps; 
@@ -48,7 +54,16 @@ private:
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
         .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
+    swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
+        .WithDeadband(MaxSpeed * 0.2).WithMaxAbsRotationalRate(0_tps)
+        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
+        .WithSteerRequestType(swerve::SteerRequestType::Position);
 
+    units::degree_t targetYaw;
+    units::degree_t pitch;
+    units::radians_per_second_t omega;
+
+    units::meter_t kZOffset = 1_m;
 
 public:
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
@@ -61,6 +76,10 @@ public:
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel([this] { return drivetrain.GetState(); }, launcher.GetLauncherOmegaSupplier(), launcher.GetLauncherAngleAsSupplier());
+
+    double alignmentKP = 0.5;
+    double alignmentKI = 0;
+    double alignmentKD = 1.5;
 
     void ConfigureBindings();
 };

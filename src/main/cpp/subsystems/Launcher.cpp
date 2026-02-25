@@ -3,11 +3,11 @@
 Launcher::Launcher()
 {
     configs::Slot0Configs pidConfigs;
-    pidConfigs.kP = 2;
+    pidConfigs.kP = 0;
     pidConfigs.kI = 0;
     pidConfigs.kD = 0;
     pidConfigs.kS = 0;
-    pidConfigs.kV = 2;
+    pidConfigs.kV = 0.12;
     pidConfigs.kA = 0;
     configs::MotionMagicConfigs motionMagicConfigs;
     motionMagicConfigs.MotionMagicCruiseVelocity = 100_rad_per_s;
@@ -44,8 +44,11 @@ void Launcher::SetLauncherPosition(double position)
 
 void Launcher::SetLauncherAngle(units::degree_t angle)
 {   
-    deflectorCANcoder.SetPosition(angle);
-
+    if (frc::RobotBase::IsSimulation())
+    {
+        ctre::phoenix6::sim::CANcoderSimState& sim = deflectorCANcoder.GetSimState();
+        sim.AddPosition(angle - deflectorCANcoder.GetAbsolutePosition().GetValue());
+    }
 }
 
 void Launcher::SetLauncherSpeed(units::turns_per_second_t omega)
@@ -86,11 +89,9 @@ frc2::CommandPtr Launcher::ManualSetPosition(double position)
 
 frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState)
 {
-    return RunOnce([this, setState]
+    return Run([this, setState]
     {
         currentState = setState();
-    }).AndThen([this]
-    {
         SetLauncherSpeed(currentState.omega);
         SetLauncherAngle(currentState.pitch);
     }).FinallyDo([this]

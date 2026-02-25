@@ -116,18 +116,23 @@ namespace OperatorConstants
     inline constexpr int kDriverControllerPort = 0;
     inline constexpr int kControlBoardPort = 1;
 
-    constexpr int kLaunchButton = 1;
+    constexpr int kLaunchButton = 10;
 
-    constexpr int kEjectButton = 2;
-    constexpr int kAutoIntakeSwitch = 3;
+    constexpr int kEjectButton = 1;
 
-    constexpr int kIntakeSwitch = 4;
-    constexpr int kIntakeHomeSwitch = 5;
-    constexpr int kIntakeGroundSwitch = 6;
+    constexpr int kIntakeSwitch = 11;
+    constexpr int kIntakeTogglePositionSwitch = 12;
 
-    constexpr int kClimberExtendSwitch = 7;
+    constexpr int kClimberExtendSwitch = 9;
     constexpr int kClimberRetractSwitch = 8;
 
+    constexpr int kManualLaunchPosition1Button = 3;
+    constexpr int kManualLaunchPosition2Button = 5;
+    
+    constexpr int kManualIntakePivotDown = 4;
+    constexpr int kManualIntakePivotUp = 2;
+
+    constexpr int kHeightAdjusterAxis = 0;
 } // namespace OperatorConstants
 
 namespace RobotMap
