@@ -10,6 +10,8 @@
 #include <frc2/command/button/CommandJoystick.h>
 #include <frc/Joystick.h>
 
+#include <frc/filter/SlewRateLimiter.h>
+
 #include "Constants.h"
 
 #include "generated/FieldCentricFacingAngleProfiled.h"
@@ -54,11 +56,20 @@ private:
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
         .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
+
+    double alignmentKP = 0.5;
+    double alignmentKI = 0;
+    double alignmentKD = 1.5;
+
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
-        .WithDeadband(MaxSpeed * 0.2).WithMaxAbsRotationalRate(0_tps)
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
-        .WithSteerRequestType(swerve::SteerRequestType::Position);
+        .WithSteerRequestType(swerve::SteerRequestType::Position)
+        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
+        .WithConstraints(10_deg_per_s, 100_deg_per_s_sq);
+    
+    frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{5_mps_sq};
+    frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{5_mps_sq};
 
     units::degree_t targetYaw;
     units::degree_t pitch;
@@ -79,14 +90,10 @@ public:
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
     (
         [this] { return frc::Pose3d{drivetrain.GetState().Pose}; }, 
-        [this] { return drivetrain.GetState().Speeds; }, //[this] { return frc::ChassisSpeeds{drivetrain.GetVelocityX(), drivetrain.GetVelocityY(), drivetrain.GetVelocityYaw()}; }, 
+        [this] { return frc::ChassisSpeeds{drivetrain.GetVelocityX(), drivetrain.GetVelocityY(), drivetrain.GetVelocityYaw()}; }, 
         launcher.GetLauncherOmegaSupplier(), 
         launcher.GetLauncherAngleAsSupplier()
     );
-
-    double alignmentKP = 0.5;
-    double alignmentKI = 0;
-    double alignmentKD = 1.5;
 
     void ConfigureBindings();
 };

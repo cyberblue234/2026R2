@@ -2,16 +2,11 @@
 
 ctre::phoenix::StatusCode FieldCentricFacingAngleProfiled::Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply)
 {
-    Rotation2d angleToFace = TargetDirection;
-    if (ForwardPerspective == ForwardPerspectiveValue::OperatorPerspective) {
-        /* If we're operator perspective, rotate the direction we want to face by the angle */
-        angleToFace = angleToFace.RotateBy(parameters.operatorForwardDirection);
-    }
-
-    HeadingController.SetGoal(angleToFace.Degrees());
-    
+    TargetRateFeedforward = HeadingController.GetSetpoint().velocity;
     units::degrees_per_second_t toApplyOmega = TargetRateFeedforward +
-        units::degrees_per_second_t{HeadingController.Calculate(parameters.currentPose.Rotation().Degrees())};
+        units::degrees_per_second_t{HeadingController.Calculate(parameters.currentPose.Rotation().Degrees(), TargetDirection.Degrees())};
+    frc::SmartDashboard::PutNumber("targetSetpoint", HeadingController.GetSetpoint().position.value());
+    frc::SmartDashboard::PutNumber("targetGoal", HeadingController.GetGoal().position.value());
     if (MaxAbsRotationalRate > 0_deg_per_s) {
         if (toApplyOmega > MaxAbsRotationalRate) {
             toApplyOmega = MaxAbsRotationalRate;
@@ -21,8 +16,8 @@ ctre::phoenix::StatusCode FieldCentricFacingAngleProfiled::Apply(SwerveRequest::
     }
     
     return FieldCentric{}
-        .WithVelocityX(DriveXAccelerationLimiter.Calculate(VelocityX))
-        .WithVelocityY(DriveYAccelerationLimiter.Calculate(VelocityY))
+        .WithVelocityX(VelocityX)
+        .WithVelocityY(VelocityY)
         .WithRotationalRate(toApplyOmega)
         .WithDeadband(Deadband)
         .WithRotationalDeadband(RotationalDeadband)

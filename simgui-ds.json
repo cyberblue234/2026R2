@@ -50,24 +50,21 @@
     {
       "axisConfig": [
         {
-          "decKey": 68,
-          "incKey": 65
+          "decKey": 65,
+          "incKey": 68
         },
         {
-          "decKey": 83,
-          "incKey": 87
+          "decKey": 87,
+          "incKey": 83
         },
-        {
-          "decKey": 69,
-          "incKey": 81
-        },
+        {},
         {
           "decKey": 84,
           "incKey": 82
         },
         {
-          "decKey": 67,
-          "incKey": 90
+          "decKey": 81,
+          "incKey": 69
         }
       ],
       "axisCount": 5,
@@ -111,8 +108,7 @@
   ],
   "robotJoysticks": [
     {
-      "guid": "030000004c050000cc09000000000000",
-      "useGamepad": true
+      "guid": "Keyboard1"
     },
     {
       "guid": "Keyboard0"
