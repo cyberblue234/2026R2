@@ -73,16 +73,16 @@ public:
         isShooting = true;
     }
 
-    frc2::CommandPtr UpdateFuel(std::function<ctre::phoenix6::swerve::impl::SwerveDrivetrainImpl::SwerveDriveState()> driveState, std::function<units::radians_per_second_t()> shooterOmega, std::function<units::degree_t()> deflectorAngle)
+    frc2::CommandPtr UpdateFuel(std::function<frc::Pose3d()> drivePose, std::function<frc::ChassisSpeeds()> driveSpeeds, std::function<units::radians_per_second_t()> shooterOmega, std::function<units::degree_t()> deflectorAngle)
     {
-        return frc2::cmd::Run([this, driveState, shooterOmega, deflectorAngle]
+        return frc2::cmd::Run([this, drivePose, driveSpeeds, shooterOmega, deflectorAngle]
         {
             if (isShooting)
             {
                 isShooting = false;
-                frc::Pose2d rPose = driveState().Pose;
-                units::meters_per_second_t rvx = driveState().Speeds.vx;
-                units::meters_per_second_t rvy = driveState().Speeds.vy;
+                units::meters_per_second_t rvx = driveSpeeds().vx;
+                units::meters_per_second_t rvy = driveSpeeds().vy;
+                frc::Pose3d rPose = drivePose();
                             
                 units::meters_per_second_t v
                 {
@@ -96,17 +96,22 @@ public:
                     ).value())
                 };
                 frc::SmartDashboard::PutNumber("v", v.value());
-                auto vx = rvx + v * units::math::cos(deflectorAngle()) * rPose.Rotation().Cos();
-                auto vy = rvy + v * units::math::cos(deflectorAngle()) * rPose.Rotation().Sin();
+                auto vx = rvx + v * units::math::cos(deflectorAngle()) * units::math::cos(rPose.Rotation().Z());
+                auto vy = rvy + v * units::math::cos(deflectorAngle()) * units::math::sin(rPose.Rotation().Z());
                 auto vz = v * units::math::sin(deflectorAngle());
                 frc::SmartDashboard::PutNumber("vx", vx.value());
                 frc::SmartDashboard::PutNumber("vy", vy.value());
                 frc::SmartDashboard::PutNumber("vz", vz.value());
+                units::radian_t turretTheta = rPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
+                units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
                 frc::Pose3d startPose
                 {
-                    rPose.X() + LauncherConstants::kTurretOffset.X(), rPose.Y() + LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.Z(),
+                    rPose.X() - units::math::cos(turretTheta) * kTurretRadius,
+                    rPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
+                    rPose.Z() + LauncherConstants::kTurretOffset.Z(),
                     frc::Rotation3d{}
                 };
+
                 InstantiateFuel(startPose, frc::Velocity3d{vx, vy, vz});
             }
             units::second_t newTime = frc::Timer::GetFPGATimestamp();

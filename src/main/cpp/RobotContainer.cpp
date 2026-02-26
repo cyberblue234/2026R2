@@ -16,6 +16,9 @@ RobotContainer::RobotContainer()
     // {
         frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     // }
+    frc::SmartDashboard::PutNumber("alignmentKP", alignmentKP);
+    frc::SmartDashboard::PutNumber("alignmentKI", alignmentKI);
+    frc::SmartDashboard::PutNumber("alignmentKD", alignmentKD);
 }
 
 void RobotContainer::ConfigureBindings()
@@ -52,8 +55,8 @@ void RobotContainer::ConfigureBindings()
                             robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
                             robotPose.Z() + LauncherConstants::kTurretOffset.Z()
                         };
-                        units::meters_per_second_t turretVx = robotSpeeds.vx + units::meters_per_second_t{(robotSpeeds.omega * units::math::sin(turretTheta) * kTurretRadius).value()};
-                        units::meters_per_second_t turretVy = robotSpeeds.vy - units::meters_per_second_t{(robotSpeeds.omega * units::math::cos(turretTheta) * kTurretRadius).value()};
+                        units::meters_per_second_t turretVx = robotSpeeds.vx; //drivetrain.GetVelocityX(); // + units::meters_per_second_t{(robotSpeeds.omega * units::math::sin(turretTheta) * kTurretRadius).value()};
+                        units::meters_per_second_t turretVy = robotSpeeds.vy; // - units::meters_per_second_t{(robotSpeeds.omega * units::math::cos(turretTheta) * kTurretRadius).value()};
                         
                         frc::Translation3d hubPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::blueHubPose : FieldConstants::redHubPose;
                         units::meter_t deltaZ = hubPose.Z() - turretPose.Z();
@@ -69,7 +72,7 @@ void RobotContainer::ConfigureBindings()
                         omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v*v).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                         pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
                         targetYaw = units::math::round(units::math::atan2(vy, vx).convert<units::degrees>());
-                        targetYaw += 180_deg;
+                        targetYaw += drivetrain.GetOperatorForwardDirection().Degrees();
                     }
                 ),
                 launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
@@ -81,7 +84,11 @@ void RobotContainer::ConfigureBindings()
                         frc::SmartDashboard::PutNumber("targetYaw", frc::Rotation2d{targetYaw}.Degrees().value());
                         
                         frc::SmartDashboard::PutBoolean("alignedAtSetpoint", alignToHub.HeadingController.AtSetpoint());
+                        alignmentKP = frc::SmartDashboard::GetNumber("alignmentKP", alignmentKP);
+                        alignmentKI = frc::SmartDashboard::GetNumber("alignmentKI", alignmentKI);
+                        alignmentKD = frc::SmartDashboard::GetNumber("alignmentKD", alignmentKD);
                         return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+                        .WithTargetRateFeedforward(alignToHub.HeadingController.GetVelocityError())
                         .WithVelocityX(-joystick.GetLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                         .WithVelocityY(-joystick.GetLeftX() * MaxSpeed) // Drive left with negative X (left)
                         .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
@@ -96,7 +103,7 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.StartIntakeCommand().Repeatedly());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand()); // Mutually exclusive with kIntakeHomeSwitch
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
 
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
@@ -108,10 +115,5 @@ void RobotContainer::ConfigureBindings()
     (
         frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand())
     );
-
-    
-
-    // controlBoard.Button(OperatorConstants::kLaunchButton).WhileFalse(simFuelManager.UpdateFuel([this] { return frc::Pose2d{}; }, [this] { return units::radians_per_second_t{}; }, [this] { return 0_deg; }, [this] { return false;} ).IgnoringDisable(true).Repeatedly());
-    // controlBoard.Button(OperatorConstants::kIntakeSwitch).OnTrue(simFuelManager.InstantiateFuelCommand());//.OnlyIf(frc::RobotBase::IsSimulation));
 }
 

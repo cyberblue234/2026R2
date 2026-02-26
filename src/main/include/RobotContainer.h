@@ -56,6 +56,7 @@ private:
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithDeadband(MaxSpeed * 0.2).WithMaxAbsRotationalRate(0_tps)
+        .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position);
 
@@ -75,7 +76,13 @@ public:
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID};
 
     FuelManager simFuelManager;
-    frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel([this] { return drivetrain.GetState(); }, launcher.GetLauncherOmegaSupplier(), launcher.GetLauncherAngleAsSupplier());
+    frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
+    (
+        [this] { return frc::Pose3d{drivetrain.GetState().Pose}; }, 
+        [this] { return drivetrain.GetState().Speeds; }, //[this] { return frc::ChassisSpeeds{drivetrain.GetVelocityX(), drivetrain.GetVelocityY(), drivetrain.GetVelocityYaw()}; }, 
+        launcher.GetLauncherOmegaSupplier(), 
+        launcher.GetLauncherAngleAsSupplier()
+    );
 
     double alignmentKP = 0.5;
     double alignmentKI = 0;

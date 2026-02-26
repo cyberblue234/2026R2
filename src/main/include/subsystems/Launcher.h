@@ -32,7 +32,7 @@ namespace LauncherConstants
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
 
-    constexpr frc::Translation3d kTurretOffset{11.5_in, 0_m, 23.25_in};
+    constexpr frc::Translation3d kTurretOffset{10.5_in, 0_m, 22.5_in};
 };
 
 struct LauncherState

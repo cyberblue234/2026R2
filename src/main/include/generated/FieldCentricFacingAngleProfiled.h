@@ -2,6 +2,7 @@
 #include <ctre/phoenix6/swerve/SwerveRequest.hpp>
 #include <frc/geometry/Rotation2d.h>
 #include <frc/controller/ProfiledPIDController.h>
+#include <frc/filter/SlewRateLimiter.h>
 using namespace ctre::phoenix6::swerve::requests;
 using namespace ctre::phoenix6::swerve;
 using namespace frc;
@@ -98,6 +99,9 @@ namespace ctre::phoenix6::swerve::requests
          * be enabled on the range [-180, 180].
          */
         ProfiledPIDController<units::degree> HeadingController{0, 0, 0, TrapezoidProfile<units::degree>::Constraints{0_deg_per_s, 0_deg_per_s_sq}};
+
+        frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{0.1_mps_sq};
+        frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{0.1_mps_sq};
 
         FieldCentricFacingAngleProfiled()
         {

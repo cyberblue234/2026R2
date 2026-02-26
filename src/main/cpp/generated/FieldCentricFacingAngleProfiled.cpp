@@ -19,10 +19,10 @@ ctre::phoenix::StatusCode FieldCentricFacingAngleProfiled::Apply(SwerveRequest::
             toApplyOmega = -MaxAbsRotationalRate;
         }
     }
-
+    
     return FieldCentric{}
-        .WithVelocityX(VelocityX)
-        .WithVelocityY(VelocityY)
+        .WithVelocityX(DriveXAccelerationLimiter.Calculate(VelocityX))
+        .WithVelocityY(DriveYAccelerationLimiter.Calculate(VelocityY))
         .WithRotationalRate(toApplyOmega)
         .WithDeadband(Deadband)
         .WithRotationalDeadband(RotationalDeadband)
