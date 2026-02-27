@@ -2,11 +2,16 @@
 
 ctre::phoenix::StatusCode FieldCentricFacingAngleProfiled::Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply)
 {
-    TargetRateFeedforward = HeadingController.GetSetpoint().velocity;
+    // TargetRateFeedforward = HeadingController.GetSetpoint().velocity;
+    Rotation2d angleToFace = TargetDirection;
+
+    HeadingController.SetGoal(angleToFace.Degrees());
+    double output = HeadingController.Calculate(parameters.currentPose.Rotation().Degrees());
     units::degrees_per_second_t toApplyOmega = TargetRateFeedforward +
-        units::degrees_per_second_t{HeadingController.Calculate(parameters.currentPose.Rotation().Degrees(), TargetDirection.Degrees())};
+        units::degrees_per_second_t{output};
     frc::SmartDashboard::PutNumber("targetSetpoint", HeadingController.GetSetpoint().position.value());
     frc::SmartDashboard::PutNumber("targetGoal", HeadingController.GetGoal().position.value());
+    frc::SmartDashboard::PutNumber("pidOutput", output);
     if (MaxAbsRotationalRate > 0_deg_per_s) {
         if (toApplyOmega > MaxAbsRotationalRate) {
             toApplyOmega = MaxAbsRotationalRate;

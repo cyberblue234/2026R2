@@ -78,14 +78,14 @@ void RobotContainer::ConfigureBindings()
                 (
                     [this]()
                     {
-                        
                         frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
                         return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
                         // .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                        .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * MaxSpeed)) // Drive forward with negative Y (forward)
-                        .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * MaxSpeed)); // Drive left with negative X (left)
+                        .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 1_mps)) // Drive forward with negative Y (forward)
+                        .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 1_mps)); // Drive left with negative X (left)
                     }
                 )
+                // .BeforeStarting([this]{ alignToHub.HeadingController.Reset(drivetrain.GetState().Pose.Rotation().Degrees()); })
             ),
             frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(40_ms)).Repeatedly()
         )

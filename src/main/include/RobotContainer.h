@@ -57,19 +57,19 @@ private:
         .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
 
-    double alignmentKP = 0.5;
-    double alignmentKI = 0;
+    double alignmentKP = 1;
+    double alignmentKI = 40;
     double alignmentKD = 1.5;
 
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
+        .WithDeadband(0.2_mps)
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
-        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
-        .WithConstraints(10_deg_per_s, 100_deg_per_s_sq);
+        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD);
     
-    frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{5_mps_sq};
-    frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{5_mps_sq};
+    frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{3_mps_sq};
+    frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{3_mps_sq};
 
     units::degree_t targetYaw;
     units::degree_t pitch;
