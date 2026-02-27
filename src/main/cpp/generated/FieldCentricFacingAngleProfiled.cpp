@@ -9,9 +9,6 @@ ctre::phoenix::StatusCode FieldCentricFacingAngleProfiled::Apply(SwerveRequest::
     double output = HeadingController.Calculate(parameters.currentPose.Rotation().Degrees());
     units::degrees_per_second_t toApplyOmega = TargetRateFeedforward +
         units::degrees_per_second_t{output};
-    frc::SmartDashboard::PutNumber("targetSetpoint", HeadingController.GetSetpoint().position.value());
-    frc::SmartDashboard::PutNumber("targetGoal", HeadingController.GetGoal().position.value());
-    frc::SmartDashboard::PutNumber("pidOutput", output);
     if (MaxAbsRotationalRate > 0_deg_per_s) {
         if (toApplyOmega > MaxAbsRotationalRate) {
             toApplyOmega = MaxAbsRotationalRate;

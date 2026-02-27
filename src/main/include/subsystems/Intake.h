@@ -37,6 +37,7 @@ public:
 
     frc2::CommandPtr SetPositionToGroundCommand();
     frc2::CommandPtr SetPositionToHomeCommand();
+    frc2::CommandPtr SetPositionToBounceCommand();
     frc2::CommandPtr BounceCommand();
 
 private:

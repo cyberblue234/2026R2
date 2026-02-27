@@ -108,6 +108,12 @@ namespace ctre::phoenix6::swerve::requests
 
         ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override;
 
+        FieldCentricFacingAngleProfiled &WithTolerance(units::degree_t tolerance)
+        {
+            this->HeadingController.SetTolerance(tolerance);
+            return *this;
+        }
+
         /**
          * \brief Modifies the PID gains of the HeadingController parameter and returns itself.
          *

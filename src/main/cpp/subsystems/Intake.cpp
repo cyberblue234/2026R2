@@ -109,36 +109,25 @@ frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
         .FinallyDo([this] { StopPivotMotor(); });
 }
 
+frc2::CommandPtr IntakePivot::SetPositionToBounceCommand()
+{
+    return Run([this] { SetPositionToBounce(); })
+        .FinallyDo([this] { StopPivotMotor(); });
+}
+
 
 frc2::CommandPtr IntakePivot::BounceCommand()
 {
-    return StartRun(
-               [this]
-               {
-                   setToGround = true;
-               },
-               [this]
-               {
-                   if (setToGround)
-                   {
-                       SetPositionToGround();
-                       if (IsPivotWithinTolerance())
-                       {
-                           setToGround = false;
-                       }
-                   }
-                   else
-                   {
-                       SetPositionToBounce();
-                       if (IsPivotWithinTolerance())
-                       {
-                           setToGround = true;
-                       }
-                   }
-               })
-        .FinallyDo(
-            [this]
-            {
-                StopPivotMotor();
-            });
+    return frc2::cmd::RepeatingSequence
+    (
+        SetPositionToBounceCommand().Until([this] { return IsPivotWithinTolerance(); }),
+        SetPositionToGroundCommand().Until([this] { return IsPivotWithinTolerance(); })
+    ).FinallyDo
+    (
+        [this]
+        {
+            
+            StopPivotMotor();
+        }
+    );
 }
