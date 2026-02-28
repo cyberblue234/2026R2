@@ -57,9 +57,9 @@ private:
         .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
 
-    double alignmentKP = 1;
-    double alignmentKI = 40;
-    double alignmentKD = 1.5;
+    double alignmentKP = 8;
+    double alignmentKI = 100;
+    double alignmentKD = 0;
 
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})

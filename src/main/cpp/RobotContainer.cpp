@@ -42,8 +42,8 @@ void RobotContainer::ConfigureBindings()
                 [this]
                 {
                     auto drivetrainState = drivetrain.GetState();
-                    frc::ChassisSpeeds robotSpeeds = drivetrainState.Speeds;
                     frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
+                    frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
                     units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
                     units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
                     frc::Translation3d turretPose
@@ -52,8 +52,8 @@ void RobotContainer::ConfigureBindings()
                         robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
                         robotPose.Z() + LauncherConstants::kTurretOffset.Z()
                     };
-                    units::meters_per_second_t turretVx = drivetrain.GetVelocityX(); // + units::meters_per_second_t{(robotSpeeds.omega * units::math::sin(turretTheta) * kTurretRadius).value()};
-                    units::meters_per_second_t turretVy = drivetrain.GetVelocityY(); // - units::meters_per_second_t{(robotSpeeds.omega * units::math::cos(turretTheta) * kTurretRadius).value()};
+                    units::meters_per_second_t turretVx = robotSpeeds.vx + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
+                    units::meters_per_second_t turretVy = robotSpeeds.vy - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
                     
                     frc::Translation3d hubPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::blueHubPose : FieldConstants::redHubPose;
                     units::meter_t deltaZ = hubPose.Z() - turretPose.Z();
@@ -68,7 +68,8 @@ void RobotContainer::ConfigureBindings()
                     units::meters_per_second_t v = units::math::sqrt(vx*vx + vy*vy + vz*vz);
                     omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v*v).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                     pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
-                    targetYaw = units::math::round(units::math::atan2(vy, vx).convert<units::degrees>());
+                    targetYaw = units::math::atan2(vy, vx);
+
                 }
             ),
             launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
@@ -76,10 +77,11 @@ void RobotContainer::ConfigureBindings()
             (
                 [this]()
                 {
+                    frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
                     // .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                    .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 1_mps)) // Drive forward with negative Y (forward)
-                    .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 1_mps)); // Drive left with negative X (left)
+                    .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 1.5_mps)) // Drive forward with negative Y (forward)
+                    .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 1.5_mps)); // Drive left with negative X (left)
                 }
             ),
             intakePivot.BounceCommand(),
