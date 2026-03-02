@@ -76,7 +76,7 @@ void Launcher::StopLauncher()
 
 bool Launcher::IsLauncherSpeedWithinTolerance()
 {
-    return units::math::abs(GetLauncherOmega() - currentState.omega) < 5_tps ;
+    return units::math::abs(GetLauncherOmega() - currentState.omega) < 1_tps ;
 }
 
 frc2::CommandPtr Launcher::ManualSetPosition(double position)

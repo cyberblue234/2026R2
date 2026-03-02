@@ -83,6 +83,9 @@ void RobotContainer::ConfigureBindings()
                 [this]()
                 {
                     frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
+                    frc::SmartDashboard::PutNumber("targetGoal", alignToHub.HeadingController.GetGoal().position.value());
+                    frc::SmartDashboard::PutBoolean("atGoal", alignToHub.HeadingController.AtGoal());
+                    frc::SmartDashboard::PutBoolean("atSetpoint", alignToHub.HeadingController.AtSetpoint());
                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
                     .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
                     .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 2.5_mps)) // Drive forward with negative Y (forward)
@@ -92,7 +95,7 @@ void RobotContainer::ConfigureBindings()
             intakePivot.BounceCommand(),
             intakeRoller.StartIntakeCommand().Repeatedly(),
             hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance() && alignToHub.HeadingController.AtGoal(); }).Repeatedly(),
-            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
+            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance() && units::math::abs(frc::Rotation2d(targetYaw).Degrees() - drivetrain.GetState().Pose.Rotation().Degrees()) < 3_deg; } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
         )
     );
 
