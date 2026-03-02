@@ -52,8 +52,8 @@ void RobotContainer::ConfigureBindings()
                         robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
                         robotPose.Z() + LauncherConstants::kTurretOffset.Z()
                     };
-                    units::meters_per_second_t turretVx = robotSpeeds.vx + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
-                    units::meters_per_second_t turretVy = robotSpeeds.vy - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
+                    units::meters_per_second_t turretVx = robotSpeeds.vx; // + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
+                    units::meters_per_second_t turretVy = robotSpeeds.vy; // - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
                     
                     frc::Translation3d hubPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::blueHubPose : FieldConstants::redHubPose;
                     units::meter_t deltaZ = hubPose.Z() - turretPose.Z();
@@ -65,9 +65,14 @@ void RobotContainer::ConfigureBindings()
                     units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
                     units::meters_per_second_t vx = (hubPose.X() - turretPose.X()) / timeOfFlight - turretVx;
                     units::meters_per_second_t vy = (hubPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
+                    frc::SmartDashboard::PutNumber("turretVx", turretVx.value());
+                    frc::SmartDashboard::PutNumber("turretVy", turretVy.value());
+                    frc::SmartDashboard::PutNumber("desiredVx", vx.value());
+                    frc::SmartDashboard::PutNumber("desiredVy", vy.value());
                     units::meters_per_second_t v = units::math::sqrt(vx*vx + vy*vy + vz*vz);
                     omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v*v).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                     pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
+                    frc::SmartDashboard::PutNumber("desiredPitch", pitch.value());
                     targetYaw = units::math::atan2(vy, vx);
 
                 }
@@ -79,15 +84,15 @@ void RobotContainer::ConfigureBindings()
                 {
                     frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-                    // .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                    .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 1.5_mps)) // Drive forward with negative Y (forward)
-                    .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 1.5_mps)); // Drive left with negative X (left)
+                    .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+                    .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 2.5_mps)) // Drive forward with negative Y (forward)
+                    .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 2.5_mps)); // Drive left with negative X (left)
                 }
             ),
             intakePivot.BounceCommand(),
             intakeRoller.StartIntakeCommand().Repeatedly(),
             hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance() && alignToHub.HeadingController.AtGoal(); }).Repeatedly(),
-            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(40_ms)).OnlyIf([this] { return frc::Rotation2d(alignToHub.HeadingController.GetSetpoint().position - drivetrain.GetState().Pose.Rotation().Degrees()).Degrees() < frc::Rotation2d(alignToHub.Tolerance).Degrees(); } ).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
+            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
         )
     );
 

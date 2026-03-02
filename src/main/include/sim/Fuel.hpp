@@ -96,6 +96,7 @@ public:
                     ).value())
                 };
                 frc::SmartDashboard::PutNumber("v", v.value());
+                frc::SmartDashboard::PutNumber("pitch", deflectorAngle().value());
                 auto vx = rvx + v * units::math::cos(deflectorAngle()) * units::math::cos(rPose.Rotation().Z());
                 auto vy = rvy + v * units::math::cos(deflectorAngle()) * units::math::sin(rPose.Rotation().Z());
                 auto vz = v * units::math::sin(deflectorAngle());

@@ -57,7 +57,7 @@ private:
         .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
 
-    double alignmentKP = 8;
+    double alignmentKP = 12;
     double alignmentKI = 100;
     double alignmentKD = 0;
 
