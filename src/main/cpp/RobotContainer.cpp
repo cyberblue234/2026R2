@@ -87,7 +87,7 @@ void RobotContainer::ConfigureBindings()
             intakePivot.BounceCommand(),
             intakeRoller.StartIntakeCommand().Repeatedly(),
             hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance() && alignToHub.HeadingController.AtGoal(); }).Repeatedly(),
-            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
+            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(40_ms)).OnlyIf([this] { return frc::Rotation2d(alignToHub.HeadingController.GetSetpoint().position - drivetrain.GetState().Pose.Rotation().Degrees()).Degrees() < frc::Rotation2d(alignToHub.Tolerance).Degrees(); } ).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
         )
     );
 

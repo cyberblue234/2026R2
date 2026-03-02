@@ -67,7 +67,7 @@ private:
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
         .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
-        .WithTolerance(8_deg);
+        .WithTolerance(3_deg);
     
     frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{3_mps_sq};
     frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{3_mps_sq};
