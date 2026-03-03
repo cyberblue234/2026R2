@@ -36,7 +36,7 @@ namespace RobotContainerConstants
         inline constexpr double kDeadband = 0.1;
     }
 
-    namespace AlignmentConstants
+    namespace TargetConstants
     {
         inline constexpr double kP = 12;
         inline constexpr double kI = 100;
@@ -46,7 +46,8 @@ namespace RobotContainerConstants
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 3_mps_sq;
         inline constexpr double kDeadband = 0.1;
 
-        inline constexpr units::meter_t kToleranceRadius = 16_in;
+        inline constexpr units::meter_t kHubToleranceRadius = 16_in;
+        inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
         inline constexpr units::meter_t kZOffset = 1_m;
     }
 
@@ -55,6 +56,11 @@ namespace RobotContainerConstants
         inline constexpr double kManualSpeed = 0.1;
     }
 }
+
+enum Targets
+{
+    Hub, Pass, Null
+};
 
 using namespace RobotContainerConstants;
 
@@ -90,18 +96,20 @@ private:
 
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
-        .WithDeadband(AlignmentConstants::kMaxSpeed * AlignmentConstants::kDeadband)
+        .WithDeadband(TargetConstants::kMaxSpeed * TargetConstants::kDeadband)
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
-        .WithHeadingPID(AlignmentConstants::kP, AlignmentConstants::kI, AlignmentConstants::kD);
-    frc::SlewRateLimiter<units::meters_per_second> alignmentXLimiter{AlignmentConstants::kAccelerationLimit};
-    frc::SlewRateLimiter<units::meters_per_second> alignmentYLimiter{AlignmentConstants::kAccelerationLimit};
+        .WithHeadingPID(TargetConstants::kP, TargetConstants::kI, TargetConstants::kD);
+    frc::SlewRateLimiter<units::meters_per_second> alignmentXLimiter{TargetConstants::kAccelerationLimit};
+    frc::SlewRateLimiter<units::meters_per_second> alignmentYLimiter{TargetConstants::kAccelerationLimit};
 
     units::degree_t targetYaw;
     units::degree_t yawTolerance;
     units::degree_t pitch;
     units::radians_per_second_t omega;
     units::radians_per_second_t omegaTolerance;
+
+    Targets target;
 
 public:
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
