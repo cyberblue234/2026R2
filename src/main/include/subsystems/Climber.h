@@ -10,10 +10,16 @@
 
 using namespace ctre::phoenix6;
 
+namespace ClimberConstants
+{
+    inline constexpr units::turn_t kMaxPosition = 100_tr;
+    inline constexpr double climberMotorSpeed = 0.5;
+}
+
 class Climber : public frc2::SubsystemBase
 {
 public:
-    Climber(int motorID, int limitSwitchID);
+    Climber(int motorID, int limitSwitchID, bool inverted);
 
     void ExtendClimber();
     void RetractClimber();
@@ -36,12 +42,5 @@ private:
     frc2::Trigger climberLimitSwitchTrigger{[this]
                                             { return climberLimitSwitch.Get(); }};
 
-    double climberMotorSpeed = 0.5;
-
     bool isRegistered = false;
 };
-
-namespace ClimberConstants
-{
-    constexpr units::turn_t kMaxPosition = 100_tr;
-}

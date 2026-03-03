@@ -8,19 +8,22 @@
 
 using namespace ctre::phoenix6;
 
+namespace HopperConstants
+{
+    inline constexpr double feederMotorSpeed = 0.5;
+    inline constexpr double floorMotorSpeed = 0.5;
+}
+
 class Hopper : public frc2::SubsystemBase
 {
 public:
     Hopper();
 
-    void FeedLauncherOn();
-    void FeedLauncherOff();
+    void FeedLauncher();
+    void StopMotors();
     frc2::CommandPtr FeedLauncherCommand();
 
 private:
     hardware::TalonFX feederMotor{RobotMap::Hopper::kFeederMotorID};
     hardware::TalonFX floorMotor{RobotMap::Hopper::kFloorMotorID};
-
-    double feederMotorSpeed = 0.5;
-    double floorMotorSpeed = 0.5;
 };

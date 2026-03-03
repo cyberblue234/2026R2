@@ -97,6 +97,12 @@ bool IntakePivot::IsPivotWithinTolerance()
     return abs(pivotMotor.GetClosedLoopError().GetValue()) < IntakeConstants::kPivotTolerance.value();
 }
 
+frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
+{
+    return Run([this, speed] { pivotMotor.Set(speed); })
+        .FinallyDo([this] { StopPivotMotor(); });
+}
+
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
     return Run([this] { SetPositionToGround(); })

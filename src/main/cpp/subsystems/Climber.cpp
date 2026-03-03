@@ -1,11 +1,13 @@
 #include "subsystems/Climber.h"
 
-Climber::Climber(int motorID, int limitSwitchID) : climberMotor(motorID), climberLimitSwitch(limitSwitchID)
+Climber::Climber(int motorID, int limitSwitchID, bool inverted) : climberMotor(motorID), climberLimitSwitch(limitSwitchID)
 {
     climberMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration climberMotorConfig;
     climberMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     climberMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
+    climberMotorConfig.MotorOutput.Inverted = inverted ? signals::InvertedValue::Clockwise_Positive : signals::InvertedValue::CounterClockwise_Positive;
+    climberMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
     climberMotor.GetConfigurator().Apply(climberMotorConfig);
 
     climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(StopClimberCommand().AndThen(ResetClimberEncoderCommand()));
@@ -13,12 +15,12 @@ Climber::Climber(int motorID, int limitSwitchID) : climberMotor(motorID), climbe
 
 void Climber::ExtendClimber()
 {
-    climberMotor.Set(climberMotorSpeed);
+    climberMotor.Set(ClimberConstants::climberMotorSpeed);
 }
 
 void Climber::RetractClimber()
 {
-    climberMotor.Set(-climberMotorSpeed);
+    climberMotor.Set(-ClimberConstants::climberMotorSpeed);
 }
 
 void Climber::StopClimber()

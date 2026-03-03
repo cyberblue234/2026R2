@@ -4,20 +4,15 @@
 
 #include "RobotContainer.h"
 
+using namespace RobotContainerConstants;
+
 RobotContainer::RobotContainer()
 {
-    // Initialize all of your commands and subsystems here
-
-    // Configure the button bindings
     ConfigureBindings();
-    // fuelUpdateCommand.Schedule();
 
-    // if (frc::RobotBase::IsSimulation())
-    // {
-        frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
-    // }
+    frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
 
-    // frc::SmartDashboard::PutData("alignToHubController", &alignToHub.HeadingController);
+    frc::SmartDashboard::PutData("alignToHubController", &alignToHub.HeadingController);
 }
 
 void RobotContainer::ConfigureBindings()
@@ -27,9 +22,10 @@ void RobotContainer::ConfigureBindings()
     drivetrain.SetDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.ApplyRequest([this]() -> auto&& {
-            return drive.WithVelocityX(-joystick.GetLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                .WithVelocityY(-joystick.GetLeftX() * MaxSpeed) // Drive left with negative X (left)
-                .WithRotationalRate(-joystick.GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+            return drive
+                .WithVelocityX(driveXLimiter.Calculate(-joystick.GetLeftY() * DriveConstants::kMaxSpeed)) // Drive forward with negative Y (forward)
+                .WithVelocityY(driveYLimiter.Calculate(-joystick.GetLeftX() * DriveConstants::kMaxSpeed)) // Drive left with negative X (left)
+                .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
         })
     );
 
@@ -58,7 +54,7 @@ void RobotContainer::ConfigureBindings()
                     frc::Translation3d hubPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::blueHubPose : FieldConstants::redHubPose;
                     units::meter_t deltaZ = hubPose.Z() - turretPose.Z();
                     
-                    units::meter_t zOffset = kZOffset + units::meter_t{controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) + 0.3};
+                    units::meter_t zOffset = AlignmentConstants::kZOffset + units::meter_t{controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) + 0.3};
                     
                     units::standard_gravity_t g{-1};
                     units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
@@ -75,10 +71,10 @@ void RobotContainer::ConfigureBindings()
                     pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
                     frc::SmartDashboard::PutNumber("desiredPitch", pitch.value());
                     targetYaw = units::math::atan2(vy, vx);
-                    yawTolerance = units::math::atan(kToleranceRadius / units::math::hypot(hubPose.X() - turretPose.X(), hubPose.Y() - turretPose.Y()));
+                    yawTolerance = units::math::atan(AlignmentConstants::kToleranceRadius / units::math::hypot(hubPose.X() - turretPose.X(), hubPose.Y() - turretPose.Y()));
                     frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
                     frc::SmartDashboard::PutNumber("yawTolerance", yawTolerance.value());
-                    auto maxVr = units::math::hypot(vx, vy) + kToleranceRadius / timeOfFlight;
+                    auto maxVr = units::math::hypot(vx, vy) + AlignmentConstants::kToleranceRadius / timeOfFlight;
                     auto maxOmega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                     omegaTolerance = maxOmega - omega;
                     frc::SmartDashboard::PutNumber("omegaTolerance", omegaTolerance.value());
@@ -91,14 +87,14 @@ void RobotContainer::ConfigureBindings()
                 {
                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
                     .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                    .WithVelocityX(DriveXAccelerationLimiter.Calculate(-joystick.GetLeftY() * 2.5_mps)) // Drive forward with negative Y (forward)
-                    .WithVelocityY(DriveYAccelerationLimiter.Calculate(-joystick.GetLeftX() * 2.5_mps)); // Drive left with negative X (left)
+                    .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * AlignmentConstants::kMaxSpeed))
+                    .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * AlignmentConstants::kMaxSpeed));
                 }
             ),
             intakePivot.BounceCommand(),
             intakeRoller.StartIntakeCommand().Repeatedly(),
-            hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance); }).Repeatedly(),
-            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) && units::math::abs(frc::Rotation2d(targetYaw).Degrees() - drivetrain.GetState().Pose.Rotation().Degrees()) < yawTolerance; } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
+            hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
+            frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
         )
     );
 
@@ -107,6 +103,8 @@ void RobotContainer::ConfigureBindings()
 
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
+    controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
+    controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
     (   

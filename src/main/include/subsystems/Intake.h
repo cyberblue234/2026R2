@@ -35,6 +35,7 @@ public:
     void StopPivotMotor();
     bool IsPivotWithinTolerance();
 
+    frc2::CommandPtr SetSpeedCommand(double speed);
     frc2::CommandPtr SetPositionToGroundCommand();
     frc2::CommandPtr SetPositionToHomeCommand();
     frc2::CommandPtr SetPositionToBounceCommand();
