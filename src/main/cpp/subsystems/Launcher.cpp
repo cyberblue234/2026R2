@@ -74,9 +74,9 @@ void Launcher::StopLauncher()
     launcherMotor3.StopMotor();
 }
 
-bool Launcher::IsLauncherSpeedWithinTolerance()
+bool Launcher::IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance)
 {
-    return units::math::abs(GetLauncherOmega() - currentState.omega) < 1_tps ;
+    return units::math::abs(GetLauncherOmega() - currentState.omega) < tolerance ;
 }
 
 frc2::CommandPtr Launcher::ManualSetPosition(double position)

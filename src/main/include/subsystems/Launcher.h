@@ -59,7 +59,7 @@ public:
     void SetLauncherAngle(units::degree_t angle);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
-    bool IsLauncherSpeedWithinTolerance();
+    bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
 
     void Periodic() override
     {

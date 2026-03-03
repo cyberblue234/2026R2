@@ -66,15 +66,17 @@ private:
         .WithDeadband(0.2_mps)
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
-        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
-        .WithTolerance(3_deg);
+        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD);
     
     frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{3_mps_sq};
     frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{3_mps_sq};
 
     units::degree_t targetYaw;
+    units::degree_t yawTolerance;
+    const units::meter_t kToleranceRadius = 12_in;
     units::degree_t pitch;
     units::radians_per_second_t omega;
+    units::radians_per_second_t omegaTolerance;
 
     units::meter_t kZOffset = 1_m;
 
