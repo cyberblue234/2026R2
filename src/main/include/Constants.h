@@ -175,3 +175,6 @@ namespace FieldConstants
     const frc::Translation3d bluePassPose{2.5_m, blueHubPose.Y(), 0_m};
     const frc::Translation3d redPassPose{14_m, blueHubPose.Y(), 0_m};
 }
+
+#define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)
+#define ADD_CURRENT_COMMAND builder.AddStringProperty("Current Command", [this] { return GetCurrentCommand()->GetName(); }, nullptr)

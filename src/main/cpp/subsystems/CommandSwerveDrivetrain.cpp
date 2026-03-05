@@ -53,7 +53,6 @@ void CommandSwerveDrivetrain::StartSimThread()
 
 void CommandSwerveDrivetrain::InitSendable(wpi::SendableBuilder &builder)
 {
-    builder.SetSmartDashboardType("CommandSwerveDrivetrain");
     builder.AddDoubleProperty("Velocity X (m\\s)", [this] { return vX.value(); }, nullptr);
     builder.AddDoubleProperty("Velocity Y (m\\s)", [this] { return vY.value(); }, nullptr);
     builder.AddDoubleProperty("Velocity Yaw (rad\\s)", [this] { return vYaw.value(); }, nullptr);
@@ -65,4 +64,7 @@ void CommandSwerveDrivetrain::InitSendable(wpi::SendableBuilder &builder)
             }
             return wheelVelocities;
         }, nullptr);
+
+    ADD_DEFAULT_COMMAND;
+    ADD_CURRENT_COMMAND;
 }

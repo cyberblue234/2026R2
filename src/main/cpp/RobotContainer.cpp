@@ -26,8 +26,13 @@ void RobotContainer::ConfigureBindings()
                 .WithVelocityX(driveXLimiter.Calculate(-joystick.GetLeftY() * DriveConstants::kMaxSpeed)) // Drive forward with negative Y (forward)
                 .WithVelocityY(driveYLimiter.Calculate(-joystick.GetLeftX() * DriveConstants::kMaxSpeed)) // Drive left with negative X (left)
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
-        })
+        }).WithName("Drive")
     );
+
+    climber1.SetDefaultCommand(climber1.StopClimberCommand());
+    climber2.SetDefaultCommand(climber2.StopClimberCommand());
+
+    hopper.SetDefaultCommand(hopper.StopMotorsCommand());
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
@@ -100,16 +105,16 @@ void RobotContainer::ConfigureBindings()
                 }
             ),
             intakePivot.BounceCommand(),
-            intakeRoller.StartIntakeCommand().Repeatedly(),
+            intakeRoller.IntakeCommand(),
             hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
             frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
-        )
+        ).WithName("Align and Shoot")
     );
 
     controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Hub; }));
     controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Pass; }));
 
-    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.StartIntakeCommand().Repeatedly());
+    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
@@ -119,12 +124,12 @@ void RobotContainer::ConfigureBindings()
 
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
     (   
-        frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand())
+        frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand()).WithName("Extend Climbers With Limits")
     );
 
     controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
     (
-        frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand())
+        frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()).WithName("Retract Climbers")
     );
 }
 

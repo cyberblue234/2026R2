@@ -9,48 +9,6 @@
 
 using namespace ctre::phoenix6;
 
-class IntakeRoller : public frc2::SubsystemBase
-{
-public:
-    IntakeRoller();
-
-    void SetRollerMotor(double speed);
-    void StopRollerMotor();
-    
-    frc2::CommandPtr StartIntakeCommand();
-    frc2::CommandPtr EjectCommand();
-private:
-    hardware::TalonFX rollerMotor{RobotMap::Intake::kRollerMotorID};
-};
-
-class IntakePivot : public frc2::SubsystemBase
-{
-public:
-    IntakePivot();
-
-    void SetPosition(units::degree_t angle);
-    void SetPositionToGround();
-    void SetPositionToHome();
-    void SetPositionToBounce();
-    void StopPivotMotor();
-    bool IsPivotWithinTolerance();
-
-    frc2::CommandPtr SetSpeedCommand(double speed);
-    frc2::CommandPtr SetPositionToGroundCommand();
-    frc2::CommandPtr SetPositionToHomeCommand();
-    frc2::CommandPtr SetPositionToBounceCommand();
-    frc2::CommandPtr BounceCommand();
-
-private:
-    hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
-
-    hardware::CANcoder pivotCancoder{RobotMap::Intake::kPivotCancoderID};
-
-    controls::PositionVoltage pivotMotorPositionControl{0_tr};
-
-    bool setToGround;
-};
-
 namespace IntakeConstants
 {
     constexpr units::degree_t kGroundPosition = 90_deg;
@@ -62,7 +20,61 @@ namespace IntakeConstants
     constexpr double kIntakeRollerSpeed = 1.0;
     constexpr double kEjectRollerSpeed = -1.0;
 
+    constexpr double kP = 2.0;
+    constexpr double kI = 0.0;
+    constexpr double kD = 0.0;
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
     constexpr double kPivotToCANcoderRatio = 50;
 }
+
+class IntakeRoller : public frc2::SubsystemBase
+{
+public:
+    IntakeRoller();
+
+    void SetMotor(double speed);
+    void StopMotor();
+    
+    frc2::CommandPtr StopMotorCommand();
+    frc2::CommandPtr IntakeCommand();
+    frc2::CommandPtr EjectCommand();
+
+    void InitSendable(wpi::SendableBuilder &builder) override;
+private:
+    hardware::TalonFX rollerMotor{RobotMap::Intake::kRollerMotorID};
+
+    double motorSpeed = IntakeConstants::kIntakeRollerSpeed;
+};
+
+class IntakePivot : public frc2::SubsystemBase
+{
+public:
+    IntakePivot();
+
+    void SetPosition(units::degree_t angle);
+    void SetPositionToGround();
+    void SetPositionToHome();
+    void SetPositionToBounce();
+    void StopMotor();
+    bool IsWithinTolerance();
+
+    frc2::CommandPtr SetSpeedCommand(double speed);
+    frc2::CommandPtr SetPositionToGroundCommand();
+    frc2::CommandPtr SetPositionToHomeCommand();
+    frc2::CommandPtr SetPositionToBounceCommand();
+    frc2::CommandPtr BounceCommand();
+
+    void InitSendable(wpi::SendableBuilder &builder) override;
+
+private:
+    hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
+    hardware::CANcoder pivotCancoder{RobotMap::Intake::kPivotCancoderID};
+
+    controls::PositionVoltage pivotMotorPositionControl{0_tr};
+
+    units::degree_t groundPosition = IntakeConstants::kGroundPosition;
+    units::degree_t homePosition = IntakeConstants::kHomePosition;
+    units::degree_t bouncePosition = IntakeConstants::kBouncePosition;
+    units::degree_t tolerance = IntakeConstants::kPivotTolerance;
+};

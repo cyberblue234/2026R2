@@ -21,9 +21,15 @@ public:
 
     void FeedLauncher();
     void StopMotors();
+    frc2::CommandPtr StopMotorsCommand();
     frc2::CommandPtr FeedLauncherCommand();
+
+    void InitSendable(wpi::SendableBuilder &builder) override;
 
 private:
     hardware::TalonFX feederMotor{RobotMap::Hopper::kFeederMotorID};
     hardware::TalonFX floorMotor{RobotMap::Hopper::kFloorMotorID};
+
+    double feederMotorSpeed = HopperConstants::feederMotorSpeed;
+    double floorMotorSpeed = HopperConstants::floorMotorSpeed;
 };

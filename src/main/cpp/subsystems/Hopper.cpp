@@ -21,8 +21,8 @@ Hopper::Hopper()
 
 void Hopper::FeedLauncher()
 {
-    feederMotor.Set(HopperConstants::feederMotorSpeed);
-    floorMotor.Set(HopperConstants::floorMotorSpeed);
+    feederMotor.Set(feederMotorSpeed);
+    floorMotor.Set(floorMotorSpeed);
 }
 
 void Hopper::StopMotors()
@@ -31,12 +31,22 @@ void Hopper::StopMotors()
     floorMotor.StopMotor();
 }
 
+frc2::CommandPtr Hopper::StopMotorsCommand()
+{
+    return RunOnce([this] { StopMotors(); }).WithName("Stop Motors");
+}
+
 frc2::CommandPtr Hopper::FeedLauncherCommand()
 {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return Run([this]
-               { FeedLauncher(); })
-        .FinallyDo([this]
-                   { StopMotors(); });
+    return Run([this]{ FeedLauncher(); }).WithName("Feed Launcher");
+}
+
+void Hopper::InitSendable(wpi::SendableBuilder &builder)
+{
+    builder.AddDoubleProperty("Feeder Motor Speed", [this] { return feederMotorSpeed; }, [this] (double set) { feederMotorSpeed = set;});
+    builder.AddDoubleProperty("Floor Motor Speed", [this] { return floorMotorSpeed; }, [this] (double set) { floorMotorSpeed = set;});
+    ADD_DEFAULT_COMMAND;
+    ADD_CURRENT_COMMAND;
 }
