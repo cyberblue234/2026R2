@@ -73,10 +73,6 @@ void RobotContainer::ConfigureBindings()
                     units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
                     units::meters_per_second_t vx = (targetPose.X() - turretPose.X()) / timeOfFlight - turretVx;
                     units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
-                    frc::SmartDashboard::PutNumber("turretVx", turretVx.value());
-                    frc::SmartDashboard::PutNumber("turretVy", turretVy.value());
-                    frc::SmartDashboard::PutNumber("desiredVx", vx.value());
-                    frc::SmartDashboard::PutNumber("desiredVy", vy.value());
                     auto v_sq = vx*vx + vy*vy + vz*vz;
                     omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
                     frc::SmartDashboard::PutNumber("desiredOmega", omega.value());

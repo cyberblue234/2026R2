@@ -82,3 +82,10 @@ frc2::CommandPtr Climber::RetractClimberCommand()
             StopClimber();
         });
 }
+
+void Climber::InitSendable(wpi::SendableBuilder &builder)
+{
+    builder.SetSmartDashboardType("Climber");
+    builder.AddDoubleProperty("Position (tr)", [this] { return GetClimberPosition().value(); }, nullptr);
+    builder.AddBooleanProperty("Limit Switch", [this] { return climberLimitSwitch.Get(); }, nullptr);
+}

@@ -36,6 +36,8 @@ public:
     frc2::CommandPtr ExtendClimberWithLimitCommand();
     frc2::CommandPtr RetractClimberCommand();
 
+    void InitSendable(wpi::SendableBuilder &builder) override;
+
 private:
     hardware::TalonFX climberMotor;
     frc::DigitalInput climberLimitSwitch;

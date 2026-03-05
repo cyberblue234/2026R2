@@ -68,7 +68,7 @@ class RobotContainer
 {
 public:
     RobotContainer();
-private:
+
     frc2::CommandPtr GetAutonomousCommand();
 
     bool IsAlignmentWithinTolerances()
@@ -111,7 +111,6 @@ private:
 
     Targets target;
 
-public:
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
     IntakeRoller intakeRoller;
     IntakePivot intakePivot;
