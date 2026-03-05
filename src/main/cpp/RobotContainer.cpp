@@ -12,7 +12,6 @@ RobotContainer::RobotContainer()
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
 
-    frc::SmartDashboard::PutData("alignToHubController", &alignToHub.HeadingController);
 }
 
 void RobotContainer::ConfigureBindings()
@@ -28,11 +27,6 @@ void RobotContainer::ConfigureBindings()
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
         }).WithName("Drive")
     );
-
-    climber1.SetDefaultCommand(climber1.StopClimberCommand());
-    climber2.SetDefaultCommand(climber2.StopClimberCommand());
-
-    hopper.SetDefaultCommand(hopper.StopMotorsCommand());
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (

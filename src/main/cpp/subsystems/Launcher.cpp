@@ -33,6 +33,8 @@ Launcher::Launcher()
     deflectorCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = LauncherConstants::kDiscontinuityPointAngle;
     deflectorCANcoderConfig.MagnetSensor.MagnetOffset = LauncherConstants::kMagnetOffset;
     deflectorCANcoder.GetConfigurator().Apply(deflectorCANcoderConfig);
+
+    SetDefaultCommand(StopMotorsCommand());
 }
 
 
@@ -84,7 +86,15 @@ frc2::CommandPtr Launcher::ManualSetPosition(double position)
     return RunOnce([this, position]
     {
         SetLauncherPosition(position);
-    });
+    }).WithName("Manual Set Position");
+}
+
+frc2::CommandPtr Launcher::StopMotorsCommand()
+{
+    return RunOnce([this]
+    {
+        StopLauncher();
+    }).WithName("Stop Motors");
 }
 
 frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState)
@@ -94,8 +104,15 @@ frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState
         currentState = setState();
         SetLauncherSpeed(currentState.omega);
         SetLauncherAngle(currentState.pitch);
-    }).FinallyDo([this]
-    {
-        StopLauncher();
-    });
+    }).WithName("Launch");
+}
+
+void Launcher::InitSendable(wpi::SendableBuilder& builder)
+{
+    builder.AddDoubleProperty("Launcher Speed (rpm)", [this] { return GetLauncherOmega().convert<units::revolutions_per_minute>().value(); }, nullptr);
+    builder.AddDoubleProperty("Launcher Set Speed (rpm)", [this] { return currentState.omega.convert<units::revolutions_per_minute>().value(); }, nullptr);
+    builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);
+    builder.AddDoubleProperty("Launcher Angle (deg)", [this] { return GetLauncherAngle().value(); }, nullptr);
+    ADD_DEFAULT_COMMAND;
+    ADD_CURRENT_COMMAND;
 }

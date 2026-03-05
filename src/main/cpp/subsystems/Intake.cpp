@@ -9,6 +9,8 @@ IntakeRoller::IntakeRoller()
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
+
+    SetDefaultCommand(StopMotorCommand());
 }
 
 void IntakeRoller::SetMotor(double speed)
@@ -44,7 +46,7 @@ frc2::CommandPtr IntakeRoller::EjectCommand()
 
 void IntakeRoller::InitSendable(wpi::SendableBuilder &builder)
 {
-    builder.AddDoubleProperty("Motor Speed", [this] { return motorSpeed; }, [this] (double set) { motorSpeed = set;});
+    builder.AddDoubleProperty("Set Speed", [this] { return motorSpeed; }, [this] (double set) { motorSpeed = set;});
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }
@@ -73,6 +75,16 @@ IntakePivot::IntakePivot()
     pivotMotorConfig.Slot0.kP = IntakeConstants::kP;
     pivotMotorConfig.Slot0.kI = IntakeConstants::kI;
     pivotMotorConfig.Slot0.kD = IntakeConstants::kD;
+    pivotMotorConfig.Slot0.GravityType = signals::GravityTypeValue::Arm_Cosine;
+    pivotMotorConfig.Slot0.GravityArmPositionOffset = IntakeConstants::kGravityArmPositionOffset;
+    pivotMotorConfig.Slot0.kS = IntakeConstants::kS;
+    pivotMotorConfig.Slot0.kG = IntakeConstants::kG;
+    pivotMotorConfig.Slot0.kV = IntakeConstants::kV;
+    pivotMotorConfig.Slot0.kA = IntakeConstants::kA;
+
+    pivotMotorConfig.MotionMagic.MotionMagicCruiseVelocity = IntakeConstants::kMaxVelocity;
+    pivotMotorConfig.MotionMagic.MotionMagicAcceleration = IntakeConstants::kMaxAcceleration;
+    pivotMotorConfig.MotionMagic.MotionMagicJerk = IntakeConstants::kMaxJerk;
 
     pivotMotor.GetConfigurator().Apply(pivotMotorConfig);
 
@@ -81,6 +93,8 @@ IntakePivot::IntakePivot()
     pivotCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = IntakeConstants::kDiscontinuityPointAngle;
     pivotCancoderConfig.MagnetSensor.MagnetOffset = IntakeConstants::kMagnetOffset;
     pivotCancoder.GetConfigurator().Apply(pivotCancoderConfig);
+
+    SetDefaultCommand(StopMotorCommand());
 }
 
 void IntakePivot::SetPosition(units::degree_t angle)
@@ -113,9 +127,18 @@ bool IntakePivot::IsWithinTolerance()
     return abs(pivotMotor.GetClosedLoopError().GetValue()) < tolerance.value();
 }
 
+frc2::CommandPtr IntakePivot::StopMotorCommand()
+{
+    return RunOnce([this] { StopMotor(); }).WithName("Stop Motor");
+}
+
 frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
 {
-    return Run([this, speed] { pivotMotor.Set(speed); }).WithName("Set Speed");
+    return Run([this, speed] 
+        { 
+            pivotMotor.SetControl(pivotMotorSpeedControl.WithOutput(speed)
+            .WithIgnoreSoftwareLimits(true)); 
+        }).WithName("Set Speed");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()

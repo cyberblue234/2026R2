@@ -21,5 +21,11 @@ private:
     nt::StructArrayPublisher<frc::SwerveModulePosition> modulePositions = drivetrainTable->GetStructArrayTopic<frc::SwerveModulePosition>("Module Positions").Publish();
     nt::StructPublisher<frc::ChassisSpeeds> chassisSpeeds = drivetrainTable->GetStructTopic<frc::ChassisSpeeds>("Chassis Speeds").Publish();
 
-    
+    std::shared_ptr<nt::NetworkTable> hopperTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Hopper");
+    std::shared_ptr<nt::NetworkTable> launcherTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Launcher");
+    std::shared_ptr<nt::NetworkTable> intakePivotTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Intake Pivot");
+    std::shared_ptr<nt::NetworkTable> intakeRollerTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Intake Roller");
+
+    std::shared_ptr<nt::NetworkTable> genericTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Generic");
+    nt::StringPublisher targetPublisher = genericTable->GetStringTopic("Target").Publish();
 };

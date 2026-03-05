@@ -11,6 +11,8 @@ Climber::Climber(int motorID, int limitSwitchID, bool inverted) : climberMotor(m
     climberMotor.GetConfigurator().Apply(climberMotorConfig);
 
     climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(StopClimberCommand().AndThen(ResetClimberEncoderCommand()));
+
+    SetDefaultCommand(StopClimberCommand());
 }
 
 void Climber::ExtendClimber()
