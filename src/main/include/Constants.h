@@ -126,8 +126,8 @@ namespace OperatorConstants
     constexpr int kClimberExtendSwitch = 9;
     constexpr int kClimberRetractSwitch = 8;
 
-    constexpr int kManualLaunchPosition1Button = 3;
-    constexpr int kManualLaunchPosition2Button = 5;
+    constexpr int kTargetHubSwitch = 3;
+    constexpr int kTargetPassSwitch = 5;
     
     constexpr int kManualIntakePivotDown = 4;
     constexpr int kManualIntakePivotUp = 2;
@@ -172,4 +172,9 @@ namespace FieldConstants
 {
     const frc::Translation3d blueHubPose{4.63_m, 4.03_m, 1.8288_m};
     const frc::Translation3d redHubPose{11.9_m, blueHubPose.Y(), blueHubPose.Z()};
+    const frc::Translation3d bluePassPose{2.5_m, blueHubPose.Y(), 0_m};
+    const frc::Translation3d redPassPose{14_m, blueHubPose.Y(), 0_m};
 }
+
+#define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)
+#define ADD_CURRENT_COMMAND builder.AddStringProperty("Current Command", [this] { return GetCurrentCommand()->GetName(); }, nullptr)
