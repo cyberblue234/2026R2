@@ -59,7 +59,7 @@ public:
     void SetLauncherAngle(units::degree_t angle);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
-    bool IsLauncherSpeedWithinTolerance();
+    bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
 
     void Periodic() override
     {
@@ -76,13 +76,21 @@ public:
         return launcherMotor1.GetVelocity().AsSupplier();
     }
 
+    units::degree_t GetLauncherAngle()
+    {
+        return deflectorCANcoder.GetAbsolutePosition().GetValue();
+    }
+
     std::function<units::angle::degree_t ()> GetLauncherAngleAsSupplier()
     {
         return deflectorCANcoder.GetAbsolutePosition().AsSupplier();
     }
 
     frc2::CommandPtr ManualSetPosition(double position);
+    frc2::CommandPtr StopMotorsCommand();
     frc2::CommandPtr LaunchCommand(std::function<LauncherState()> setState);
+
+    void InitSendable(wpi::SendableBuilder& builder) override;
 
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};

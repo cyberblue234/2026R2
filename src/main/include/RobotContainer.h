@@ -24,22 +24,58 @@
 
 #include "sim/Fuel.hpp"
 
-/**
- * This class is where the bulk of the robot should be declared.  Since
- * Command-based is a "declarative" paradigm, very little robot logic should
- * actually be handled in the {@link Robot} periodic methods (other than the
- * scheduler calls).  Instead, the structure of the robot (including subsystems,
- * commands, and trigger mappings) should be declared here.
- */
+namespace RobotContainerConstants
+{
+    namespace DriveConstants
+    {
+        inline constexpr units::meters_per_second_t kMaxSpeed = TunerConstants::kSpeedAt12Volts;
+        inline constexpr units::radians_per_second_t kMaxAngularRate = 1_tps;
+
+        inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 20_mps_sq;
+        inline constexpr units::degrees_per_second_squared_t kAngularAccelerationLimit = 4_tr_per_s_sq;
+        inline constexpr double kDeadband = 0.1;
+    }
+
+    namespace TargetConstants
+    {
+        inline constexpr double kP = 12;
+        inline constexpr double kI = 100;
+        inline constexpr double kD = 0;
+
+        inline constexpr units::meters_per_second_t kMaxSpeed = 2.5_mps;
+        inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 3_mps_sq;
+        inline constexpr double kDeadband = 0.1;
+
+        inline constexpr units::meter_t kHubToleranceRadius = 16_in;
+        inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
+        inline constexpr units::meter_t kZOffset = 1_m;
+    }
+
+    namespace IntakePivotConstants
+    {
+        inline constexpr double kManualSpeed = 0.1;
+    }
+}
+
+enum Targets
+{
+    Hub, Pass, Null
+};
+
+using namespace RobotContainerConstants;
+
 class RobotContainer
 {
 public:
     RobotContainer();
-private:
+
     frc2::CommandPtr GetAutonomousCommand();
 
-private:
-    // Replace with CommandPS4Controller or CommandJoystick if needed
+    bool IsAlignmentWithinTolerances()
+    {
+        return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) && units::math::abs(frc::Rotation2d(targetYaw).Degrees() - drivetrain.GetState().Pose.Rotation().Degrees()) < yawTolerance;
+    }
+
     frc2::CommandXboxController joystick{
         OperatorConstants::kDriverControllerPort};
 
@@ -49,43 +85,39 @@ private:
         OperatorConstants::kControlBoardPort
     };
 
-    units::meters_per_second_t MaxSpeed = TunerConstants::kSpeedAt12Volts;
-    units::radians_per_second_t MaxAngularRate = 1_tps; 
-
     /* Setting up bindings for necessary control of the swerve drive platform */
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
-        .WithDeadband(MaxSpeed * 0.2).WithRotationalDeadband(MaxAngularRate * 0.2) // Add a 20% deadband
+        .WithDeadband(DriveConstants::kMaxSpeed * DriveConstants::kDeadband)
+        .WithRotationalDeadband(DriveConstants::kMaxAngularRate * DriveConstants::kDeadband)
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
-
-    double alignmentKP = 1;
-    double alignmentKI = 40;
-    double alignmentKD = 1.5;
+    frc::SlewRateLimiter<units::meters_per_second> driveXLimiter{DriveConstants::kAccelerationLimit};
+    frc::SlewRateLimiter<units::meters_per_second> driveYLimiter{DriveConstants::kAccelerationLimit};
+    frc::SlewRateLimiter<units::degrees_per_second> driveYawLimiter{DriveConstants::kAngularAccelerationLimit};
 
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
-        .WithDeadband(0.2_mps)
+        .WithDeadband(TargetConstants::kMaxSpeed * TargetConstants::kDeadband)
         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
-        .WithHeadingPID(alignmentKP, alignmentKI, alignmentKD)
-        .WithTolerance(8_deg);
-    
-    frc::SlewRateLimiter<units::meters_per_second> DriveXAccelerationLimiter{3_mps_sq};
-    frc::SlewRateLimiter<units::meters_per_second> DriveYAccelerationLimiter{3_mps_sq};
+        .WithHeadingPID(TargetConstants::kP, TargetConstants::kI, TargetConstants::kD);
+    frc::SlewRateLimiter<units::meters_per_second> alignmentXLimiter{TargetConstants::kAccelerationLimit};
+    frc::SlewRateLimiter<units::meters_per_second> alignmentYLimiter{TargetConstants::kAccelerationLimit};
 
     units::degree_t targetYaw;
+    units::degree_t yawTolerance;
     units::degree_t pitch;
     units::radians_per_second_t omega;
+    units::radians_per_second_t omegaTolerance;
 
-    units::meter_t kZOffset = 1_m;
+    Targets target;
 
-public:
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
     IntakeRoller intakeRoller;
     IntakePivot intakePivot;
     Hopper hopper;
     Launcher launcher;
-    Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID};
-    Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID};
+    Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, false};
+    Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel

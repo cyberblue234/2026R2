@@ -23,18 +23,14 @@ void CommandSwerveDrivetrain::Periodic()
     }
 
     frc::Pose2d pose = GetState().Pose;
-    posePublisher.Set(pose);
-    units::meter_t currentX = pose.X();
-    units::meter_t deltaX = currentX - lastX;
-    units::meter_t currentY = pose.Y();
-    units::meter_t deltaY = currentY - lastY;
-    units::radian_t currentYaw = pose.Rotation().Radians();
-    units::radian_t deltaYaw = currentYaw - lastYaw;
     units::second_t currentTime = utils::GetSystemTime();
     units::second_t deltaTime = currentTime - lastTime;
-    vX = deltaX / deltaTime;
-    vY = deltaY / deltaTime;
-    vYaw = deltaYaw / deltaTime;
+    units::meter_t currentX = pose.X();
+    vX = (currentX - lastX) / deltaTime;
+    units::meter_t currentY = pose.Y();
+    vY = (currentY - lastY) / deltaTime;
+    units::radian_t currentYaw = pose.Rotation().Radians();
+    vYaw = (currentYaw - lastYaw) / deltaTime;
     lastX = currentX;
     lastY = currentY;
     lastYaw = currentYaw;
@@ -53,4 +49,22 @@ void CommandSwerveDrivetrain::StartSimThread()
         UpdateSimState(deltaTime, frc::RobotController::GetBatteryVoltage());
     });
     m_simNotifier->StartPeriodic(kSimLoopPeriod);
+}
+
+void CommandSwerveDrivetrain::InitSendable(wpi::SendableBuilder &builder)
+{
+    builder.AddDoubleProperty("Velocity X (m\\s)", [this] { return vX.value(); }, nullptr);
+    builder.AddDoubleProperty("Velocity Y (m\\s)", [this] { return vY.value(); }, nullptr);
+    builder.AddDoubleProperty("Velocity Yaw (rad\\s)", [this] { return vYaw.value(); }, nullptr);
+    builder.AddDoubleArrayProperty("Wheel Velocities (m\\s)", [this] 
+        { 
+            std::vector<double> wheelVelocities;
+            for (auto const& moduleState : GetState().ModuleStates) {
+                wheelVelocities.push_back(moduleState.speed.value());
+            }
+            return wheelVelocities;
+        }, nullptr);
+
+    ADD_DEFAULT_COMMAND;
+    ADD_CURRENT_COMMAND;
 }

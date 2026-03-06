@@ -294,6 +294,8 @@ public:
         return vYaw;
     }
 
+    void InitSendable(wpi::SendableBuilder &builder) override;
+
 private:
     void StartSimThread();
     
@@ -304,6 +306,4 @@ private:
     units::meters_per_second_t vX;
     units::meters_per_second_t vY;
     units::radians_per_second_t vYaw;
-
-    nt::StructPublisher<frc::Pose2d> posePublisher = nt::NetworkTableInstance::GetDefault().GetTable("Robot")->GetStructTopic<frc::Pose2d>("pose").Publish();
 };

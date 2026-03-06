@@ -100,6 +100,8 @@ namespace ctre::phoenix6::swerve::requests
          */
         ProfiledPIDController<units::degree> HeadingController{0, 0, 0, TrapezoidProfile<units::degree>::Constraints{0_deg_per_s, 0_deg_per_s_sq}};
 
+        units::degree_t Tolerance;
+
 
         FieldCentricFacingAngleProfiled()
         {
@@ -111,6 +113,7 @@ namespace ctre::phoenix6::swerve::requests
         FieldCentricFacingAngleProfiled &WithTolerance(units::degree_t tolerance)
         {
             this->HeadingController.SetTolerance(tolerance);
+            this->Tolerance = std::move(tolerance);
             return *this;
         }
 

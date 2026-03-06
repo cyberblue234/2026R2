@@ -19,6 +19,7 @@ Robot::Robot() {}
 void Robot::RobotPeriodic()
 {
     frc2::CommandScheduler::GetInstance().Run();
+    telemetry.UpdateTelemetry();
 }
 
 /**
@@ -37,9 +38,9 @@ void Robot::DisabledPeriodic() {}
 void Robot::AutonomousInit()
 {
 
-    if (m_autonomousCommand)
+    if (autonomousCommand)
     {
-        frc2::CommandScheduler::GetInstance().Schedule(m_autonomousCommand.value());
+        frc2::CommandScheduler::GetInstance().Schedule(autonomousCommand.value());
     }
 }
 
@@ -51,9 +52,9 @@ void Robot::TeleopInit()
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand)
+    if (autonomousCommand)
     {
-        m_autonomousCommand->Cancel();
+        autonomousCommand->Cancel();
     }
 }
 
