@@ -139,21 +139,21 @@ namespace RobotMap
 {
     namespace Hopper
     {
-        constexpr int kFloorMotorID = 9;
-        constexpr int kFeederMotorID = 10;
+        constexpr int kFloorMotorID = 10;
+        constexpr int kFeederMotorID = 9;
     }
     namespace Intake
     {
-        constexpr int kRollerMotorID = 11;
-        constexpr int kPivotMotorID = 12;
+        constexpr int kRollerMotorID = 16;
+        constexpr int kPivotMotorID = 15;
         constexpr int kPivotCancoderID = 5;
     }
 
     namespace Launcher
     {
-        constexpr int kLauncherMotor1ID = 13;
-        constexpr int kLauncherMotor2ID = 14;
-        constexpr int kLauncherMotor3ID = 15;
+        constexpr int kLauncherMotor1ID = 11;
+        constexpr int kLauncherMotor2ID = 12;
+        constexpr int kLauncherMotor3ID = 13;
         constexpr int kActuator1ID = 0;
         constexpr int kActuator2ID = 1;
         constexpr int kDeflectorCANcoderID = 6;
@@ -161,9 +161,9 @@ namespace RobotMap
 
     namespace Climber
     {
-        constexpr int kClimberMotor1ID = 16;
+        constexpr int kClimberMotor1ID = 17;
         constexpr int kClimberLimitSwitch1ID = 0;
-        constexpr int kClimberMotor2ID = 17;
+        constexpr int kClimberMotor2ID = 14;
         constexpr int kClimberLimitSwitch2ID = 1;
     }
 }
