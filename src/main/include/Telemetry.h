@@ -16,6 +16,7 @@ private:
 
     std::shared_ptr<nt::NetworkTable> drivetrainTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Drivetrain");
     nt::StructPublisher<frc::Pose2d> drivetrainPose = drivetrainTable->GetStructTopic<frc::Pose2d>("Pose").Publish();
+    nt::StructPublisher<frc::Pose3d> turretCamPose = drivetrainTable->GetStructTopic<frc::Pose3d>("Turret Cam").Publish();
     nt::StructArrayPublisher<frc::SwerveModuleState> moduleStates = drivetrainTable->GetStructArrayTopic<frc::SwerveModuleState>("Module States").Publish();
     nt::StructArrayPublisher<frc::SwerveModuleState> moduleTargets = drivetrainTable->GetStructArrayTopic<frc::SwerveModuleState>("Module Targets").Publish();
     nt::StructArrayPublisher<frc::SwerveModulePosition> modulePositions = drivetrainTable->GetStructArrayTopic<frc::SwerveModulePosition>("Module Positions").Publish();
