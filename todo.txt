@@ -1,0 +1,6 @@
+- Finalize command structure
+--- Manual launcher commmand vs auto -> for name, use a tertiary that says target == Manual ? "Manual Shoot" : "Align and Shoot at " + target == Hub ? "Hub" : "Pass"
+- Continue to add vision
+- PID tuning
+- consolidate constants?
+- Autonomous
