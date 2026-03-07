@@ -11,7 +11,7 @@ RobotContainer::RobotContainer()
     ConfigureBindings();
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
-
+    frc2::CommandScheduler::GetInstance().Schedule(UpdateVisionMeasurementsCommand());
 }
 
 void RobotContainer::ConfigureBindings()
@@ -30,7 +30,7 @@ void RobotContainer::ConfigureBindings()
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
-        GetAlignAndShootCommand()
+        GetAlignAndLaunchCommand()
     );
 
     controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Hub; }));
@@ -57,7 +57,7 @@ void RobotContainer::ConfigureBindings()
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
-frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()
+frc2::CommandPtr RobotContainer::GetAlignAndLaunchCommand()
 {
     return frc2::cmd::Parallel
     (
@@ -132,4 +132,29 @@ frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()
         hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
     ).WithName("Align and Shoot");
+}
+
+frc2::CommandPtr RobotContainer::UpdateVisionMeasurementsCommand()
+{
+    return frc2::cmd::Run
+    (
+        [this]
+        {
+            for (photon::PhotonCamera *camera : cameras)
+            {
+                for (const auto& result : camera->GetAllUnreadResults()) 
+                {
+                    auto visionEst = turretEstimator.EstimateCoprocMultiTagPose(result);
+                    if (!visionEst) 
+                    {
+                        visionEst = turretEstimator.EstimateLowestAmbiguityPose(result);
+                    }
+                    if (visionEst)
+                    {
+                        drivetrain.AddVisionMeasurement(visionEst->estimatedPose.ToPose2d(), visionEst->timestamp);
+                    }
+                }
+            }
+        }
+    ).WithName("Update Vision Measurements");
 }
