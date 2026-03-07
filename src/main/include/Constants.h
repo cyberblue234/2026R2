@@ -155,7 +155,7 @@ namespace RobotMap
         constexpr int kLauncherMotor2ID = 12;
         constexpr int kLauncherMotor3ID = 13;
         constexpr int kActuator1ID = 0;
-        constexpr int kActuator2ID = 1;
+        constexpr int kActuator2ID = 7;
         constexpr int kDeflectorCANcoderID = 6;
     }
 
@@ -174,8 +174,6 @@ namespace FieldConstants
     constexpr frc::Translation3d kRedHubPose{11.9_m, kBlueHubPose.Y(), kBlueHubPose.Z()};
     constexpr frc::Translation3d kBluePassPose{2.5_m, kBlueHubPose.Y(), 0_m};
     constexpr frc::Translation3d kRedPassPose{14_m, kBlueHubPose.Y(), 0_m};
-
-    const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};
 }
 
 #define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)
