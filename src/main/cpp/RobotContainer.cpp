@@ -39,10 +39,10 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
-    controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
-    controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
+    // controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
+    // controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
+    // controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
+    // controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
     (   
@@ -53,6 +53,8 @@ void RobotContainer::ConfigureBindings()
     (
         frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()).WithName("Retract Climbers")
     );
+
+    joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
 frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()

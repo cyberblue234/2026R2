@@ -18,6 +18,7 @@ Launcher::Launcher()
     launcherMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
     launcherMotorConfig.Slot0 = pidConfigs;
     launcherMotorConfig.MotionMagic = motionMagicConfigs;
+    launcherMotorConfig.MotorOutput.Inverted = signals::InvertedValue::CounterClockwise_Positive;
 
     launcherMotor1.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     launcherMotor1.GetConfigurator().Apply(launcherMotorConfig);
@@ -26,6 +27,7 @@ Launcher::Launcher()
     launcherMotor2.GetConfigurator().Apply(launcherMotorConfig);
 
     launcherMotor3.GetConfigurator().Apply(configs::TalonFXConfiguration{});
+    launcherMotorConfig.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
     launcherMotor3.GetConfigurator().Apply(launcherMotorConfig);
 
     deflectorCANcoder.GetConfigurator().Apply(configs::CANcoderConfiguration{});

@@ -10,7 +10,7 @@ Hopper::Hopper()
 
     feederMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration feederMotorConfig{motorConfigs};
-    feederMotorConfig.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
+    feederMotorConfig.MotorOutput.Inverted = signals::InvertedValue::CounterClockwise_Positive;
     feederMotor.GetConfigurator().Apply(feederMotorConfig);
 
     floorMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});

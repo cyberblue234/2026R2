@@ -20,14 +20,14 @@ namespace LauncherConstants
     constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression;
     constexpr units::meter_t kShooterRadius = 2_in;
     constexpr units::kilogram_t kStealthWheelMass = 0.24_lb;
-    constexpr units::kilogram_t kFlywheelMass = 1.562_lb; // Calculated with CAD
+    constexpr units::kilogram_t kFlywheelMass = 0.47_lb;
     constexpr units::kilogram_t kShooterMass = kFlywheelMass + 3 * kStealthWheelMass;
     constexpr units::kilogram_square_meter_t kStealthWheelMOI = 0.634_lb * 1_in * 1_in; // Calculated with CAD
-    constexpr units::kilogram_square_meter_t kFlywheelMOI = 3.3_lb * 1_in * 1_in; // Calculated with CAD
+    constexpr units::kilogram_square_meter_t kFlywheelMOI = 1.159_lb * 1_in * 1_in; // Calculated with CAD
     constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
     constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
     
-    constexpr double kLoss = 0; // 0% loss
+    constexpr double kLoss = 0.2; // 0% loss
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
