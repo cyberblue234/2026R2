@@ -5,6 +5,7 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 #include <frc/PWM.h>
+#include <frc/Servo.h>
 #include <units/moment_of_inertia.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <frc/simulation/FlywheelSim.h>
@@ -20,14 +21,14 @@ namespace LauncherConstants
     constexpr units::meter_t kEffectiveFuelRadius = kFuelRadius - kCompression;
     constexpr units::meter_t kShooterRadius = 2_in;
     constexpr units::kilogram_t kStealthWheelMass = 0.24_lb;
-    constexpr units::kilogram_t kFlywheelMass = 1.562_lb; // Calculated with CAD
+    constexpr units::kilogram_t kFlywheelMass = 0.47_lb;
     constexpr units::kilogram_t kShooterMass = kFlywheelMass + 3 * kStealthWheelMass;
     constexpr units::kilogram_square_meter_t kStealthWheelMOI = 0.634_lb * 1_in * 1_in; // Calculated with CAD
-    constexpr units::kilogram_square_meter_t kFlywheelMOI = 3.3_lb * 1_in * 1_in; // Calculated with CAD
+    constexpr units::kilogram_square_meter_t kFlywheelMOI = 1.159_lb * 1_in * 1_in; // Calculated with CAD
     constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
     constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
     
-    constexpr double kLoss = 0; // 0% loss
+    constexpr double kLoss = 0.2; // 0% loss
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
@@ -92,13 +93,15 @@ public:
 
     void InitSendable(wpi::SendableBuilder& builder) override;
 
+    LauncherState currentState;
+
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
     hardware::TalonFX launcherMotor3{RobotMap::Launcher::kLauncherMotor3ID};
 
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
-    LauncherState currentState;
+    
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};

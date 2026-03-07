@@ -11,7 +11,7 @@ RobotContainer::RobotContainer()
     ConfigureBindings();
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
-
+    frc2::CommandScheduler::GetInstance().Schedule(UpdateVisionMeasurementsCommand());
 }
 
 void RobotContainer::ConfigureBindings()
@@ -28,21 +28,37 @@ void RobotContainer::ConfigureBindings()
         }).WithName("Drive")
     );
 
+    joystick.POVUp().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
+    joystick.POVDown().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
+        launcherSetSpeed -= 50_rpm; 
+        if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
+
+
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
-        GetAlignAndShootCommand()
+        GetAlignAndLaunchCommand().Unless([this] { return target == Targets::Manual; })
+        .AndThen(frc2::cmd::Run([this]
+        {
+            launcher.SetLauncherSpeed(launcherSetSpeed);
+            launcher.currentState.omega = launcherSetSpeed;
+            if (launcher.IsLauncherSpeedWithinTolerance(100_rpm)) hopper.FeedLauncher();
+            // launcher.SetLauncherPosition(4 * (controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) - 0.5));
+        }))
     );
 
     controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Hub; }));
+    controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnFalse(frc2::cmd::RunOnce([this] { target = Targets::Manual; }));
     controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Pass; }));
+    controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnFalse(frc2::cmd::RunOnce([this] { target = Targets::Manual; }));
+
 
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
-    controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
-    controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
+    // controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
+    // controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
+    // controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
+    // controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
     (   
@@ -53,9 +69,11 @@ void RobotContainer::ConfigureBindings()
     (
         frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()).WithName("Retract Climbers")
     );
+
+    joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
-frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()
+frc2::CommandPtr RobotContainer::GetAlignAndLaunchCommand()
 {
     return frc2::cmd::Parallel
     (
@@ -130,4 +148,29 @@ frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()
         hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)).Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
     ).WithName("Align and Shoot");
+}
+
+frc2::CommandPtr RobotContainer::UpdateVisionMeasurementsCommand()
+{
+    return frc2::cmd::Run
+    (
+        [this]
+        {
+            for (photon::PhotonCamera *camera : cameras)
+            {
+                for (const auto& result : camera->GetAllUnreadResults()) 
+                {
+                    auto visionEst = turretEstimator.EstimateCoprocMultiTagPose(result);
+                    if (!visionEst) 
+                    {
+                        visionEst = turretEstimator.EstimateLowestAmbiguityPose(result);
+                    }
+                    if (visionEst)
+                    {
+                        drivetrain.AddVisionMeasurement(visionEst->estimatedPose.ToPose2d(), visionEst->timestamp);
+                    }
+                }
+            }
+        }
+    ).WithName("Update Vision Measurements");
 }

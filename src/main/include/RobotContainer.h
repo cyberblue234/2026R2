@@ -61,11 +61,19 @@ namespace RobotContainerConstants
 
     namespace VisionConstants
     {
-        constexpr frc::Transform3d kTurretCamTransform
+        namespace TurretCamera
         {
-            frc::Translation3d{-1.039_in, 0_in, 26.05_in},
-            frc::Rotation3d{0_deg, -18.1_deg, 0_deg}
-        };
+            constexpr frc::Transform3d kRobotToCamera
+            {
+                frc::Translation3d{-1.039_in, 0_in, 26.05_in},
+                frc::Rotation3d{0_deg, -18.1_deg, 0_deg}
+            };
+            constexpr std::string_view kCameraName = "TurretCam";
+
+        }
+        
+        const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};
+        
     }
 }
 
@@ -121,6 +129,8 @@ public:
     units::radians_per_second_t omega;
     units::radians_per_second_t omegaTolerance;
 
+    units::revolutions_per_minute_t launcherSetSpeed = 4000_rpm;
+
     Targets target;
 
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
@@ -130,6 +140,13 @@ public:
     Launcher launcher;
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, false};
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
+
+    photon::PhotonPoseEstimator turretEstimator{RobotContainerConstants::VisionConstants::kTagLayout,
+                                              RobotContainerConstants::VisionConstants::TurretCamera::kRobotToCamera};
+    photon::PhotonCamera turretCamera{RobotContainerConstants::VisionConstants::TurretCamera::kCameraName};
+
+    std::vector<photon::PhotonCamera *> cameras{&turretCamera};
+
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
@@ -142,5 +159,7 @@ public:
 
     void ConfigureBindings();
 private:
-    frc2::CommandPtr GetAlignAndShootCommand();
+    frc2::CommandPtr GetAlignAndLaunchCommand();
+
+    frc2::CommandPtr UpdateVisionMeasurementsCommand();
 };
