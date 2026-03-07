@@ -68,7 +68,7 @@ namespace RobotContainerConstants
                 frc::Translation3d{-1.039_in, 0_in, 26.05_in},
                 frc::Rotation3d{0_deg, -18.1_deg, 0_deg}
             };
-            constexpr std::string_view kCameraName = "TurretCamera";
+            constexpr std::string_view kCameraName = "TurretCam";
 
         }
         
@@ -128,6 +128,8 @@ public:
     units::degree_t pitch;
     units::radians_per_second_t omega;
     units::radians_per_second_t omegaTolerance;
+
+    units::revolutions_per_minute_t launcherSetSpeed = 4000_rpm;
 
     Targets target;
 

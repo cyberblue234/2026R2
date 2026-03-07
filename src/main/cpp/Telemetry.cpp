@@ -23,4 +23,5 @@ void Telemetry::UpdateTelemetry()
     chassisSpeeds.Set(state.Speeds);
 
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
+    frc::SmartDashboard::PutNumber("Manual Set Speed", container.launcherSetSpeed.value());
 }

@@ -5,6 +5,7 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 #include <frc/PWM.h>
+#include <frc/Servo.h>
 #include <units/moment_of_inertia.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <frc/simulation/FlywheelSim.h>
@@ -92,13 +93,15 @@ public:
 
     void InitSendable(wpi::SendableBuilder& builder) override;
 
+    LauncherState currentState;
+
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
     hardware::TalonFX launcherMotor3{RobotMap::Launcher::kLauncherMotor3ID};
 
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
-    LauncherState currentState;
+    
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};

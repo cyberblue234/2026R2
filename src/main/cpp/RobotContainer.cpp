@@ -28,13 +28,29 @@ void RobotContainer::ConfigureBindings()
         }).WithName("Drive")
     );
 
+    joystick.POVUp().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
+    joystick.POVDown().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
+        launcherSetSpeed -= 50_rpm; 
+        if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
+
+
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
-        GetAlignAndLaunchCommand()
+        GetAlignAndLaunchCommand().Unless([this] { return target == Targets::Manual; })
+        .AndThen(frc2::cmd::Run([this]
+        {
+            launcher.SetLauncherSpeed(launcherSetSpeed);
+            launcher.currentState.omega = launcherSetSpeed;
+            if (launcher.IsLauncherSpeedWithinTolerance(100_rpm)) hopper.FeedLauncher();
+            // launcher.SetLauncherPosition(4 * (controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) - 0.5));
+        }))
     );
 
     controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Hub; }));
+    controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnFalse(frc2::cmd::RunOnce([this] { target = Targets::Manual; }));
     controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] { target = Targets::Pass; }));
+    controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnFalse(frc2::cmd::RunOnce([this] { target = Targets::Manual; }));
+
 
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());

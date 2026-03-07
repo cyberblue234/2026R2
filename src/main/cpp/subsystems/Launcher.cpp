@@ -3,12 +3,12 @@
 Launcher::Launcher()
 {
     configs::Slot0Configs pidConfigs;
-    pidConfigs.kP = 0;
+    pidConfigs.kP = 0.5;
     pidConfigs.kI = 0;
     pidConfigs.kD = 0;
-    pidConfigs.kS = 0;
-    pidConfigs.kV = 0.12;
-    pidConfigs.kA = 0;
+    pidConfigs.kS = 0.25;
+    pidConfigs.kV = 0.11;
+    pidConfigs.kA = 0.1;
     configs::MotionMagicConfigs motionMagicConfigs;
     motionMagicConfigs.MotionMagicCruiseVelocity = 100_rad_per_s;
     motionMagicConfigs.MotionMagicAcceleration = 1000_rad_per_s_sq;
@@ -113,6 +113,7 @@ void Launcher::InitSendable(wpi::SendableBuilder& builder)
 {
     builder.AddDoubleProperty("Launcher Speed (rpm)", [this] { return GetLauncherOmega().convert<units::revolutions_per_minute>().value(); }, nullptr);
     builder.AddDoubleProperty("Launcher Set Speed (rpm)", [this] { return currentState.omega.convert<units::revolutions_per_minute>().value(); }, nullptr);
+    builder.AddDoubleProperty("Launcher Set Angle (degrees)", [this] { return currentState.pitch.value(); }, nullptr);
     builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);
     builder.AddDoubleProperty("Launcher Angle (deg)", [this] { return GetLauncherAngle().value(); }, nullptr);
     ADD_DEFAULT_COMMAND;
