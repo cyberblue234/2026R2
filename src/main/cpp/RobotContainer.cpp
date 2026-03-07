@@ -121,7 +121,7 @@ frc2::CommandPtr RobotContainer::GetAlignAndShootCommand()
             {
                 return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
                 .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
+                .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed - joystick.GetRightX() * 0.5_mps))
                 .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed));
             }
         ),
