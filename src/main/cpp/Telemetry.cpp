@@ -16,10 +16,11 @@ void Telemetry::UpdateTelemetry()
 {
     swerve::impl::SwerveDrivetrainImpl::SwerveDriveState state = container.drivetrain.GetState();
     drivetrainPose.Set(state.Pose);
+    turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(RobotContainerConstants::VisionConstants::kTurretCamTransform));
     moduleStates.Set(state.ModuleStates);
     moduleTargets.Set(state.ModuleTargets);
     modulePositions.Set(state.ModulePositions);
     chassisSpeeds.Set(state.Speeds);
 
-    targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Null");
+    targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
 }
