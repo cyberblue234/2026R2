@@ -141,19 +141,24 @@ frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
         }).WithName("Set Speed");
 }
 
+frc2::CommandPtr IntakePivot::SetPositionCommand(units::degree_t angle)
+{
+    return Run([this, angle] { SetPosition(angle); }).Until([this] { return IsWithinTolerance(); }).WithName("Set Position");
+}
+
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
-    return Run([this] { SetPositionToGround(); }).WithName("Set Position to Ground");
+    return SetPositionCommand(groundPosition).WithName("Set Position to Ground");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return Run([this] { SetPositionToHome(); }).WithName("Set Position to Home");
+    return SetPositionCommand(homePosition).WithName("Set Position to Home");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToBounceCommand()
 {
-    return Run([this] { SetPositionToBounce(); }).WithName("Set Position to Bounce");
+    return SetPositionCommand(bouncePosition).WithName("Set Position to Bounce");
 }
 
 
@@ -161,8 +166,8 @@ frc2::CommandPtr IntakePivot::BounceCommand()
 {
     return frc2::cmd::RepeatingSequence
     (
-        SetPositionToBounceCommand().Until([this] { return IsWithinTolerance(); }),
-        SetPositionToGroundCommand().Until([this] { return IsWithinTolerance(); })
+        SetPositionToBounceCommand(),
+        SetPositionToGroundCommand()
     ).WithName("Bounce");
 }
 

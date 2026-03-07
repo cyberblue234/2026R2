@@ -71,6 +71,7 @@ public:
 
     frc2::CommandPtr StopMotorCommand();
     frc2::CommandPtr SetSpeedCommand(double speed);
+    frc2::CommandPtr SetPositionCommand(units::degree_t angle);
     frc2::CommandPtr SetPositionToGroundCommand();
     frc2::CommandPtr SetPositionToHomeCommand();
     frc2::CommandPtr SetPositionToBounceCommand();

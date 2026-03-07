@@ -28,12 +28,21 @@ namespace LauncherConstants
     constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
     constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
     
-    constexpr double kLoss = 0.2; // 0% loss
+    constexpr double kLoss = 0.55; // 0% loss
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
-    constexpr units::turn_t kMagnetOffset = 0_tr;
+    constexpr units::turn_t kMagnetOffset = -0.3472_tr;
 
     constexpr frc::Translation3d kTurretOffset{10.5_in, 0_m, 22.5_in};
+
+    constexpr double kP = 0.5;
+    constexpr double kI = 1;
+    constexpr double kD = 0;
+    constexpr double kS = 0.25;
+    constexpr double kV = 0.11;
+    constexpr double kA = 0.1;
+    constexpr units::radians_per_second_t kCruiseVelocity = 100_rad_per_s;
+    constexpr units::radians_per_second_squared_t kAcceleration = 1000_rad_per_s_sq;
 };
 
 struct LauncherState
@@ -55,6 +64,8 @@ class Launcher : public frc2::SubsystemBase
 {
 public:
     Launcher();
+
+    double GetLoss() const { return loss; }
 
     void SetLauncherPosition(double position);
     void SetLauncherAngle(units::degree_t angle);
@@ -95,6 +106,12 @@ public:
 
     LauncherState currentState;
 
+    void SimulateShootingFuel()
+    {
+        ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
+        sim.SetRotorVelocity(GetLauncherOmega() - 2000_rpm);
+    }
+
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
@@ -102,6 +119,7 @@ private:
 
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
     
+    double loss = LauncherConstants::kLoss;
 
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};

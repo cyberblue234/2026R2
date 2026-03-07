@@ -73,14 +73,14 @@ public:
         isShooting = true;
     }
 
-    frc2::CommandPtr UpdateFuel(std::function<frc::Pose3d()> drivePose, std::function<frc::ChassisSpeeds()> driveSpeeds, std::function<units::radians_per_second_t()> shooterOmega, std::function<units::degree_t()> deflectorAngle)
+    frc2::CommandPtr UpdateFuel(std::function<frc::Pose3d()> drivePose, std::function<frc::ChassisSpeeds()> driveSpeeds, std::function<units::radians_per_second_t()> shooterOmega, std::function<units::degree_t()> deflectorAngle, std::function<double()> loss)
     {
-        return frc2::cmd::Run([this, drivePose, driveSpeeds, shooterOmega, deflectorAngle]
+        return frc2::cmd::Run([this, drivePose, driveSpeeds, shooterOmega, deflectorAngle, loss]
         {
             if (isShooting)
             {
                 isShooting = false;
-                units::meters_per_second_t rvx = driveSpeeds().vx;
+                units::meters_per_second_t rvx = driveSpeeds().vx;  
                 units::meters_per_second_t rvy = driveSpeeds().vy;
                 frc::Pose3d rPose = drivePose();
                             
@@ -90,7 +90,7 @@ public:
                     ((
                         (
                             units::math::pow<2>(shooterOmega()) 
-                            * ((1 - LauncherConstants::kLoss) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel)
+                            * ((1 - loss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel)
                         ) 
                         / LauncherConstants::kFuelMass
                     ).value())

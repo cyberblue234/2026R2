@@ -3,15 +3,15 @@
 Launcher::Launcher()
 {
     configs::Slot0Configs pidConfigs;
-    pidConfigs.kP = 0.5;
-    pidConfigs.kI = 0;
-    pidConfigs.kD = 0;
-    pidConfigs.kS = 0.25;
-    pidConfigs.kV = 0.11;
-    pidConfigs.kA = 0.1;
+    pidConfigs.kP = LauncherConstants::kP;
+    pidConfigs.kI = LauncherConstants::kI;
+    pidConfigs.kD = LauncherConstants::kD;
+    pidConfigs.kS = LauncherConstants::kS;
+    pidConfigs.kV = LauncherConstants::kV;
+    pidConfigs.kA = LauncherConstants::kA;
     configs::MotionMagicConfigs motionMagicConfigs;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 100_rad_per_s;
-    motionMagicConfigs.MotionMagicAcceleration = 1000_rad_per_s_sq;
+    motionMagicConfigs.MotionMagicCruiseVelocity = LauncherConstants::kCruiseVelocity;
+    motionMagicConfigs.MotionMagicAcceleration = LauncherConstants::kAcceleration;
 
     configs::TalonFXConfiguration launcherMotorConfig;
     launcherMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -34,6 +34,7 @@ Launcher::Launcher()
     configs::CANcoderConfiguration deflectorCANcoderConfig;
     deflectorCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = LauncherConstants::kDiscontinuityPointAngle;
     deflectorCANcoderConfig.MagnetSensor.MagnetOffset = LauncherConstants::kMagnetOffset;
+    deflectorCANcoderConfig.MagnetSensor.SensorDirection = signals::InvertedValue::CounterClockwise_Positive;
     deflectorCANcoder.GetConfigurator().Apply(deflectorCANcoderConfig);
 
     SetDefaultCommand(StopMotorsCommand());
@@ -116,6 +117,9 @@ void Launcher::InitSendable(wpi::SendableBuilder& builder)
     builder.AddDoubleProperty("Launcher Set Angle (degrees)", [this] { return currentState.pitch.value(); }, nullptr);
     builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);
     builder.AddDoubleProperty("Launcher Angle (deg)", [this] { return GetLauncherAngle().value(); }, nullptr);
+    builder.AddDoubleProperty("Actuator 1 Position", [this] { return actuator1.GetSpeed(); }, nullptr);
+    builder.AddDoubleProperty("Actuator 2 Position", [this] { return actuator2.GetSpeed(); }, nullptr);
+    builder.AddDoubleProperty("Loss Factor", [this] { return loss; }, [this](double newLoss) { loss = newLoss; });
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }

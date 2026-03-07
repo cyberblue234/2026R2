@@ -34,7 +34,7 @@ namespace RobotContainerConstants
         inline constexpr units::meters_per_second_t kMaxSpeed = TunerConstants::kSpeedAt12Volts;
         inline constexpr units::radians_per_second_t kMaxAngularRate = 1_tps;
 
-        inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 20_mps_sq;
+        inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 15_mps_sq;
         inline constexpr units::degrees_per_second_squared_t kAngularAccelerationLimit = 4_tr_per_s_sq;
         inline constexpr double kDeadband = 0.1;
     }
@@ -51,7 +51,8 @@ namespace RobotContainerConstants
 
         inline constexpr units::meter_t kHubToleranceRadius = 16_in;
         inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
-        inline constexpr units::meter_t kZOffset = 1_m;
+        inline constexpr units::meter_t kHubZOffset = 1_m;
+        inline constexpr units::meter_t kPassZOffset = 1.5_m;
     }
 
     namespace IntakePivotConstants
@@ -154,7 +155,8 @@ public:
         [this] { return frc::Pose3d{drivetrain.GetState().Pose}; }, 
         [this] { return frc::ChassisSpeeds{drivetrain.GetVelocityX(), drivetrain.GetVelocityY(), drivetrain.GetVelocityYaw()}; }, 
         launcher.GetLauncherOmegaSupplier(), 
-        launcher.GetLauncherAngleAsSupplier()
+        launcher.GetLauncherAngleAsSupplier(),
+        [this] { return launcher.GetLoss(); }
     );
 
     void ConfigureBindings();
@@ -162,4 +164,18 @@ private:
     frc2::CommandPtr GetAlignAndLaunchCommand();
 
     frc2::CommandPtr UpdateVisionMeasurementsCommand();
+
+    frc2::CommandPtr UpdateTargetCommand();
+
+    double SquareAndPreserveSign(double input)
+    {
+        return copysign(input*input, input);
+    }
+
+    double GetHeightAdjustment(double min, double max)
+    {
+        double test = controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) * (max - min) / 2 + (max + min) / 2;
+        frc::SmartDashboard::PutNumber("Height Adjustment", test);
+        return test;
+    }
 };
