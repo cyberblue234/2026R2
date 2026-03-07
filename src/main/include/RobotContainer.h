@@ -16,6 +16,9 @@
 
 #include "generated/FieldCentricFacingAngleProfiled.h"
 
+#include <photon/PhotonCamera.h>
+#include <photon/PhotonPoseEstimator.h>
+
 #include "subsystems/CommandSwerveDrivetrain.h"
 #include "subsystems/Intake.h"
 #include "subsystems/Hopper.h"
@@ -55,11 +58,20 @@ namespace RobotContainerConstants
     {
         inline constexpr double kManualSpeed = 0.1;
     }
+
+    namespace VisionConstants
+    {
+        constexpr frc::Transform3d kTurretCamTransform
+        {
+            frc::Translation3d{-1.039_in, 0_in, 26.05_in},
+            frc::Rotation3d{0_deg, -18.1_deg, 0_deg}
+        };
+    }
 }
 
 enum Targets
 {
-    Hub, Pass, Null
+    Hub, Pass, Manual
 };
 
 using namespace RobotContainerConstants;
@@ -129,4 +141,6 @@ public:
     );
 
     void ConfigureBindings();
+private:
+    frc2::CommandPtr GetAlignAndShootCommand();
 };
