@@ -63,6 +63,8 @@ IntakePivot::IntakePivot()
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
 
+    pivotMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Coast;
+
     pivotMotorConfig.Feedback.FeedbackSensorSource = signals::FeedbackSensorSourceValue::RemoteCANcoder;
     pivotMotorConfig.Feedback.FeedbackRemoteSensorID = pivotCancoder.GetDeviceID();
     pivotMotorConfig.Feedback.RotorToSensorRatio = IntakeConstants::kPivotToCANcoderRatio;
@@ -132,6 +134,11 @@ frc2::CommandPtr IntakePivot::StopMotorCommand()
     return RunOnce([this] { StopMotor(); }).WithName("Stop Motor");
 }
 
+frc2::CommandPtr IntakePivot::SetMotorToBrakeCommand()
+{
+    return Run([this] { pivotMotor.SetControl(controls::StaticBrake{}); }).WithName("Set Motor to Coast");
+}
+
 frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
 {
     return Run([this, speed] 
@@ -153,7 +160,7 @@ frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return SetPositionCommand(homePosition).WithName("Set Position to Home");
+    return SetPositionCommand(homePosition).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToBounceCommand()

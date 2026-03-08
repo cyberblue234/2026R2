@@ -70,6 +70,7 @@ public:
     bool IsWithinTolerance();
 
     frc2::CommandPtr StopMotorCommand();
+    frc2::CommandPtr SetMotorToBrakeCommand();
     frc2::CommandPtr SetSpeedCommand(double speed);
     frc2::CommandPtr SetPositionCommand(units::degree_t angle);
     frc2::CommandPtr SetPositionToGroundCommand();
