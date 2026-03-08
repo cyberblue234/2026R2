@@ -13,21 +13,30 @@ RobotContainer::RobotContainer()
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
 
+    pathplanner::NamedCommands::registerCommand("Align and Shoot", AutonAlignAndLaunch());
+    pathplanner::NamedCommands::registerCommand("Intake to Ground", intakePivot.SetPositionToGroundCommand());
+    pathplanner::NamedCommands::registerCommand("Intake", intakeRoller.IntakeCommand().AlongWith(intakePivot.SetPositionToGroundCommand()));
+
     pathplanner::AutoBuilder::configure
     (
         [this] { return drivetrain.GetState().Pose; },
         [this](const frc::Pose2d& pose) { drivetrain.ResetPose(pose); },
         [this] { return drivetrain.GetState().Speeds; },
         [this](const frc::ChassisSpeeds& speeds, const pathplanner::DriveFeedforwards& feedforwards) {
-            drive.WithVelocityX(speeds.vx).WithVelocityY(speeds.vy).WithRotationalRate(speeds.omega);
-            // Note: feedforwards are not used since we're using open loop voltage control for the drive
+            autonSetSpeeds = speeds;
+            autonSetFeedforwards = feedforwards;
+            auto alignToHubCommand = pathplanner::NamedCommands::getCommand("Align and Shoot");
+            if (alignToHubCommand.IsScheduled()) {
+                return;
+            }
+            drivetrain.SetControl(autonDrive.WithSpeeds(speeds)
+            .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
+            .WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));
         },
         std::make_shared<pathplanner::PPHolonomicDriveController>(
-            pathplanner::PIDConstants{1, 0, 0},
-            pathplanner::PIDConstants{1, 0, 0}),
-        pathplanner::RobotConfig{
-            
-        },
+            pathplanner::PIDConstants{PathPlannerConstants::Translation::kP, PathPlannerConstants::Translation::kI, PathPlannerConstants::Translation::kD},
+            pathplanner::PIDConstants{PathPlannerConstants::Rotation::kP, PathPlannerConstants::Rotation::kI, PathPlannerConstants::Rotation::kD}),
+        PathPlannerConstants::kConfig,
         []() 
         { 
             auto alliance = frc::DriverStation::GetAlliance();
@@ -36,8 +45,14 @@ RobotContainer::RobotContainer()
             }
             return false;
         },
-        &drivetrain
+        {}
     );
+}
+
+std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
+{
+    // Return the command to run in autonomous
+    return pathplanner::PathPlannerAuto("Depot").ToPtr();
 }
 
 void RobotContainer::ConfigureBindings()
@@ -62,7 +77,7 @@ void RobotContainer::ConfigureBindings()
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
-        GetAlignAndLaunchCommand().Unless([this] { return target == Targets::Manual; })
+        TeleopAlignAndLaunch().Unless([this] { return target == Targets::Manual; })
         .AndThen(frc2::cmd::Run([this]
         {
             launcher.SetLauncherSpeed(launcherSetSpeed);
@@ -103,85 +118,162 @@ void RobotContainer::ConfigureBindings()
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
-frc2::CommandPtr RobotContainer::GetAlignAndLaunchCommand()
+frc2::CommandPtr RobotContainer::UpdateAutoShootPhysicsCommand()
+{
+return frc2::cmd::Run
+    (
+        [this]
+        {
+            auto drivetrainState = drivetrain.GetState();
+            frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
+            frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
+            units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
+            units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
+            frc::Translation3d turretPose
+            {
+                robotPose.X() - units::math::cos(turretTheta) * kTurretRadius,
+                robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
+                robotPose.Z() + LauncherConstants::kTurretOffset.Z()
+            };
+            units::meters_per_second_t turretVx = robotSpeeds.vx; // + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
+            units::meters_per_second_t turretVy = robotSpeeds.vy; // - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
+            
+            frc::Translation3d targetPose;
+            units::meter_t toleranceRadius;
+            if (target == Targets::Hub)
+            {
+                targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
+                toleranceRadius = TargetConstants::kHubToleranceRadius;
+            }
+            else
+            {
+                targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBluePassPose : FieldConstants::kRedPassPose;
+                toleranceRadius = TargetConstants::kPassToleranceRadius;
+            }
+                
+            units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
+            
+            units::meter_t zOffset = (target == Targets::Hub ? TargetConstants::kHubZOffset : TargetConstants::kPassZOffset) + units::meter_t{GetHeightAdjustment(-0.5, 2)};
+            frc::SmartDashboard::PutNumber("zOffset (ft)", zOffset.convert<units::feet>().value());
+
+            units::standard_gravity_t g{-1};
+            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
+            units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
+            units::meters_per_second_t vx = (targetPose.X() - turretPose.X()) / timeOfFlight - turretVx;
+            units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
+            auto v_sq = vx*vx + vy*vy + vz*vz;
+            omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            frc::SmartDashboard::PutNumber("desiredOmega", omega.value());
+            pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
+            frc::SmartDashboard::PutNumber("desiredPitch", pitch.value());
+            targetYaw = units::math::atan2(vy, vx);
+            yawTolerance = units::math::atan(toleranceRadius / units::math::hypot(targetPose.X() - turretPose.X(), targetPose.Y() - turretPose.Y()));
+            frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
+            frc::SmartDashboard::PutNumber("yawTolerance", yawTolerance.value());
+            auto maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
+            auto maxOmega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            omegaTolerance = maxOmega - omega;
+            frc::SmartDashboard::PutNumber("omegaTolerance", omegaTolerance.value());
+            frc::SmartDashboard::PutNumber("omegaTolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
+        }
+    );
+}
+// drivetrain.ApplyRequest
+//         (
+//             [this]()
+//             {
+//                 return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+//                 .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+//                 .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
+//                 .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
+//             }
+//         ).OnlyIf(frc::DriverStation::IsTeleop)
+//         .AndThen(
+//             drivetrain.ApplyRequest
+//             (
+//                 [this]
+//                 {
+//                     frc::ChassisSpeeds setSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(autonSetSpeeds, drivetrain.GetState().Pose.Rotation().RotateBy(drivetrain.GetOperatorForwardDirection()));
+//                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+//                     .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+//                     .WithVelocityX(setSpeeds.vx)
+//                     .WithVelocityY(setSpeeds.vy)
+//                     .WithDeadband(0_mps);
+//                 }
+//             )
+//         ),
+//         intakePivot.BounceCommand(),
+frc2::CommandPtr RobotContainer::AlignAndLaunch()
 {
     return frc2::cmd::Parallel
-    (
-        frc2::cmd::Run
-        (
-            [this]
-            {
-                auto drivetrainState = drivetrain.GetState();
-                frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
-                frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
-                units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
-                units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
-                frc::Translation3d turretPose
-                {
-                    robotPose.X() - units::math::cos(turretTheta) * kTurretRadius,
-                    robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
-                    robotPose.Z() + LauncherConstants::kTurretOffset.Z()
-                };
-                units::meters_per_second_t turretVx = robotSpeeds.vx; // + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
-                units::meters_per_second_t turretVy = robotSpeeds.vy; // - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
-                
-                frc::Translation3d targetPose;
-                units::meter_t toleranceRadius;
-                if (target == Targets::Hub)
-                {
-                    targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
-                    toleranceRadius = TargetConstants::kHubToleranceRadius;
-                }
-                else
-                {
-                    targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBluePassPose : FieldConstants::kRedPassPose;
-                    toleranceRadius = TargetConstants::kPassToleranceRadius;
-                }
-                    
-                units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
-                
-                units::meter_t zOffset = (target == Targets::Hub ? TargetConstants::kHubZOffset : TargetConstants::kPassZOffset) + units::meter_t{GetHeightAdjustment(-0.5, 2)};
-                frc::SmartDashboard::PutNumber("zOffset (ft)", zOffset.convert<units::feet>().value());
-
-                units::standard_gravity_t g{-1};
-                units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
-                units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
-                units::meters_per_second_t vx = (targetPose.X() - turretPose.X()) / timeOfFlight - turretVx;
-                units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
-                auto v_sq = vx*vx + vy*vy + vz*vz;
-                omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
-                frc::SmartDashboard::PutNumber("desiredOmega", omega.value());
-                pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
-                frc::SmartDashboard::PutNumber("desiredPitch", pitch.value());
-                targetYaw = units::math::atan2(vy, vx);
-                yawTolerance = units::math::atan(toleranceRadius / units::math::hypot(targetPose.X() - turretPose.X(), targetPose.Y() - turretPose.Y()));
-                frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
-                frc::SmartDashboard::PutNumber("yawTolerance", yawTolerance.value());
-                auto maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
-                auto maxOmega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
-                omegaTolerance = maxOmega - omega;
-                frc::SmartDashboard::PutNumber("omegaTolerance", omegaTolerance.value());
-                frc::SmartDashboard::PutNumber("omegaTolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
-            }
-        ),
+    (   
+        UpdateAutoShootPhysicsCommand(),
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
-        drivetrain.ApplyRequest
-        (
-            [this]()
-            {
-                return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-                .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
-                .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
-            }
-        ),
-        intakePivot.BounceCommand().WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming),
-        intakeRoller.IntakeCommand().WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming),
-        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly().WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming),
+        
+        intakeRoller.IntakeCommand(),
+        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms))
                 .Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
     );
+}
+
+frc2::CommandPtr RobotContainer::TeleopDriveAndAlign()
+{
+    return drivetrain.ApplyRequest
+    (
+        [this]()
+        {
+            return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+            .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+            .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
+            .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
+        }
+    );
+}
+
+frc2::CommandPtr RobotContainer::AutonDriveAndAlign()
+{
+    return drivetrain.ApplyRequest
+    (
+        [this]
+        {
+            frc::ChassisSpeeds setSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(autonSetSpeeds, drivetrain.GetState().Pose.Rotation().RotateBy(drivetrain.GetOperatorForwardDirection()));
+            return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+            .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+            .WithVelocityX(setSpeeds.vx)
+            .WithVelocityY(setSpeeds.vy)
+            .WithDeadband(0_mps);
+        }
+    );
+}
+
+frc2::CommandPtr RobotContainer::TeleopAlignAndLaunch()
+{
+    return AlignAndLaunch()
+    .AlongWith(TeleopDriveAndAlign())
+    .AlongWith(intakePivot.BounceCommand());
+}
+
+frc2::CommandPtr RobotContainer::AutonAlignAndLaunch()
+{
+    return AlignAndLaunch()
+    .AlongWith(AutonDriveAndAlign())
+    .AlongWith(intakePivot.BounceCommand());
+}
+
+frc2::CommandPtr RobotContainer::IntakeAndAlignAndLaunch()
+{
+    return AlignAndLaunch()
+    .AlongWith(TeleopDriveAndAlign())
+    .AlongWith(intakePivot.SetPositionToGroundCommand());
+}
+
+frc2::CommandPtr RobotContainer::AutonIntakeAndAlignAndLaunch()
+{
+    return AlignAndLaunch()
+    .AlongWith(AutonDriveAndAlign())
+    .AlongWith(intakePivot.SetPositionToGroundCommand());
 }
 
 frc2::CommandPtr RobotContainer::UpdateTargetCommand()

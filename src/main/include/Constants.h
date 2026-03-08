@@ -168,6 +168,24 @@ namespace RobotMap
     }
 }
 
+namespace RobotConstants
+{
+    inline constexpr units::meter_t kRobotWidth = 26.25_in;
+    inline constexpr units::meter_t kRobotLength = 27_in;
+    inline constexpr units::meter_t kBumperWidth = 2.25_in;
+    inline constexpr units::meter_t kRobotWidthWithBumper = kRobotWidth + kBumperWidth * 2;
+    inline constexpr units::meter_t kRobotLengthWithBumper = kRobotLength + kBumperWidth * 2;
+    inline constexpr units::meter_t kTrackWidth = 18.5_in; // Distance between left and right wheels
+    inline constexpr units::meter_t kWheelBase = 20_in; // Distance between front and back wheels
+
+    inline constexpr units::kilogram_t kBatteryMass = 12.89_lb;
+    inline constexpr units::kilogram_t kBumperMass = 20.0_lb;
+    inline constexpr units::kilogram_t kMass = 115_lb + kBumperMass + kBatteryMass; 
+    inline constexpr units::kilogram_square_meter_t kMOI = 10_kg_sq_m;
+
+    inline constexpr units::scalar_t kWheelCOF = 1.0;
+}
+
 namespace FieldConstants
 {
     constexpr frc::Translation3d kBlueHubPose{4.63_m, 4.03_m, 1.8288_m};

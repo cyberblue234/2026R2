@@ -21,6 +21,7 @@
 
 #include <pathplanner/lib/controllers/PPHolonomicDriveController.h>
 #include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/commands/PathPlannerAuto.h>
 #include <pathplanner/lib/auto/NamedCommands.h>
 
 #include "subsystems/CommandSwerveDrivetrain.h"
@@ -64,6 +65,45 @@ namespace RobotContainerConstants
     {
         inline constexpr double kManualSpeed = 0.1;
     }
+
+    namespace PathPlannerConstants
+    {
+        inline const pathplanner::ModuleConfig kModuleConfig
+        {
+            TunerConstants::kWheelRadius, 
+            DriveConstants::kMaxSpeed, 
+            RobotConstants::kWheelCOF, 
+            frc::DCMotor::KrakenX60(1), 
+            TunerConstants::kDriveGearRatio,
+            TunerConstants::kSlipCurrent,
+            1
+        };
+        inline const pathplanner::RobotConfig kConfig
+        {
+            RobotConstants::kMass, 
+            RobotConstants::kMOI, 
+            kModuleConfig, 
+            std::vector<frc::Translation2d>{ 
+                {TunerConstants::FrontLeft.LocationX, TunerConstants::FrontLeft.LocationY}, 
+                {TunerConstants::FrontRight.LocationX, TunerConstants::FrontRight.LocationY}, 
+                {TunerConstants::BackLeft.LocationX, TunerConstants::BackLeft.LocationY}, 
+                {TunerConstants::BackRight.LocationX, TunerConstants::BackRight.LocationY}
+            }
+        };
+
+        namespace Translation
+        {
+            constexpr double kP = 8.0;
+            constexpr double kI = 0.0;
+            constexpr double kD = 0.1;
+        }
+        namespace Rotation
+        {
+            constexpr double kP = 5.0;
+            constexpr double kI = 0.0;
+            constexpr double kD = 0.1;
+        }
+    }
 }
 
 enum Targets
@@ -78,7 +118,7 @@ class RobotContainer
 public:
     RobotContainer();
 
-    frc2::CommandPtr GetAutonomousCommand();
+    std::optional<frc2::CommandPtr> GetAutonomousCommand();
 
     bool IsAlignmentWithinTolerances()
     {
@@ -98,7 +138,7 @@ public:
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
         .WithDeadband(DriveConstants::kMaxSpeed * DriveConstants::kDeadband)
         .WithRotationalDeadband(DriveConstants::kMaxAngularRate * DriveConstants::kDeadband)
-        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
+        .WithDriveRequestType(swerve::DriveRequestType::Velocity);
     frc::SlewRateLimiter<units::meters_per_second> driveXLimiter{DriveConstants::kAccelerationLimit};
     frc::SlewRateLimiter<units::meters_per_second> driveYLimiter{DriveConstants::kAccelerationLimit};
     frc::SlewRateLimiter<units::degrees_per_second> driveYawLimiter{DriveConstants::kAngularAccelerationLimit};
@@ -106,11 +146,17 @@ public:
     swerve::requests::FieldCentricFacingAngleProfiled alignToHub = swerve::requests::FieldCentricFacingAngleProfiled{}
         .WithCenterOfRotation({-LauncherConstants::kTurretOffset.X(), LauncherConstants::kTurretOffset.Y()})
         .WithDeadband(TargetConstants::kMaxSpeed * TargetConstants::kDeadband)
-        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage)
+        .WithDriveRequestType(swerve::DriveRequestType::Velocity)
         .WithSteerRequestType(swerve::SteerRequestType::Position)
         .WithHeadingPID(TargetConstants::kP, TargetConstants::kI, TargetConstants::kD);
     frc::SlewRateLimiter<units::meters_per_second> alignmentXLimiter{TargetConstants::kAccelerationLimit};
     frc::SlewRateLimiter<units::meters_per_second> alignmentYLimiter{TargetConstants::kAccelerationLimit};
+
+    swerve::requests::ApplyRobotSpeeds autonDrive = swerve::requests::ApplyRobotSpeeds{}
+        .WithDriveRequestType(swerve::DriveRequestType::Velocity)
+        .WithSteerRequestType(swerve::SteerRequestType::Position);
+    frc::ChassisSpeeds autonSetSpeeds;
+    pathplanner::DriveFeedforwards autonSetFeedforwards;
 
     units::degree_t targetYaw;
     units::degree_t yawTolerance;
@@ -158,8 +204,16 @@ public:
     );
 
     void ConfigureBindings();
+
 private:
-    frc2::CommandPtr GetAlignAndLaunchCommand();
+    frc2::CommandPtr UpdateAutoShootPhysicsCommand();
+    frc2::CommandPtr AlignAndLaunch();
+    frc2::CommandPtr TeleopDriveAndAlign();
+    frc2::CommandPtr AutonDriveAndAlign();
+    frc2::CommandPtr TeleopAlignAndLaunch();
+    frc2::CommandPtr AutonAlignAndLaunch();
+    frc2::CommandPtr IntakeAndAlignAndLaunch();
+    frc2::CommandPtr AutonIntakeAndAlignAndLaunch();
     frc2::CommandPtr UpdateTargetCommand();
 
     double SquareAndPreserveSign(double input)

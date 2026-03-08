@@ -38,7 +38,7 @@ void Robot::DisabledPeriodic() {}
  */
 void Robot::AutonomousInit()
 {
-
+    autonomousCommand = container.GetAutonomousCommand();
     if (autonomousCommand)
     {
         frc2::CommandScheduler::GetInstance().Schedule(autonomousCommand.value());
