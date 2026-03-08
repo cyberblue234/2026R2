@@ -49,6 +49,14 @@ namespace VisionConstants
 		constexpr std::string_view kCameraName = "TurretCam";
 	}
 
+    namespace BackCamera1
+	{
+		constexpr frc::Transform3d kRobotToCamera{
+			frc::Translation3d{-7_in, -5_in, 8_in},
+			frc::Rotation3d{0_deg, 0_deg, 180_deg}};
+		constexpr std::string_view kCameraName = "BackCam1";
+	}
+
 	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 8};
 	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.5, 0.5, 1};
 
@@ -86,7 +94,7 @@ public:
 			cameraSim =
 				std::make_shared<photon::PhotonCameraSim>(&camera, *cameraProp.get());
 
-			visionSim->AddCamera(cameraSim.get(), VisionConstants::TurretCamera::kRobotToCamera);
+			visionSim->AddCamera(cameraSim.get(), robotToCamera);
 			cameraSim->EnableDrawWireframe(true);
 		}
 	}

@@ -176,22 +176,43 @@ public:
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, false};
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
 
+    std::function<void(frc::Pose2d pose, units::second_t timestamp,
+                          Eigen::Matrix<double, 3, 1> stddevs)> addVisionMeasurementConsumer =  
+            [=, this](frc::Pose2d pose, units::second_t timestamp,
+                          Eigen::Matrix<double, 3, 1> stddevs) 
+            {
+                if (frc::RobotBase::IsReal())
+                {
+                    std::array<double, 3> stddevsArr{stddevs(0), stddevs(1), stddevs(2)};
+                    drivetrain.AddVisionMeasurement(pose, timestamp, stddevsArr);
+                }
+            };
+
     frc::Pose3d turretVisionPose;
     std::vector<frc::Pose3d> turretVisionTargets;
-
     Vision turretVision
     {
-        [=, this](frc::Pose2d pose, units::second_t timestamp,
-                          Eigen::Matrix<double, 3, 1> stddevs) {
-            std::array<double, 3> stddevsArr{stddevs(0), stddevs(1), stddevs(2)};
-            drivetrain.AddVisionMeasurement(pose, timestamp, stddevsArr);
-        }, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
+        addVisionMeasurementConsumer, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             turretVisionPose = pose;
             turretVisionTargets = targets;
         }
     };
+
+    frc::Pose3d backCamera1Pose;
+    std::vector<frc::Pose3d> backCamera1Targets;
+    Vision backCamera1Vision
+    {
+        addVisionMeasurementConsumer, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
+        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+        {
+            backCamera1Pose = pose;
+            backCamera1Targets = targets;
+        }
+    };
+
+    
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
@@ -214,6 +235,7 @@ private:
     frc2::CommandPtr AutonAlignAndLaunch();
     frc2::CommandPtr IntakeAndAlignAndLaunch();
     frc2::CommandPtr AutonIntakeAndAlignAndLaunch();
+
     frc2::CommandPtr UpdateTargetCommand();
 
     double SquareAndPreserveSign(double input)

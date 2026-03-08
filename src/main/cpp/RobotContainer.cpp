@@ -94,9 +94,6 @@ void RobotContainer::ConfigureBindings()
         })).WithName("Launch")
     );
 
-    controlBoard.Button(OperatorConstants::kTargetHubSwitch).Debounce(60_ms).OnChange(UpdateTargetCommand());
-    controlBoard.Button(OperatorConstants::kTargetPassSwitch).Debounce(60_ms).OnChange(UpdateTargetCommand());
-
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
@@ -178,31 +175,6 @@ return frc2::cmd::Run
         }
     );
 }
-// drivetrain.ApplyRequest
-//         (
-//             [this]()
-//             {
-//                 return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-//                 .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-//                 .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
-//                 .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
-//             }
-//         ).OnlyIf(frc::DriverStation::IsTeleop)
-//         .AndThen(
-//             drivetrain.ApplyRequest
-//             (
-//                 [this]
-//                 {
-//                     frc::ChassisSpeeds setSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(autonSetSpeeds, drivetrain.GetState().Pose.Rotation().RotateBy(drivetrain.GetOperatorForwardDirection()));
-//                     return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-//                     .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-//                     .WithVelocityX(setSpeeds.vx)
-//                     .WithVelocityY(setSpeeds.vy)
-//                     .WithDeadband(0_mps);
-//                 }
-//             )
-//         ),
-//         intakePivot.BounceCommand(),
 frc2::CommandPtr RobotContainer::AlignAndLaunch()
 {
     return frc2::cmd::Parallel
@@ -278,7 +250,7 @@ frc2::CommandPtr RobotContainer::AutonIntakeAndAlignAndLaunch()
 
 frc2::CommandPtr RobotContainer::UpdateTargetCommand()
 {
-    return frc2::cmd::RunOnce
+    return frc2::cmd::Run
     (
         [this]
         {
@@ -294,6 +266,8 @@ frc2::CommandPtr RobotContainer::UpdateTargetCommand()
             {
                 target = Targets::Manual;
             }
+
+            if (frc::DriverStation::IsAutonomous()) target = Targets::Hub;
         }
-    ).WithName("Update Target");
+    ).IgnoringDisable(true);
 }
