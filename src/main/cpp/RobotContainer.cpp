@@ -11,7 +11,6 @@ RobotContainer::RobotContainer()
     ConfigureBindings();
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
-    frc2::CommandScheduler::GetInstance().Schedule(UpdateVisionMeasurementsCommand());
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
 }
 
@@ -157,31 +156,6 @@ frc2::CommandPtr RobotContainer::GetAlignAndLaunchCommand()
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms))
                 .Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
     );
-}
-
-frc2::CommandPtr RobotContainer::UpdateVisionMeasurementsCommand()
-{
-    return frc2::cmd::Run
-    (
-        [this]
-        {
-            for (photon::PhotonCamera *camera : cameras)
-            {
-                for (const auto& result : camera->GetAllUnreadResults()) 
-                {
-                    auto visionEst = turretEstimator.EstimateCoprocMultiTagPose(result);
-                    if (!visionEst) 
-                    {
-                        visionEst = turretEstimator.EstimateLowestAmbiguityPose(result);
-                    }
-                    if (visionEst)
-                    {
-                        drivetrain.AddVisionMeasurement(visionEst->estimatedPose.ToPose2d(), visionEst->timestamp, std::array<double, 3>{0.5, 0.5, 1});
-                    }
-                }
-            }
-        }
-    ).WithName("Update Vision Measurements");
 }
 
 frc2::CommandPtr RobotContainer::UpdateTargetCommand()

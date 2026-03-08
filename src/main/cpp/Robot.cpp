@@ -20,6 +20,7 @@ void Robot::RobotPeriodic()
 {
     frc2::CommandScheduler::GetInstance().Run();
     telemetry.UpdateTelemetry();
+    container.turretVision.Periodic();
 }
 
 /**
@@ -76,7 +77,10 @@ void Robot::SimulationInit() {}
 /**
  * This function is called periodically whilst in simulation.
  */
-void Robot::SimulationPeriodic() {}
+void Robot::SimulationPeriodic() 
+{
+    container.turretVision.SimPeriodic(container.drivetrain.GetState().Pose);
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main()

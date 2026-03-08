@@ -24,6 +24,7 @@
 #include "subsystems/Hopper.h"
 #include "subsystems/Launcher.h"
 #include "subsystems/Climber.h"
+#include "subsystems/Vision.h"
 
 #include "sim/Fuel.hpp"
 
@@ -58,23 +59,6 @@ namespace RobotContainerConstants
     namespace IntakePivotConstants
     {
         inline constexpr double kManualSpeed = 0.1;
-    }
-
-    namespace VisionConstants
-    {
-        namespace TurretCamera
-        {
-            constexpr frc::Transform3d kRobotToCamera
-            {
-                frc::Translation3d{-1.039_in, 0_in, 26.05_in},
-                frc::Rotation3d{0_deg, -18.1_deg, 0_deg}
-            };
-            constexpr std::string_view kCameraName = "TurretCam";
-
-        }
-        
-        const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};
-        
     }
 }
 
@@ -142,12 +126,22 @@ public:
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, false};
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
 
-    photon::PhotonPoseEstimator turretEstimator{RobotContainerConstants::VisionConstants::kTagLayout,
-                                              RobotContainerConstants::VisionConstants::TurretCamera::kRobotToCamera};
-    photon::PhotonCamera turretCamera{RobotContainerConstants::VisionConstants::TurretCamera::kCameraName};
+    frc::Pose3d turretVisionPose;
+    std::vector<frc::Pose3d> turretVisionTargets;
 
-    std::vector<photon::PhotonCamera *> cameras{&turretCamera};
-
+    Vision turretVision
+    {
+        [=, this](frc::Pose2d pose, units::second_t timestamp,
+                          Eigen::Matrix<double, 3, 1> stddevs) {
+            std::array<double, 3> stddevsArr{stddevs(0), stddevs(1), stddevs(2)};
+            drivetrain.AddVisionMeasurement(pose, timestamp, stddevsArr);
+        }, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
+        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+        {
+            turretVisionPose = pose;
+            turretVisionTargets = targets;
+        }
+    };
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
@@ -162,9 +156,6 @@ public:
     void ConfigureBindings();
 private:
     frc2::CommandPtr GetAlignAndLaunchCommand();
-
-    frc2::CommandPtr UpdateVisionMeasurementsCommand();
-
     frc2::CommandPtr UpdateTargetCommand();
 
     double SquareAndPreserveSign(double input)

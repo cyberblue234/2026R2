@@ -16,7 +16,7 @@ void Telemetry::UpdateTelemetry()
 {
     swerve::impl::SwerveDrivetrainImpl::SwerveDriveState state = container.drivetrain.GetState();
     drivetrainPose.Set(state.Pose);
-    turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(RobotContainerConstants::VisionConstants::TurretCamera::kRobotToCamera));
+    turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     moduleStates.Set(state.ModuleStates);
     moduleTargets.Set(state.ModuleTargets);
     modulePositions.Set(state.ModulePositions);
@@ -24,4 +24,7 @@ void Telemetry::UpdateTelemetry()
 
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
     frc::SmartDashboard::PutNumber("Manual Set Speed", container.launcherSetSpeed.value());
+
+    turretVisionPosePublisher.Set(container.turretVisionPose);
+    turretVisionTargetsPublisher.Set(container.turretVisionTargets);
 }

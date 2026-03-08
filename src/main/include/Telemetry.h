@@ -29,4 +29,8 @@ private:
 
     std::shared_ptr<nt::NetworkTable> genericTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Generic");
     nt::StringPublisher targetPublisher = genericTable->GetStringTopic("Target").Publish();
+
+    std::shared_ptr<nt::NetworkTable> visionTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Vision");
+    nt::StructPublisher<frc::Pose3d> turretVisionPosePublisher = visionTable->GetSubTable("Turret")->GetStructTopic<frc::Pose3d>("Pose").Publish();
+    nt::StructArrayPublisher<frc::Pose3d> turretVisionTargetsPublisher = visionTable->GetSubTable("Turret")->GetStructArrayTopic<frc::Pose3d>("Targets").Publish();
 };
