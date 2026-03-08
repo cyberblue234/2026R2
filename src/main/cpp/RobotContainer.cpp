@@ -12,6 +12,32 @@ RobotContainer::RobotContainer()
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
+
+    pathplanner::AutoBuilder::configure
+    (
+        [this] { return drivetrain.GetState().Pose; },
+        [this](const frc::Pose2d& pose) { drivetrain.ResetPose(pose); },
+        [this] { return drivetrain.GetState().Speeds; },
+        [this](const frc::ChassisSpeeds& speeds, const pathplanner::DriveFeedforwards& feedforwards) {
+            drive.WithVelocityX(speeds.vx).WithVelocityY(speeds.vy).WithRotationalRate(speeds.omega);
+            // Note: feedforwards are not used since we're using open loop voltage control for the drive
+        },
+        std::make_shared<pathplanner::PPHolonomicDriveController>(
+            pathplanner::PIDConstants{1, 0, 0},
+            pathplanner::PIDConstants{1, 0, 0}),
+        pathplanner::RobotConfig{
+            
+        },
+        []() 
+        { 
+            auto alliance = frc::DriverStation::GetAlliance();
+            if (alliance) {
+                return alliance.value() == frc::DriverStation::Alliance::kRed;
+            }
+            return false;
+        },
+        &drivetrain
+    );
 }
 
 void RobotContainer::ConfigureBindings()

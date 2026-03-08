@@ -19,6 +19,10 @@
 #include <photon/PhotonCamera.h>
 #include <photon/PhotonPoseEstimator.h>
 
+#include <pathplanner/lib/controllers/PPHolonomicDriveController.h>
+#include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/auto/NamedCommands.h>
+
 #include "subsystems/CommandSwerveDrivetrain.h"
 #include "subsystems/Intake.h"
 #include "subsystems/Hopper.h"
