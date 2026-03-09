@@ -70,11 +70,12 @@ void RobotContainer::ConfigureBindings()
         }).WithName("Drive")
     );
 
-    joystick.POVUp().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
-    joystick.POVDown().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
+    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
+    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
         launcherSetSpeed -= 50_rpm; 
         if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
 
+    
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
@@ -91,7 +92,7 @@ void RobotContainer::ConfigureBindings()
             {
                 hopper.StopMotors();
             }
-            // launcher.SetLauncherPosition(4 * (controlBoardRegular.GetRawAxis(OperatorConstants::kHeightAdjusterAxis) - 0.5));
+            launcher.SetLauncherPosition(GetHeightAdjustment(-1, 1));
         })).WithName("Launch")
     );
 
@@ -103,14 +104,24 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
+    joystick.POVUp().WhileTrue
+    (
+        frc2::cmd::Parallel(climber1.ExtendClimberCommand(), climber2.ExtendClimberCommand()).WithName("Extend Climbers Without Limits")
+    );
+
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
     (   
         frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand(), climber2.ExtendClimberWithLimitCommand()).WithName("Extend Climbers With Limits")
     );
 
+    joystick.POVDown().WhileTrue
+    (
+        frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()).WithName("Retract Climbers Without Limits")
+    );
+
     controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
     (
-        frc2::cmd::Parallel(climber1.RetractClimberCommand(), climber2.RetractClimberCommand()).WithName("Retract Climbers")
+        frc2::cmd::Parallel(climber1.RetractClimberWithLimitCommand(), climber2.RetractClimberWithLimitCommand()).WithName("Retract Climbers With Limits")
     );
 
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
@@ -186,7 +197,6 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     return frc2::cmd::Parallel
     (   
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
-        
         intakeRoller.IntakeCommand(),
         hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)

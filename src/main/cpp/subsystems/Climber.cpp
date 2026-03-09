@@ -10,7 +10,7 @@ Climber::Climber(int motorID, int limitSwitchID, bool inverted) : climberMotor(m
     climberMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
     climberMotor.GetConfigurator().Apply(climberMotorConfig);
 
-    climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(StopClimberCommand().AndThen(ResetClimberEncoderCommand()));
+    climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(ResetClimberEncoderCommand());
 
     SetDefaultCommand(StopClimberCommand());
 }
@@ -61,6 +61,11 @@ frc2::CommandPtr Climber::ExtendClimberWithLimitCommand()
 frc2::CommandPtr Climber::RetractClimberCommand()
 {
     return Run([this] { RetractClimber(); }).WithName("Retract Climber");
+}
+
+frc2::CommandPtr Climber::RetractClimberWithLimitCommand()
+{
+    return RetractClimberCommand().Until([this] { return climberLimitSwitch.Get(); });
 }
 
 void Climber::InitSendable(wpi::SendableBuilder &builder)

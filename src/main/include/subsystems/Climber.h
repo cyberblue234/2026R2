@@ -35,6 +35,7 @@ public:
     frc2::CommandPtr ExtendClimberCommand();
     frc2::CommandPtr ExtendClimberWithLimitCommand();
     frc2::CommandPtr RetractClimberCommand();
+    frc2::CommandPtr RetractClimberWithLimitCommand();
 
     void InitSendable(wpi::SendableBuilder &builder) override;
 
