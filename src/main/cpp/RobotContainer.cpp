@@ -198,7 +198,7 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     (   
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
         intakeRoller.IntakeCommand(),
-        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
+        hopper.FeedLauncherCommand().OnlyWhile([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms))
                 .Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
