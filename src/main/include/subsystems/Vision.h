@@ -85,7 +85,7 @@ public:
 
 			cameraProp = std::make_unique<photon::SimCameraProperties>();
 
-			cameraProp->SetCalibration(960, 720, frc::Rotation2d{90_deg});
+			cameraProp->SetCalibration(960, 720, frc::Rotation2d{70_deg});
 			cameraProp->SetCalibError(.35, .10);
 			cameraProp->SetFPS(15_Hz);
 			cameraProp->SetAvgLatency(50_ms);
