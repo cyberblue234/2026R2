@@ -122,7 +122,9 @@ public:
 
     bool IsAlignmentWithinTolerances()
     {
-        return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) && units::math::abs(frc::Rotation2d(targetYaw).Degrees() - drivetrain.GetState().Pose.Rotation().Degrees()) < yawTolerance;
+        return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) 
+            && units::math::abs(frc::Rotation2d(targetYaw).Degrees() - drivetrain.GetState().Pose.Rotation().Degrees()) < yawTolerance
+            && units::math::abs(launcher.GetLauncherAngle() - pitch) < pitchTolerance;
     }
 
     frc2::CommandXboxController joystick{
@@ -161,6 +163,7 @@ public:
     units::degree_t targetYaw;
     units::degree_t yawTolerance;
     units::degree_t pitch;
+    units::degree_t pitchTolerance;
     units::radians_per_second_t omega;
     units::radians_per_second_t omegaTolerance;
 

@@ -95,14 +95,9 @@ public:
                         / LauncherConstants::kFuelMass
                     ).value())
                 };
-                frc::SmartDashboard::PutNumber("v", v.value());
-                frc::SmartDashboard::PutNumber("pitch", deflectorAngle().value());
                 auto vx = rvx + v * units::math::cos(deflectorAngle()) * units::math::cos(rPose.Rotation().Z());
                 auto vy = rvy + v * units::math::cos(deflectorAngle()) * units::math::sin(rPose.Rotation().Z());
                 auto vz = v * units::math::sin(deflectorAngle());
-                frc::SmartDashboard::PutNumber("vx", vx.value());
-                frc::SmartDashboard::PutNumber("vy", vy.value());
-                frc::SmartDashboard::PutNumber("vz", vz.value());
                 units::radian_t turretTheta = rPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
                 units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
                 frc::Pose3d startPose

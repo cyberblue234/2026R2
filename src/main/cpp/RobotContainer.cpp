@@ -12,6 +12,7 @@ RobotContainer::RobotContainer()
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
+    frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
 
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AutonAlignAndLaunch());
     pathplanner::NamedCommands::registerCommand("Intake to Ground", intakePivot.SetPositionToGroundCommand());
@@ -137,21 +138,24 @@ return frc2::cmd::Run
             
             frc::Translation3d targetPose;
             units::meter_t toleranceRadius;
+            std::optional<frc::DriverStation::Alliance> alliance = frc::DriverStation::GetAlliance();
+            if (!alliance) alliance = frc::DriverStation::Alliance::kBlue;
             if (target == Targets::Hub)
             {
-                targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
+                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
                 toleranceRadius = TargetConstants::kHubToleranceRadius;
             }
             else
             {
-                targetPose = frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBluePassPose : FieldConstants::kRedPassPose;
+                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBluePassPose : FieldConstants::kRedPassPose;
                 toleranceRadius = TargetConstants::kPassToleranceRadius;
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
             
-            units::meter_t zOffset = (target == Targets::Hub ? TargetConstants::kHubZOffset : TargetConstants::kPassZOffset) + units::meter_t{GetHeightAdjustment(-0.5, 2)};
-            frc::SmartDashboard::PutNumber("zOffset (ft)", zOffset.convert<units::feet>().value());
+            units::meter_t zOffset = (target == Targets::Hub ? TargetConstants::kHubZOffset : TargetConstants::kPassZOffset) + units::meter_t{GetHeightAdjustment(-1, 2)};
+            frc::SmartDashboard::PutNumber("Generic/Z Offset (ft)", zOffset.convert<units::feet>().value());
+            frc::SmartDashboard::PutNumber("Generic/Total Height (ft)", (zOffset + targetPose.Z()).convert<units::feet>().value());
 
             units::standard_gravity_t g{-1};
             units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
@@ -160,26 +164,27 @@ return frc2::cmd::Run
             units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
             auto v_sq = vx*vx + vy*vy + vz*vz;
             omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
-            frc::SmartDashboard::PutNumber("desiredOmega", omega.value());
+            frc::SmartDashboard::PutNumber("Generic/Desired Omega (rpm)", omega.convert<units::revolutions_per_minute>().value());
             pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
-            frc::SmartDashboard::PutNumber("desiredPitch", pitch.value());
+            frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
             targetYaw = units::math::atan2(vy, vx);
             yawTolerance = units::math::atan(toleranceRadius / units::math::hypot(targetPose.X() - turretPose.X(), targetPose.Y() - turretPose.Y()));
-            frc::SmartDashboard::PutNumber("targetYaw", targetYaw.value());
-            frc::SmartDashboard::PutNumber("yawTolerance", yawTolerance.value());
-            auto maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
-            auto maxOmega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            frc::SmartDashboard::PutNumber("Generic/Target Yaw (deg)", targetYaw.value());
+            frc::SmartDashboard::PutNumber("Generic/Yaw tolerance (deg)", yawTolerance.value());
+            units::meters_per_second_t maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
+            units::radians_per_second_t maxOmega{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
             omegaTolerance = maxOmega - omega;
-            frc::SmartDashboard::PutNumber("omegaTolerance", omegaTolerance.value());
-            frc::SmartDashboard::PutNumber("omegaTolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
+            frc::SmartDashboard::PutNumber("Generic/Omega Tolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
+            auto minPitch = units::math::acos(maxVr / units::math::sqrt(v_sq));
+            pitchTolerance = pitch - minPitch;
+            frc::SmartDashboard::PutNumber("Generic/Pitch Tolerance (deg)", pitchTolerance.value());
         }
-    );
+    ).IgnoringDisable(true);
 }
 frc2::CommandPtr RobotContainer::AlignAndLaunch()
 {
     return frc2::cmd::Parallel
     (   
-        UpdateAutoShootPhysicsCommand(),
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
         
         intakeRoller.IntakeCommand(),

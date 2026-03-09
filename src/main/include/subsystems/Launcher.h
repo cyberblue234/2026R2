@@ -109,7 +109,7 @@ public:
     void SimulateShootingFuel()
     {
         ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
-        sim.SetRotorVelocity(GetLauncherOmega() - 2000_rpm);
+        sim.SetRotorVelocity(GetLauncherOmega() - 200_rpm);
     }
 
 private:

@@ -23,7 +23,7 @@ void Telemetry::UpdateTelemetry()
     chassisSpeeds.Set(state.Speeds);
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
-    frc::SmartDashboard::PutNumber("Manual Set Speed", container.launcherSetSpeed.value());
+    frc::SmartDashboard::PutNumber("Generic/Manual Set Speed", container.launcherSetSpeed.value());
     
     turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     turretVisionPosePublisher.Set(container.turretVisionPose);
