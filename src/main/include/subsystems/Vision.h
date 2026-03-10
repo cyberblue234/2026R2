@@ -75,7 +75,7 @@ public:
 							  Eigen::Matrix<double, 3, 1>)>
 			   estConsumer,
 		   std::string_view cameraName, frc::Transform3d robotToCamera, std::function<void(frc::Pose3d, std::vector<frc::Pose3d>)> publisherConsumer)
-		: estConsumer{estConsumer}, publisherConsumer{publisherConsumer}, camera{cameraName}, photonEstimator{VisionConstants::kTagLayout, robotToCamera}
+		: photonEstimator{VisionConstants::kTagLayout, robotToCamera}, camera{cameraName}, estConsumer{estConsumer}, publisherConsumer{publisherConsumer} 
 	{
 		if (frc::RobotBase::IsSimulation())
 		{
@@ -131,6 +131,7 @@ public:
 
 			if (visionEst)
 			{
+                camera.GetCameraTable()->PutNumber("Pose Strategy", visionEst->strategy);
 				estConsumer(visionEst->estimatedPose.ToPose2d(), visionEst->timestamp,
 							GetEstimationStdDevs(visionEst->estimatedPose.ToPose2d()));
 				std::vector<frc::Pose3d> targetPoses;

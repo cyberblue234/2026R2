@@ -207,7 +207,8 @@ public:
     std::vector<frc::Pose3d> backCamera1Targets;
     Vision backCamera1Vision
     {
-        addVisionMeasurementConsumer, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
+        [=, this](frc::Pose2d pose, units::second_t timestamp,
+                        Eigen::Matrix<double, 3, 1> stddevs) {}, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             backCamera1Pose = pose;
