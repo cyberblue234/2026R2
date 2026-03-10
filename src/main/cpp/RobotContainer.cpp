@@ -79,21 +79,32 @@ void RobotContainer::ConfigureBindings()
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
-        TeleopAlignAndLaunch().Unless([this] { return target == Targets::Manual; })
-        .AndThen(frc2::cmd::Run([this]
-        {
-            launcher.SetLauncherSpeed(launcherSetSpeed);
-            launcher.currentState.omega = launcherSetSpeed;
-            if (launcher.IsLauncherSpeedWithinTolerance(100_rpm)) 
-            {
-                hopper.FeedLauncher();
-            }
-            else
-            {
-                hopper.StopMotors();
-            }
-            launcher.SetLauncherPosition(GetHeightAdjustment(-1, 1));
-        })).WithName("Launch")
+        frc2::cmd::Either
+        (
+            frc2::cmd::Parallel
+            (
+                frc2::cmd::Run([this]
+                {
+                    launcher.SetLauncherSpeed(launcherSetSpeed);
+                    launcher.currentState.omega = launcherSetSpeed;
+                    launcher.SetLauncherPosition(GetHeightAdjustment(-1, 1));
+                }),
+                ManualLaunch(),
+                drivetrain.ApplyRequest([this]() -> auto&& {
+                    return drive
+                        .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed / 2)) // Drive forward with negative Y (forward)
+                        .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed / 2)) // Drive left with negative X (left)
+                        .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate / 2)); // Drive counterclockwise with negative X (left)
+                })
+            ), // Run manual launch if target == Manual
+            frc2::cmd::Either
+            (
+                TeleopAlignAndLaunch().Until(GetIntakeSwitchSupplier()), 
+                IntakeAndAlignAndLaunch().OnlyWhile(GetIntakeSwitchSupplier()),
+                GetIntakeSwitchSupplier()
+            ).Repeatedly(), // Run auto launch otherwise
+            [this] { return target == Targets::Manual; }
+        ).WithName("Launch")
     );
 
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
@@ -192,17 +203,28 @@ return frc2::cmd::Run
         }
     ).IgnoringDisable(true);
 }
+
+frc2::CommandPtr RobotContainer::ManualLaunch()
+{
+    return frc2::cmd::Parallel
+    (   
+        intakeRoller.IntakeCommand(),
+        hopper.FeedLauncherCommand().OnlyWhile([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).Repeatedly(),
+        frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); } ), frc2::cmd::Wait(40_ms)
+                , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
+    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
+}
+
 frc2::CommandPtr RobotContainer::AlignAndLaunch()
 {
     return frc2::cmd::Parallel
     (   
-        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
         intakeRoller.IntakeCommand(),
         hopper.FeedLauncherCommand().OnlyWhile([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
-        frc2::cmd::Sequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
-                , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms))
-                .Repeatedly().OnlyIf(frc::RobotBase::IsSimulation)
-    );
+        frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
+                , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation),
+        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; })
+    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
 }
 
 frc2::CommandPtr RobotContainer::TeleopDriveAndAlign()

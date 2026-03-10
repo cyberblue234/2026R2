@@ -180,7 +180,7 @@ public:
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
 
     std::function<void(frc::Pose2d pose, units::second_t timestamp,
-                          Eigen::Matrix<double, 3, 1> stddevs)> addVisionMeasurementConsumer =  
+                          Eigen::Matrix<double, 3, 1> stddevs)> visionMeasurementConsumer =  
             [=, this](frc::Pose2d pose, units::second_t timestamp,
                           Eigen::Matrix<double, 3, 1> stddevs) 
             {
@@ -195,7 +195,7 @@ public:
     std::vector<frc::Pose3d> turretVisionTargets;
     Vision turretVision
     {
-        addVisionMeasurementConsumer, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
+        visionMeasurementConsumer, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             turretVisionPose = pose;
@@ -207,8 +207,7 @@ public:
     std::vector<frc::Pose3d> backCamera1Targets;
     Vision backCamera1Vision
     {
-        [=, this](frc::Pose2d pose, units::second_t timestamp,
-                        Eigen::Matrix<double, 3, 1> stddevs) {}, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
+        visionMeasurementConsumer, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             backCamera1Pose = pose;
@@ -232,6 +231,7 @@ public:
 
 private:
     frc2::CommandPtr UpdateAutoShootPhysicsCommand();
+    frc2::CommandPtr ManualLaunch();
     frc2::CommandPtr AlignAndLaunch();
     frc2::CommandPtr TeleopDriveAndAlign();
     frc2::CommandPtr AutonDriveAndAlign();
@@ -241,6 +241,11 @@ private:
     frc2::CommandPtr AutonIntakeAndAlignAndLaunch();
 
     frc2::CommandPtr UpdateTargetCommand();
+
+    std::function<bool()> GetIntakeSwitchSupplier()
+    {
+        return [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); };
+    }
 
     double SquareAndPreserveSign(double input)
     {
