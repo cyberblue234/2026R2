@@ -18,14 +18,27 @@
     "rotations": [
         {
             "axis": "x",
-            "degrees": 180
+            "degrees": 90
         },
         {
             "axis": "z",
             "degrees": 90
         }
     ],
-    "position": [0, 0, 0.10],
+    "position": [0.025, 0, 0.15],
     "components": [
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": -10
+                },
+                {
+                    "axis": "z",
+                    "degrees": 90
+                }
+            ],
+            "zeroedPosition": [0.0, 0, 0.0]
+        }
     ]
   }

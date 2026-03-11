@@ -32,4 +32,6 @@ void Telemetry::UpdateTelemetry()
     backCam1VisionPosePublisher.Set(container.backCamera1Pose);
     backCam1VisionTargetsPublisher.Set(container.backCamera1Targets);
 
+    intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
+
 }

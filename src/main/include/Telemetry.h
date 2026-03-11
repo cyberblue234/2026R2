@@ -24,6 +24,7 @@ private:
     std::shared_ptr<nt::NetworkTable> hopperTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Hopper");
     std::shared_ptr<nt::NetworkTable> launcherTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Launcher");
     std::shared_ptr<nt::NetworkTable> intakePivotTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Intake Pivot");
+    nt::StructPublisher<frc::Pose3d> intakePose = intakePivotTable->GetStructTopic<frc::Pose3d>("Pose").Publish();
     std::shared_ptr<nt::NetworkTable> intakeRollerTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Intake Roller");
 
     std::shared_ptr<nt::NetworkTable> genericTable = nt::NetworkTableInstance::GetDefault().GetTable("SmartDashboard")->GetSubTable("Generic");
