@@ -103,6 +103,7 @@ public:
     frc2::CommandPtr LaunchCommand(std::function<LauncherState()> setState);
 
     void InitSendable(wpi::SendableBuilder& builder) override;
+    void SimulationPeriodic() override;
 
     LauncherState currentState;
 

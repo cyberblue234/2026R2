@@ -67,7 +67,8 @@ IntakePivot::IntakePivot()
 
     pivotMotorConfig.Feedback.FeedbackSensorSource = signals::FeedbackSensorSourceValue::RemoteCANcoder;
     pivotMotorConfig.Feedback.FeedbackRemoteSensorID = pivotCancoder.GetDeviceID();
-    pivotMotorConfig.Feedback.RotorToSensorRatio = IntakeConstants::kPivotToCANcoderRatio;
+    pivotMotorConfig.Feedback.RotorToSensorRatio = IntakeConstants::kMotorToCANcoderRatio;
+    pivotMotorConfig.Feedback.SensorToMechanismRatio = IntakeConstants::kCANcoderToPivotRatio;
 
     pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants::kGroundPosition;
@@ -94,6 +95,7 @@ IntakePivot::IntakePivot()
     configs::CANcoderConfiguration pivotCancoderConfig;
     pivotCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = IntakeConstants::kDiscontinuityPointAngle;
     pivotCancoderConfig.MagnetSensor.MagnetOffset = IntakeConstants::kMagnetOffset;
+    pivotCancoderConfig.MagnetSensor.SensorDirection = signals::SensorDirectionValue::Clockwise_Positive;
     pivotCancoder.GetConfigurator().Apply(pivotCancoderConfig);
 
     SetDefaultCommand(StopMotorCommand());
@@ -101,7 +103,8 @@ IntakePivot::IntakePivot()
 
 void IntakePivot::SetPosition(units::degree_t angle)
 {
-    pivotMotor.SetControl(pivotMotorPositionControl.WithPosition(angle));
+    pivotMotorPositionControl.Position = angle;
+    pivotMotor.SetControl(pivotMotorPositionControl);
 }
 
 void IntakePivot::SetPositionToGround()
@@ -126,7 +129,7 @@ void IntakePivot::StopMotor()
 
 bool IntakePivot::IsWithinTolerance()
 {
-    return abs(pivotMotor.GetClosedLoopError().GetValue()) < tolerance.value();
+    return units::math::abs(pivotMotorPositionControl.Position - GetAngle()) < tolerance;
 }
 
 frc2::CommandPtr IntakePivot::StopMotorCommand()
@@ -148,24 +151,24 @@ frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
         }).WithName("Set Speed");
 }
 
-frc2::CommandPtr IntakePivot::SetPositionCommand(units::degree_t angle)
+frc2::CommandPtr IntakePivot::SetPositionCommand(std::function<units::degree_t()> angle)
 {
-    return Run([this, angle] { SetPosition(angle); }).Until([this] { return IsWithinTolerance(); }).WithName("Set Position");
+    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { pivotMotorPositionControl.Position = angle(); }).Until([this] { return IsWithinTolerance(); }).WithName("Set Position");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
-    return SetPositionCommand(groundPosition).WithName("Set Position to Ground");
+    return SetPositionCommand([this] { return groundPosition; }).WithName("Set Position to Ground");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return SetPositionCommand(homePosition).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
+    return SetPositionCommand([this] { return homePosition; }).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToBounceCommand()
 {
-    return SetPositionCommand(bouncePosition).WithName("Set Position to Bounce");
+    return SetPositionCommand([this] { return bouncePosition; }).WithName("Set Position to Bounce");
 }
 
 
@@ -178,6 +181,17 @@ frc2::CommandPtr IntakePivot::BounceCommand()
     ).WithName("Bounce");
 }
 
+void IntakePivot::SimulationPeriodic()
+{
+    sim::TalonFXSimState& sim = pivotMotor.GetSimState();
+    sim::CANcoderSimState& cancoderSim = pivotCancoder.GetSimState();
+    sim.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
+    intakeSim.SetInputVoltage(sim.GetMotorVoltage());
+    intakeSim.Update(20_ms);
+    cancoderSim.SetRawPosition(-intakeSim.GetAngle() * IntakeConstants::kCANcoderToPivotRatio);
+    sim.SetRotorVelocity(-intakeSim.GetVelocity() * IntakeConstants::kMotorToPivotRatio);
+}
+
 void IntakePivot::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Ground Position", [this] { return groundPosition.value(); }, [this] (double set) { groundPosition = units::degree_t{set};});
@@ -185,7 +199,8 @@ void IntakePivot::InitSendable(wpi::SendableBuilder &builder)
     builder.AddDoubleProperty("Bounce Position", [this] { return bouncePosition.value(); }, [this] (double set) { bouncePosition = units::degree_t{set};});
     builder.AddDoubleProperty("Tolerance", [this] { return tolerance.value(); }, [this] (double set) { tolerance = units::degree_t{set};});
     builder.AddBooleanProperty("Is Within Tolerance", [this] { return IsWithinTolerance(); }, nullptr);
-    builder.AddDoubleProperty("Set Position", [this] { return pivotMotorPositionControl.Position.value(); }, nullptr);
+    builder.AddDoubleProperty("Set Position", [this] { return pivotMotorPositionControl.Position.convert<units::degree>().value(); }, nullptr);
+    builder.AddDoubleProperty("Current Position", [this] { return GetAngle().value(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }

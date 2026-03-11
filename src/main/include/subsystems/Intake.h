@@ -5,6 +5,7 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
+#include <frc/simulation/SingleJointedArmSim.h>
 #include "Constants.h"
 
 using namespace ctre::phoenix6;
@@ -20,8 +21,8 @@ namespace IntakeConstants
     constexpr double kIntakeRollerSpeed = 1.0;
     constexpr double kEjectRollerSpeed = -1.0;
 
-    constexpr double kP = 0.0;
-    constexpr double kI = 0.0;
+    constexpr double kP = 10.0;
+    constexpr double kI = 1.0;
     constexpr double kD = 0.0;
     constexpr double kS = 0.0;
     constexpr double kG = 0.0;
@@ -35,7 +36,9 @@ namespace IntakeConstants
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
-    constexpr double kPivotToCANcoderRatio = 50;
+    constexpr double kMotorToCANcoderRatio = 25;
+    constexpr double kCANcoderToPivotRatio = 2;
+    constexpr double kMotorToPivotRatio = kMotorToCANcoderRatio * kCANcoderToPivotRatio;
 }
 
 class IntakeRoller : public frc2::SubsystemBase
@@ -59,6 +62,31 @@ private:
 
 class IntakePivot : public frc2::SubsystemBase
 {
+private:
+    hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
+    hardware::CANcoder pivotCancoder{RobotMap::Intake::kPivotCancoderID};
+
+    controls::PositionVoltage pivotMotorPositionControl{0_tr};
+    // controls::MotionMagicVoltage pivotMotorPositionControl{0_tr};
+    controls::DutyCycleOut pivotMotorSpeedControl{0};
+
+    units::degree_t groundPosition = IntakeConstants::kGroundPosition;
+    units::degree_t homePosition = IntakeConstants::kHomePosition;
+    units::degree_t bouncePosition = IntakeConstants::kBouncePosition;
+    units::degree_t tolerance = IntakeConstants::kPivotTolerance;
+    
+    frc::sim::SingleJointedArmSim intakeSim
+    {
+        frc::LinearSystemId::SingleJointedArmSystem(frc::DCMotor::KrakenX60(1), 0.01_kg_sq_m, IntakeConstants::kMotorToPivotRatio),
+        frc::DCMotor::KrakenX60(1),
+        IntakeConstants::kMotorToPivotRatio,
+        295.7_mm,
+        IntakeConstants::kHomePosition,
+        230_deg,
+        false,
+        IntakeConstants::kHomePosition
+    };
+
 public:
     IntakePivot();
 
@@ -69,27 +97,23 @@ public:
     void StopMotor();
     bool IsWithinTolerance();
 
+    units::degree_t GetAngle()
+    {
+        return pivotCancoder.GetAbsolutePosition().GetValue() / IntakeConstants::kCANcoderToPivotRatio;
+    }
+
     frc2::CommandPtr StopMotorCommand();
     frc2::CommandPtr SetMotorToBrakeCommand();
     frc2::CommandPtr SetSpeedCommand(double speed);
-    frc2::CommandPtr SetPositionCommand(units::degree_t angle);
+    frc2::CommandPtr SetPositionCommand(std::function<units::degree_t()> angle);
     frc2::CommandPtr SetPositionToGroundCommand();
     frc2::CommandPtr SetPositionToHomeCommand();
     frc2::CommandPtr SetPositionToBounceCommand();
     frc2::CommandPtr BounceCommand();
 
+    void SimulationPeriodic() override;
+
     void InitSendable(wpi::SendableBuilder &builder) override;
 
-private:
-    hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
-    hardware::CANcoder pivotCancoder{RobotMap::Intake::kPivotCancoderID};
 
-    // controls::PositionVoltage pivotMotorPositionControl{0_tr};
-    controls::MotionMagicVoltage pivotMotorPositionControl{0_tr};
-    controls::DutyCycleOut pivotMotorSpeedControl{0};
-
-    units::degree_t groundPosition = IntakeConstants::kGroundPosition;
-    units::degree_t homePosition = IntakeConstants::kHomePosition;
-    units::degree_t bouncePosition = IntakeConstants::kBouncePosition;
-    units::degree_t tolerance = IntakeConstants::kPivotTolerance;
 };

@@ -110,8 +110,8 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileTrue(intakePivot.SetPositionToGroundCommand());
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).WhileFalse(intakePivot.SetPositionToHomeCommand());
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToGroundCommand());
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToHomeCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
@@ -209,6 +209,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
     return frc2::cmd::Parallel
     (   
         intakeRoller.IntakeCommand(),
+        intakePivot.BounceCommand(),
         hopper.FeedLauncherCommand().OnlyWhile([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).Repeatedly(),
         frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)

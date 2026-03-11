@@ -62,14 +62,6 @@ void Launcher::SetLauncherSpeed(units::turns_per_second_t omega)
     launcherMotor1.SetControl(launcherMotorVelocityControl);
     launcherMotor2.SetControl(launcherMotorVelocityControl);
     launcherMotor3.SetControl(launcherMotorVelocityControl);
-    if (frc::RobotBase::IsSimulation())
-    {
-        ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
-        sim.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
-        launcherSim.SetInputVoltage(sim.GetMotorVoltage());
-        launcherSim.Update(20_ms);
-        sim.SetRotorVelocity(launcherSim.GetAngularVelocity());
-    }
 }
 
 void Launcher::StopLauncher()
@@ -108,6 +100,15 @@ frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState
         SetLauncherSpeed(currentState.omega);
         SetLauncherAngle(currentState.pitch);
     }).WithName("Launch");
+}
+
+void Launcher::SimulationPeriodic()
+{
+    ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
+    sim.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
+    launcherSim.SetInputVoltage(sim.GetMotorVoltage());
+    launcherSim.Update(20_ms);
+    sim.SetRotorVelocity(launcherSim.GetAngularVelocity());   
 }
 
 void Launcher::InitSendable(wpi::SendableBuilder& builder)
