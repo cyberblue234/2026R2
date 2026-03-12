@@ -63,7 +63,7 @@ namespace RobotContainerConstants
 
     namespace IntakePivotConstants
     {
-        inline constexpr double kManualSpeed = 0.1;
+        inline constexpr double kManualSpeed = 0.2;
     }
 
     namespace PathPlannerConstants

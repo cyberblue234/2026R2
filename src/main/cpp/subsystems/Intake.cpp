@@ -103,8 +103,8 @@ IntakePivot::IntakePivot()
 
 void IntakePivot::SetPosition(units::degree_t angle)
 {
-    pivotMotorPositionControl.Position = angle;
-    pivotMotor.SetControl(pivotMotorPositionControl);
+    positionController.SetSetpoint(angle.value());
+    pivotMotor.SetControl(positionVoltageOut.WithOutput(units::volt_t{positionController.Calculate(GetAngle().value())}));
 }
 
 void IntakePivot::SetPositionToGround()
@@ -129,7 +129,7 @@ void IntakePivot::StopMotor()
 
 bool IntakePivot::IsWithinTolerance()
 {
-    return units::math::abs(pivotMotorPositionControl.Position - GetAngle()) < tolerance;
+    return units::math::abs(units::degree_t{positionController.GetSetpoint()} - GetAngle()) < tolerance;
 }
 
 frc2::CommandPtr IntakePivot::StopMotorCommand()
@@ -146,14 +146,14 @@ frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
 {
     return Run([this, speed] 
         { 
-            pivotMotor.SetControl(pivotMotorSpeedControl.WithOutput(speed)
+            pivotMotor.SetControl(positionVoltageOut.WithOutput(12_V * speed)
             .WithIgnoreSoftwareLimits(true)); 
-        }).WithName("Set Speed");
+        }).FinallyDo([this] { positionVoltageOut.Output = 0_V; }).WithName("Set Speed");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionCommand(std::function<units::degree_t()> angle)
 {
-    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { pivotMotorPositionControl.Position = angle(); }).Until([this] { return IsWithinTolerance(); }).WithName("Set Position");
+    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { positionController.SetSetpoint(angle().value()); }).Until([this] { return IsWithinTolerance(); }).FinallyDo([this] { positionVoltageOut.Output = 0_V; }).WithName("Set Position");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
@@ -184,12 +184,13 @@ frc2::CommandPtr IntakePivot::BounceCommand()
 void IntakePivot::SimulationPeriodic()
 {
     sim::TalonFXSimState& sim = pivotMotor.GetSimState();
+    sim.SetMotorType(sim::TalonFXSimState::MotorType::KrakenX60);
     sim::CANcoderSimState& cancoderSim = pivotCancoder.GetSimState();
     sim.SetSupplyVoltage(frc::RobotController::GetBatteryVoltage());
-    intakeSim.SetInputVoltage(sim.GetMotorVoltage());
+    intakeSim.SetInputVoltage(positionVoltageOut.Output);
     intakeSim.Update(20_ms);
     cancoderSim.SetRawPosition(-intakeSim.GetAngle() * IntakeConstants::kCANcoderToPivotRatio);
-    
+    sim.SetRawRotorPosition(-intakeSim.GetAngle() * IntakeConstants::kMotorToPivotRatio);
     sim.SetRotorVelocity(-intakeSim.GetVelocity() * IntakeConstants::kMotorToPivotRatio);
 }
 
@@ -200,7 +201,7 @@ void IntakePivot::InitSendable(wpi::SendableBuilder &builder)
     builder.AddDoubleProperty("Bounce Position", [this] { return bouncePosition.value(); }, [this] (double set) { bouncePosition = units::degree_t{set};});
     builder.AddDoubleProperty("Tolerance", [this] { return tolerance.value(); }, [this] (double set) { tolerance = units::degree_t{set};});
     builder.AddBooleanProperty("Is Within Tolerance", [this] { return IsWithinTolerance(); }, nullptr);
-    builder.AddDoubleProperty("Goal", [this] { return pivotMotorPositionControl.Position.convert<units::degree>().value(); }, nullptr);
+    builder.AddDoubleProperty("Goal", [this] { return positionController.GetSetpoint(); }, nullptr);
     builder.AddDoubleProperty("Setpoint", [this] { return units::turn_t(pivotMotor.GetClosedLoopReference().GetValue()).convert<units::degree>().value(); }, nullptr);
     builder.AddDoubleProperty("Current Position", [this] { return GetAngle().value(); }, nullptr);
     ADD_DEFAULT_COMMAND;

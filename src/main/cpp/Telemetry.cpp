@@ -9,6 +9,7 @@ Telemetry::Telemetry(RobotContainer& container) : container(container)
     frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(hopperTable->GetPath()), &container.hopper);
     frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(launcherTable->GetPath()), &container.launcher);
     frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(intakePivotTable->GetPath()), &container.intakePivot);
+    frc::SmartDashboard::PutData(std::string(nt::NetworkTable::BasenameKey(intakePivotTable->GetPath())) + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(intakeRollerTable->GetPath()), &container.intakeRoller);
     
 }
