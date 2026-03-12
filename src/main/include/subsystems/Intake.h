@@ -12,17 +12,17 @@ using namespace ctre::phoenix6;
 
 namespace IntakeConstants
 {
-    constexpr units::degree_t kGroundPosition = 90_deg;
+    constexpr units::degree_t kGroundPosition = 100_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
-    constexpr units::degree_t kBouncePosition = 45_deg;
+    constexpr units::degree_t kBouncePosition = 35_deg;
 
-    constexpr units::degree_t kPivotTolerance = 5_deg;
+    constexpr units::degree_t kPivotTolerance = 1_deg;
 
     constexpr double kIntakeRollerSpeed = 1.0;
     constexpr double kEjectRollerSpeed = -1.0;
 
-    constexpr double kP = 10.0;
-    constexpr double kI = 1.0;
+    constexpr double kP = 0.0;
+    constexpr double kI = 0.0;
     constexpr double kD = 0.0;
     constexpr double kS = 0.0;
     constexpr double kG = 0.0;
@@ -66,8 +66,8 @@ private:
     hardware::TalonFX pivotMotor{RobotMap::Intake::kPivotMotorID};
     hardware::CANcoder pivotCancoder{RobotMap::Intake::kPivotCancoderID};
 
-    controls::PositionVoltage pivotMotorPositionControl{0_tr};
-    // controls::MotionMagicVoltage pivotMotorPositionControl{0_tr};
+    // controls::PositionVoltage pivotMotorPositionControl{0_tr};
+    controls::MotionMagicVoltage pivotMotorPositionControl{0_tr};
     controls::DutyCycleOut pivotMotorSpeedControl{0};
 
     units::degree_t groundPosition = IntakeConstants::kGroundPosition;
@@ -77,7 +77,7 @@ private:
     
     frc::sim::SingleJointedArmSim intakeSim
     {
-        frc::LinearSystemId::SingleJointedArmSystem(frc::DCMotor::KrakenX60(1), 0.01_kg_sq_m, IntakeConstants::kMotorToPivotRatio),
+        frc::LinearSystemId::SingleJointedArmSystem(frc::DCMotor::KrakenX60(1), 0.001_kg_sq_m, IntakeConstants::kMotorToPivotRatio),
         frc::DCMotor::KrakenX60(1),
         IntakeConstants::kMotorToPivotRatio,
         295.7_mm,
@@ -114,6 +114,4 @@ public:
     void SimulationPeriodic() override;
 
     void InitSendable(wpi::SendableBuilder &builder) override;
-
-
 };

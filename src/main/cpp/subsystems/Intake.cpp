@@ -70,10 +70,10 @@ IntakePivot::IntakePivot()
     pivotMotorConfig.Feedback.RotorToSensorRatio = IntakeConstants::kMotorToCANcoderRatio;
     pivotMotorConfig.Feedback.SensorToMechanismRatio = IntakeConstants::kCANcoderToPivotRatio;
 
-    pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants::kGroundPosition;
-    pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants::kHomePosition;
+    // pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    // pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants::kGroundPosition;
+    // pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    // pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants::kHomePosition;
 
     pivotMotorConfig.Slot0.kP = IntakeConstants::kP;
     pivotMotorConfig.Slot0.kI = IntakeConstants::kI;
@@ -189,6 +189,7 @@ void IntakePivot::SimulationPeriodic()
     intakeSim.SetInputVoltage(sim.GetMotorVoltage());
     intakeSim.Update(20_ms);
     cancoderSim.SetRawPosition(-intakeSim.GetAngle() * IntakeConstants::kCANcoderToPivotRatio);
+    
     sim.SetRotorVelocity(-intakeSim.GetVelocity() * IntakeConstants::kMotorToPivotRatio);
 }
 
@@ -199,7 +200,8 @@ void IntakePivot::InitSendable(wpi::SendableBuilder &builder)
     builder.AddDoubleProperty("Bounce Position", [this] { return bouncePosition.value(); }, [this] (double set) { bouncePosition = units::degree_t{set};});
     builder.AddDoubleProperty("Tolerance", [this] { return tolerance.value(); }, [this] (double set) { tolerance = units::degree_t{set};});
     builder.AddBooleanProperty("Is Within Tolerance", [this] { return IsWithinTolerance(); }, nullptr);
-    builder.AddDoubleProperty("Set Position", [this] { return pivotMotorPositionControl.Position.convert<units::degree>().value(); }, nullptr);
+    builder.AddDoubleProperty("Goal", [this] { return pivotMotorPositionControl.Position.convert<units::degree>().value(); }, nullptr);
+    builder.AddDoubleProperty("Setpoint", [this] { return units::turn_t(pivotMotor.GetClosedLoopReference().GetValue()).convert<units::degree>().value(); }, nullptr);
     builder.AddDoubleProperty("Current Position", [this] { return GetAngle().value(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
