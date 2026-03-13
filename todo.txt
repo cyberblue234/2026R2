@@ -1,6 +1,9 @@
 - Finalize command structure
 - Continue to add vision
 - PID tuning
-- Slight turn control while auto aiming
 - consolidate constants?
 - Autonomous
+
+
+Fix launching to make sure the hopper and feeder motors don't run and the intake doesn't bounce until in tolerances
+Make eject roll all motors outword
