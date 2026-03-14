@@ -192,7 +192,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
         {
             launcher.SetLauncherSpeed(launcherSetSpeed);
             launcher.currentState.omega = launcherSetSpeed;
-            launcher.SetLauncherPosition(GetHeightAdjustment(-1, 1));
+            launcher.SetLauncherPosition(GetHeightAdjustment(-0.95, 0.75));
         }),
         drivetrain.ApplyRequest([this]() -> auto&& {
             return drive
@@ -202,7 +202,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
         }),
         intakeRoller.IntakeCommand(),
         intakePivot.BounceCommand(),
-        hopper.FeedLauncherCommand().OnlyWhile([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).Repeatedly(),
+        hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }),
         frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
@@ -213,7 +213,7 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     return frc2::cmd::Parallel
     (   
         intakeRoller.IntakeCommand(),
-        hopper.FeedLauncherCommand().OnlyWhile([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
+        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).OnlyWhile([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation),
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),

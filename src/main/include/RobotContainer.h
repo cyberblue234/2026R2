@@ -42,18 +42,18 @@ namespace RobotContainerConstants
 
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 15_mps_sq;
         inline constexpr units::degrees_per_second_squared_t kAngularAccelerationLimit = 4_tr_per_s_sq;
-        inline constexpr double kDeadband = 0.1;
+        inline constexpr double kDeadband = 0.15;
     }
 
     namespace TargetConstants
     {
-        inline constexpr double kP = 12;
-        inline constexpr double kI = 100;
+        inline constexpr double kP = 2;
+        inline constexpr double kI = 30;
         inline constexpr double kD = 0;
 
-        inline constexpr units::meters_per_second_t kMaxSpeed = 2.5_mps;
+        inline constexpr units::meters_per_second_t kMaxSpeed = 1.5_mps;
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 3_mps_sq;
-        inline constexpr double kDeadband = 0.1;
+        inline constexpr double kDeadband = 0.2;
 
         inline constexpr units::meter_t kHubToleranceRadius = 16_in;
         inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;

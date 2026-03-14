@@ -49,6 +49,10 @@ void Launcher::SetLauncherPosition(double position)
 
 void Launcher::SetLauncherAngle(units::degree_t angle)
 {   
+    double position = -0.0541442 * angle.value() + 3.50529;
+    frc::SmartDashboard::PutNumber("position", position);
+    actuator1.SetSpeed(position);
+    actuator2.SetSpeed(position);
     if (frc::RobotBase::IsSimulation())
     {
         ctre::phoenix6::sim::CANcoderSimState& sim = deflectorCANcoder.GetSimState();

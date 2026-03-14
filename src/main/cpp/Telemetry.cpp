@@ -25,6 +25,7 @@ void Telemetry::UpdateTelemetry()
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
     frc::SmartDashboard::PutNumber("Generic/Manual Set Speed", container.launcherSetSpeed.value());
+    frc::SmartDashboard::PutBoolean("Generic/Is Alignment Within Tolerances", container.IsAlignmentWithinTolerances());
     
     turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     turretVisionPosePublisher.Set(container.turretVisionPose);

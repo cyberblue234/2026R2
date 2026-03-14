@@ -18,7 +18,7 @@ namespace IntakeConstants
 
     constexpr units::degree_t kPivotTolerance = 1_deg;
 
-    constexpr double kIntakeRollerSpeed = 1.0;
+    constexpr double kIntakeRollerSpeed = 0.7;
     constexpr double kEjectRollerSpeed = -1.0;
 
     constexpr double kP = 0.0;
@@ -37,7 +37,7 @@ namespace IntakeConstants
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = 0_tr;
     constexpr double kMotorToCANcoderRatio = 25;
-    constexpr double kCANcoderToPivotRatio = 2;
+    constexpr double kCANcoderToPivotRatio = 1.75;
     constexpr double kMotorToPivotRatio = kMotorToCANcoderRatio * kCANcoderToPivotRatio;
 }
 

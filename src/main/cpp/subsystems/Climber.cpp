@@ -32,7 +32,7 @@ void Climber::StopClimber()
 
 frc2::CommandPtr Climber::ResetClimberEncoderCommand()
 {
-    return RunOnce([this]
+    return frc2::cmd::RunOnce([this]
         {
             climberMotor.SetPosition(0_tr);
             isRegistered = true; 
@@ -65,7 +65,7 @@ frc2::CommandPtr Climber::RetractClimberCommand()
 
 frc2::CommandPtr Climber::RetractClimberWithLimitCommand()
 {
-    return RetractClimberCommand().Until([this] { return climberLimitSwitch.Get(); });
+    return RetractClimberCommand().Unless([this] { return climberLimitSwitch.Get(); }).Until([this] { return climberLimitSwitch.Get(); });
 }
 
 void Climber::InitSendable(wpi::SendableBuilder &builder)
