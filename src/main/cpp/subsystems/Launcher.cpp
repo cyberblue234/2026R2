@@ -80,6 +80,13 @@ bool Launcher::IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolera
     return units::math::abs(GetLauncherOmega() - currentState.omega) < tolerance ;
 }
 
+void Launcher::Eject()
+{
+    launcherMotor1.Set(-1);
+    launcherMotor2.Set(-1);
+    launcherMotor3.Set(-1);
+}
+
 frc2::CommandPtr Launcher::ManualSetPosition(double position)
 {
     return RunOnce([this, position]
@@ -104,6 +111,11 @@ frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState
         SetLauncherSpeed(currentState.omega);
         SetLauncherAngle(currentState.pitch);
     }).WithName("Launch");
+}
+
+frc2::CommandPtr Launcher::EjectCommand()
+{
+    return Run([this] { Eject(); });
 }
 
 void Launcher::SimulationPeriodic()

@@ -27,6 +27,12 @@ void Hopper::FeedLauncher()
     floorMotor.Set(floorMotorSpeed);
 }
 
+void Hopper::Eject()
+{
+    feederMotor.Set(-feederMotorSpeed);
+    floorMotor.Set(-floorMotorSpeed);
+}
+
 void Hopper::StopMotors()
 {
     feederMotor.StopMotor();
@@ -40,7 +46,12 @@ frc2::CommandPtr Hopper::StopMotorsCommand()
 
 frc2::CommandPtr Hopper::FeedLauncherCommand()
 {
-    return Run([this]{ FeedLauncher(); }).WithName("Feed Launcher");
+    return RunOnce([this]{ FeedLauncher(); }).WithName("Feed Launcher");
+}
+
+frc2::CommandPtr Hopper::EjectCommand()
+{
+    return Run([this] { Eject(); });
 }
 
 void Hopper::InitSendable(wpi::SendableBuilder &builder)

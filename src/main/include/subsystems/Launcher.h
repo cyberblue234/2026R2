@@ -72,6 +72,7 @@ public:
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
+    void Eject();
 
     void Periodic() override
     {
@@ -101,6 +102,7 @@ public:
     frc2::CommandPtr ManualSetPosition(double position);
     frc2::CommandPtr StopMotorsCommand();
     frc2::CommandPtr LaunchCommand(std::function<LauncherState()> setState);
+    frc2::CommandPtr EjectCommand();
 
     void InitSendable(wpi::SendableBuilder& builder) override;
     void SimulationPeriodic() override;

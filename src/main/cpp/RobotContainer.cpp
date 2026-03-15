@@ -70,12 +70,13 @@ void RobotContainer::ConfigureBindings()
         }).WithName("Drive")
     );
 
-    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
-    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
+    joystick.Back().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
+    joystick.Start().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
         launcherSetSpeed -= 50_rpm; 
         if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
 
-    
+    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset += 0.1_m; if (passOffset > 2.5_m) passOffset = 2.5_m; }));
+    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset -= 0.1_m; if (passOffset < -2.5_m) passOffset = -2.5_m; }));
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
@@ -88,7 +89,11 @@ void RobotContainer::ConfigureBindings()
     );
 
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
-    controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(intakeRoller.EjectCommand());
+    controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(
+        frc2::cmd::Parallel
+        (
+            intakeRoller.EjectCommand(), launcher.EjectCommand(), hopper.EjectCommand()
+        ).WithName("Eject"));
 
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToHomeCommand());
@@ -140,22 +145,26 @@ return frc2::cmd::Run
             
             frc::Translation3d targetPose;
             units::meter_t toleranceRadius;
+            units::meter_t zOffset;
             std::optional<frc::DriverStation::Alliance> alliance = frc::DriverStation::GetAlliance();
             if (!alliance) alliance = frc::DriverStation::Alliance::kBlue;
             if (target == Targets::Hub)
             {
                 targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
                 toleranceRadius = TargetConstants::kHubToleranceRadius;
+                zOffset = TargetConstants::kHubZOffset + units::meter_t{GetHeightAdjustment(-0.25, 4)};
             }
             else
             {
-                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBluePassPose : FieldConstants::kRedPassPose;
+                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue 
+                        ? frc::Translation3d{FieldConstants::kBluePassPose.X(), FieldConstants::kBluePassPose.Y() + passOffset, FieldConstants::kBluePassPose.Z()} 
+                        : frc::Translation3d{FieldConstants::kRedPassPose.X(), FieldConstants::kRedPassPose.Y() - passOffset, FieldConstants::kRedPassPose.Z()};
                 toleranceRadius = TargetConstants::kPassToleranceRadius;
+                zOffset = TargetConstants::kPassZOffset + units::meter_t{GetHeightAdjustment(-2, 4)};
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
             
-            units::meter_t zOffset = (target == Targets::Hub ? TargetConstants::kHubZOffset : TargetConstants::kPassZOffset) + units::meter_t{GetHeightAdjustment(-1, 2)};
             frc::SmartDashboard::PutNumber("Generic/Z Offset (ft)", zOffset.convert<units::feet>().value());
             frc::SmartDashboard::PutNumber("Generic/Total Height (ft)", (zOffset + targetPose.Z()).convert<units::feet>().value());
 
@@ -213,7 +222,7 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     return frc2::cmd::Parallel
     (   
         intakeRoller.IntakeCommand(),
-        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).OnlyWhile([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
+        hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation),
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),

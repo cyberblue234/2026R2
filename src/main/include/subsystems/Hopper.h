@@ -10,8 +10,8 @@ using namespace ctre::phoenix6;
 
 namespace HopperConstants
 {
-    inline constexpr double feederMotorSpeed = 0.5;
-    inline constexpr double floorMotorSpeed = 0.5;
+    inline constexpr double feederMotorSpeed = 1;
+    inline constexpr double floorMotorSpeed = 1;
 }
 
 class Hopper : public frc2::SubsystemBase
@@ -20,9 +20,11 @@ public:
     Hopper();
 
     void FeedLauncher();
+    void Eject();
     void StopMotors();
     frc2::CommandPtr StopMotorsCommand();
     frc2::CommandPtr FeedLauncherCommand();
+    frc2::CommandPtr EjectCommand();
 
     void InitSendable(wpi::SendableBuilder &builder) override;
 

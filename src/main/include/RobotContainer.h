@@ -58,7 +58,7 @@ namespace RobotContainerConstants
         inline constexpr units::meter_t kHubToleranceRadius = 16_in;
         inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
         inline constexpr units::meter_t kHubZOffset = 1_m;
-        inline constexpr units::meter_t kPassZOffset = 1.5_m;
+        inline constexpr units::meter_t kPassZOffset = 4.5_m;
     }
 
     namespace IntakePivotConstants
@@ -168,6 +168,8 @@ public:
     units::radians_per_second_t omegaTolerance;
 
     units::revolutions_per_minute_t launcherSetSpeed = 4000_rpm;
+
+    units::meter_t passOffset = 0_m;
 
     Targets target;
 
