@@ -63,7 +63,7 @@ IntakePivot::IntakePivot()
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
 
-    pivotMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Coast;
+    pivotMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
 
     pivotMotorConfig.Feedback.FeedbackSensorSource = signals::FeedbackSensorSourceValue::RemoteCANcoder;
     pivotMotorConfig.Feedback.FeedbackRemoteSensorID = pivotCancoder.GetDeviceID();
