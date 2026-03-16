@@ -14,7 +14,7 @@ namespace IntakeConstants
 {
     constexpr units::degree_t kGroundPosition = 100_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
-    constexpr units::degree_t kBouncePosition = 35_deg;
+    constexpr units::degree_t kBouncePosition = 70_deg;
 
     constexpr units::degree_t kPivotTolerance = 1_deg;
 

@@ -176,7 +176,8 @@ public:
     CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
     IntakeRoller intakeRoller;
     IntakePivot intakePivot;
-    Hopper hopper;
+    Floor floor;
+    Feeder feeder;
     Launcher launcher;
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, false};
     Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, true};
@@ -235,12 +236,7 @@ private:
     frc2::CommandPtr UpdateAutoShootPhysicsCommand();
     frc2::CommandPtr ManualLaunch();
     frc2::CommandPtr AlignAndLaunch();
-    frc2::CommandPtr TeleopDriveAndAlign();
-    frc2::CommandPtr AutonDriveAndAlign();
-    frc2::CommandPtr TeleopAlignAndLaunch();
-    frc2::CommandPtr AutonAlignAndLaunch();
-    frc2::CommandPtr IntakeAndAlignAndLaunch();
-    frc2::CommandPtr AutonIntakeAndAlignAndLaunch();
+    frc2::CommandPtr Feed();
 
     frc2::CommandPtr UpdateTargetCommand();
 

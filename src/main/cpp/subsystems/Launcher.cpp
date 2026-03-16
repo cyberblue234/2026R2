@@ -77,7 +77,7 @@ void Launcher::StopLauncher()
 
 bool Launcher::IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance)
 {
-    return units::math::abs(GetLauncherOmega() - currentState.omega) < tolerance ;
+    return units::math::abs(GetLowestLauncherOmega() - currentState.omega) < tolerance ;
 }
 
 void Launcher::Eject()
@@ -129,7 +129,7 @@ void Launcher::SimulationPeriodic()
 
 void Launcher::InitSendable(wpi::SendableBuilder& builder)
 {
-    builder.AddDoubleProperty("Launcher Speed (rpm)", [this] { return GetLauncherOmega().convert<units::revolutions_per_minute>().value(); }, nullptr);
+    builder.AddDoubleArrayProperty("Launcher Speed (rpm)", [this] { return GetPublishableLauncherRPMs(); }, nullptr);
     builder.AddDoubleProperty("Launcher Set Speed (rpm)", [this] { return currentState.omega.convert<units::revolutions_per_minute>().value(); }, nullptr);
     builder.AddDoubleProperty("Launcher Set Angle (degrees)", [this] { return currentState.pitch.value(); }, nullptr);
     builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);

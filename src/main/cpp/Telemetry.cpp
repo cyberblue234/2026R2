@@ -2,15 +2,16 @@
 
 Telemetry::Telemetry(RobotContainer& container) : container(container)
 {
-    frc::SmartDashboard::PutData(std::string(nt::NetworkTable::BasenameKey(climbersTable->GetPath())) + "/1", &container.climber1);
-    frc::SmartDashboard::PutData(std::string(nt::NetworkTable::BasenameKey(climbersTable->GetPath())) + "/2", &container.climber2);
-    frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(drivetrainTable->GetPath()), &container.drivetrain);
-    frc::SmartDashboard::PutData(std::string(nt::NetworkTable::BasenameKey(drivetrainTable->GetPath())) + "/Align Heading Controller", &container.alignToHub.HeadingController);
-    frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(hopperTable->GetPath()), &container.hopper);
-    frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(launcherTable->GetPath()), &container.launcher);
-    frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(intakePivotTable->GetPath()), &container.intakePivot);
-    frc::SmartDashboard::PutData(std::string(nt::NetworkTable::BasenameKey(intakePivotTable->GetPath())) + "/Controller", &container.intakePivot.positionController);
-    frc::SmartDashboard::PutData(nt::NetworkTable::BasenameKey(intakeRollerTable->GetPath()), &container.intakeRoller);
+    frc::SmartDashboard::PutData(climbersTableName + "/1", &container.climber1);
+    frc::SmartDashboard::PutData(climbersTableName + "/2", &container.climber2);
+    frc::SmartDashboard::PutData(drivetrainTableName, &container.drivetrain);
+    frc::SmartDashboard::PutData(drivetrainTableName + "/Align Heading Controller", &container.alignToHub.HeadingController);
+    frc::SmartDashboard::PutData(hopperTableName + "/" + floorTableName, &container.floor);
+    frc::SmartDashboard::PutData(hopperTableName + "/" + feederTableName, &container.feeder);
+    frc::SmartDashboard::PutData(launcherTableName, &container.launcher);
+    frc::SmartDashboard::PutData(intakePivotTableName, &container.intakePivot);
+    frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
+    frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
     
 }
 
@@ -24,8 +25,8 @@ void Telemetry::UpdateTelemetry()
     chassisSpeeds.Set(state.Speeds);
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
-    frc::SmartDashboard::PutNumber("Generic/Manual Set Speed", container.launcherSetSpeed.value());
-    frc::SmartDashboard::PutBoolean("Generic/Is Alignment Within Tolerances", container.IsAlignmentWithinTolerances());
+    frc::SmartDashboard::PutNumber(genericTableName + "/Manual Set Speed", container.launcherSetSpeed.value());
+    frc::SmartDashboard::PutBoolean(genericTableName + "/Is Alignment Within Tolerances", container.IsAlignmentWithinTolerances());
     
     turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     turretVisionPosePublisher.Set(container.turretVisionPose);

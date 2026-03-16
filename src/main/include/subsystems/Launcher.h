@@ -74,14 +74,16 @@ public:
     bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
     void Eject();
 
-    void Periodic() override
+    std::array<units::radians_per_second_t, 3> GetLauncherOmegas()
     {
-        frc::SmartDashboard::PutNumber("Shooter Omega", GetLauncherOmega().value());
+        return {launcherMotor1.GetVelocity().GetValue(), launcherMotor2.GetVelocity().GetValue(), launcherMotor3.GetVelocity().GetValue()};
     }
 
-    units::radians_per_second_t GetLauncherOmega()
+    units::radians_per_second_t GetLowestLauncherOmega()
     {
-        return launcherMotor1.GetVelocity().GetValue();
+        std::array<units::radians_per_second_t, 3> launcherOmegas = GetLauncherOmegas();
+        std::array<units::radians_per_second_t, 3>::iterator min = std::min_element(launcherOmegas.begin(), launcherOmegas.end());
+        return *min;
     }
 
     std::function<units::angular_velocity::radians_per_second_t ()> GetLauncherOmegaSupplier()
@@ -112,7 +114,6 @@ public:
     void SimulateShootingFuel()
     {
         ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
-        sim.SetRotorVelocity(GetLauncherOmega() - 200_rpm);
     }
 
 private:
@@ -134,4 +135,15 @@ private:
         frc::LinearSystemId::FlywheelSystem(frc::DCMotor::KrakenX60(1), LauncherConstants::kShooterMOI, 1),
         frc::DCMotor::KrakenX60(1)
     };
+
+    std::vector<double> GetPublishableLauncherRPMs()
+    {
+        std::array<units::radians_per_second_t, 3> launcherOmegas = GetLauncherOmegas();
+        std::vector<double> rpms;
+        for (int i = 0; i < 3; i++)
+        {
+            rpms.push_back(launcherOmegas.at(0).convert<units::revolutions_per_minute>().value());
+        }
+        return rpms;
+    }
 };
