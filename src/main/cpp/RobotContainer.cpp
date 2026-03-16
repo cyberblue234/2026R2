@@ -70,6 +70,16 @@ void RobotContainer::ConfigureBindings()
         }).WithName("Drive")
     );
 
+    joystick.LeftTrigger().WhileTrue
+    (
+        drivetrain.ApplyRequest([this]() -> auto&& {
+            return driveRobotCentric
+                    .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed / 3)) // Drive forward with negative Y (forward)
+                    .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed / 3)) // Drive left with negative X (left)
+                    .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate / 3)); // Drive counterclockwise with negative X (left)
+           }).WithName("Drive Robot Centric")
+    );
+
     joystick.Back().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
     joystick.Start().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
         launcherSetSpeed -= 50_rpm; 

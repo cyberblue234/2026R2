@@ -141,6 +141,10 @@ public:
         .WithDeadband(DriveConstants::kMaxSpeed * DriveConstants::kDeadband)
         .WithRotationalDeadband(DriveConstants::kMaxAngularRate * DriveConstants::kDeadband)
         .WithDriveRequestType(swerve::DriveRequestType::Velocity);
+    swerve::requests::RobotCentric driveRobotCentric = swerve::requests::RobotCentric{}
+        .WithDeadband(DriveConstants::kMaxSpeed * DriveConstants::kDeadband / 3)
+        .WithRotationalDeadband(DriveConstants::kMaxAngularRate * DriveConstants::kDeadband / 3)
+        .WithDriveRequestType(swerve::DriveRequestType::Velocity);
     frc::SlewRateLimiter<units::meters_per_second> driveXLimiter{DriveConstants::kAccelerationLimit};
     frc::SlewRateLimiter<units::meters_per_second> driveYLimiter{DriveConstants::kAccelerationLimit};
     frc::SlewRateLimiter<units::degrees_per_second> driveYawLimiter{DriveConstants::kAngularAccelerationLimit};
