@@ -14,14 +14,14 @@ namespace IntakeConstants
 {
     constexpr units::degree_t kGroundPosition = 110_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
-    constexpr units::degree_t kBouncePosition = 10_deg;
+    constexpr units::degree_t kBouncePosition = 50_deg;
 
     constexpr units::degree_t kPivotTolerance = 40_deg;
 
-    constexpr double kIntakeRollerSpeed = 0.85;
+    constexpr double kIntakeRollerSpeed = 0.8;
     constexpr double kEjectRollerSpeed = -1.0;
 
-    constexpr double kP = 0.015;
+    constexpr double kP = 0.016;
     constexpr double kI = 0.0;
     constexpr double kD = 0.0;
     constexpr double kS = 0.0;
@@ -35,7 +35,7 @@ namespace IntakeConstants
     constexpr units::degrees_per_second_cubed_t kMaxJerk = 0_deg_per_s_cu;
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
-    constexpr units::turn_t kMagnetOffset = 0_tr;
+    constexpr units::turn_t kMagnetOffset = 0.16_tr;
     constexpr double kMotorToCANcoderRatio = 25;
     constexpr double kCANcoderToPivotRatio = 1.75;
     constexpr double kMotorToPivotRatio = kMotorToCANcoderRatio * kCANcoderToPivotRatio;

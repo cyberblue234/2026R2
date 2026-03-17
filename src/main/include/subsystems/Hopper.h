@@ -18,9 +18,8 @@ namespace HopperConstants
     inline constexpr double kS = 0.0;
     inline constexpr double kV = 0.025;
     inline constexpr double kA = 0.0;
-    inline constexpr double kFloorMotorSpeed = 0.83;
+    inline constexpr double kFloorMotorSpeed = 0.7;
 }
-
 class Floor : public frc2::SubsystemBase
 {
 public:

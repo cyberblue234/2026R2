@@ -178,7 +178,7 @@ frc2::CommandPtr IntakePivot::BounceCommand()
     return frc2::cmd::RepeatingSequence
     (
         SetPositionToBounceCommand().Until([this] { return IsWithinTolerance(); }),
-        SetPositionToGroundCommand().Until([this] { return IsWithinTolerance(); })
+        SetPositionCommand([this] { return 140_deg; }).Until([this] { return IsWithinTolerance(); })
     ).WithName("Bounce");
 }
 
