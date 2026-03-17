@@ -179,17 +179,25 @@ return frc2::cmd::Run
             frc::SmartDashboard::PutNumber("Generic/Total Height (ft)", (zOffset + targetPose.Z()).convert<units::feet>().value());
 
             units::standard_gravity_t g{-1};
-            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g) - 1_mps;
+            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
             units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
-            units::meters_per_second_t vx = (targetPose.X() - turretPose.X()) / timeOfFlight - turretVx;
-            units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
+            units::meter_t deltaX = targetPose.X() - turretPose.X();
+            units::meter_t deltaY = targetPose.Y() - turretPose.Y();
+            units::meters_per_second_t vx = deltaX / timeOfFlight - turretVx;
+            units::meters_per_second_t vy = deltaY / timeOfFlight - turretVy;
+            pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
+            units::meter_t deltaR = units::math::hypot(deltaX, deltaY);
+            timeOfFlight = units::math::sqrt((2 * (deltaR * units::math::tan(launcher.GetLauncherAngle()) - deltaZ)) / -g);
+            vx = deltaX / timeOfFlight - turretVx;
+            vy = deltaY / timeOfFlight - turretVy;
+            vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight;
             auto v_sq = vx*vx + vy*vy + vz*vz;
             omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
             frc::SmartDashboard::PutNumber("Generic/Desired Omega (rpm)", omega.convert<units::revolutions_per_minute>().value());
-            pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
+            
             frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
             targetYaw = units::math::atan2(vy, vx);
-            yawTolerance = units::math::atan(toleranceRadius / units::math::hypot(targetPose.X() - turretPose.X(), targetPose.Y() - turretPose.Y()));
+            yawTolerance = units::math::atan(toleranceRadius / deltaR);
             frc::SmartDashboard::PutNumber("Generic/Target Yaw (deg)", targetYaw.value());
             frc::SmartDashboard::PutNumber("Generic/Yaw tolerance (deg)", yawTolerance.value());
             units::meters_per_second_t maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
