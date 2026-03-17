@@ -40,19 +40,33 @@ Launcher::Launcher()
     SetDefaultCommand(StopMotorsCommand());
 }
 
-
-void Launcher::SetLauncherPosition(double position)
+void Launcher::LowerDeflector()
 {
-    actuator1.SetSpeed(position);
-    actuator2.SetSpeed(position);
+    deflectorRelay.Set(frc::Relay::Value::kReverse);
 }
 
-void Launcher::SetLauncherAngle(units::degree_t angle)
+void Launcher::RaiseDeflector()
+{
+    deflectorRelay.Set(frc::Relay::Value::kForward);
+}
+
+void Launcher::StopDeflector()
+{
+    deflectorRelay.Set(frc::Relay::Value::kOff);
+}
+
+void Launcher::SetLauncherAngle(units::degree_t angle, units::degree_t tolerance)
 {   
-    double position = -0.0541442 * angle.value() + 3.50529;
-    frc::SmartDashboard::PutNumber("position", position);
-    actuator1.SetSpeed(position);
-    actuator2.SetSpeed(position);
+    units::degree_t error = GetLauncherAngle() - angle;
+    if (units::math::abs(error) > tolerance)
+    {
+        if (error >= 0_deg) RaiseDeflector();
+        else LowerDeflector();
+    }
+    else
+    {
+        StopDeflector();
+    }
     if (frc::RobotBase::IsSimulation())
     {
         ctre::phoenix6::sim::CANcoderSimState& sim = deflectorCANcoder.GetSimState();
@@ -87,12 +101,19 @@ void Launcher::Eject()
     launcherMotor3.Set(-1);
 }
 
-frc2::CommandPtr Launcher::ManualSetPosition(double position)
+frc2::CommandPtr Launcher::ManualRaiseDeflectorCommand()
 {
-    return RunOnce([this, position]
+    return Run([this]
     {
-        SetLauncherPosition(position);
-    }).WithName("Manual Set Position");
+        RaiseDeflector();
+    });
+}
+frc2::CommandPtr Launcher::ManualLowerDeflectorCommand()
+{
+    return Run([this]
+    {
+        LowerDeflector();
+    });
 }
 
 frc2::CommandPtr Launcher::StopMotorsCommand()
@@ -109,7 +130,7 @@ frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState
     {
         currentState = setState();
         SetLauncherSpeed(currentState.omega);
-        SetLauncherAngle(currentState.pitch);
+        SetLauncherAngle(currentState.pitch, currentState.tolerance);
     }).WithName("Launch");
 }
 

@@ -154,6 +154,7 @@ namespace RobotMap
         constexpr int kLauncherMotor1ID = 11;
         constexpr int kLauncherMotor2ID = 12;
         constexpr int kLauncherMotor3ID = 13;
+        constexpr int kDeflectorRelayID = 0;
         constexpr int kActuator1ID = 0;
         constexpr int kActuator2ID = 1;
         constexpr int kDeflectorCANcoderID = 6;

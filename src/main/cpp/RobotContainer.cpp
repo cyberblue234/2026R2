@@ -215,12 +215,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
 {
     return frc2::cmd::Parallel
     (   
-        frc2::cmd::Run([this]
-        {
-            launcher.SetLauncherSpeed(launcherSetSpeed);
-            launcher.currentState.omega = launcherSetSpeed;
-            launcher.SetLauncherPosition(GetHeightAdjustment(-0.95, 0.75));
-        }),
+        launcher.LaunchCommand([this] { return LauncherState{units::degree_t{GetHeightAdjustment(52, 80)}, 5_deg, launcherSetSpeed}; }),
         drivetrain.ApplyRequest([this]() -> auto&& {
             return drive
                 .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed / 2)) // Drive forward with negative Y (forward)
@@ -245,7 +240,7 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
         // hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
         frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
                 , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation),
-        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
+        launcher.LaunchCommand([this] { return LauncherState{pitch, pitchTolerance, omega}; }),
         frc2::cmd::Either
         (
             // Driver control during teleop

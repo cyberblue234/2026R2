@@ -5,6 +5,7 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/core/CoreTalonFX.hpp>
 #include <frc/PWM.h>
+#include <frc/Relay.h>
 #include <frc/Servo.h>
 #include <units/moment_of_inertia.h>
 #include <ctre/phoenix6/CANcoder.hpp>
@@ -48,13 +49,15 @@ namespace LauncherConstants
 struct LauncherState
 {
     units::degree_t pitch;
+    units::degree_t tolerance;
     units::radians_per_second_t omega;
 
     LauncherState() {}
 
-    LauncherState(units::degree_t pitch, units::radians_per_second_t omega)
+    LauncherState(units::degree_t pitch, units::degree_t tolerance, units::radians_per_second_t omega)
     {
         this->pitch = pitch;
+        this->tolerance = tolerance;
         this->omega = omega;
     }
 };
@@ -67,8 +70,10 @@ public:
 
     double GetLoss() const { return loss; }
 
-    void SetLauncherPosition(double position);
-    void SetLauncherAngle(units::degree_t angle);
+    void LowerDeflector();
+    void RaiseDeflector();
+    void StopDeflector();
+    void SetLauncherAngle(units::degree_t angle, units::degree_t tolerance);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
@@ -101,7 +106,8 @@ public:
         return deflectorCANcoder.GetAbsolutePosition().AsSupplier();
     }
 
-    frc2::CommandPtr ManualSetPosition(double position);
+    frc2::CommandPtr ManualRaiseDeflectorCommand();
+    frc2::CommandPtr ManualLowerDeflectorCommand();
     frc2::CommandPtr StopMotorsCommand();
     frc2::CommandPtr LaunchCommand(std::function<LauncherState()> setState);
     frc2::CommandPtr EjectCommand();
@@ -125,6 +131,7 @@ private:
     
     double loss = LauncherConstants::kLoss;
 
+    frc::Relay deflectorRelay{RobotMap::Launcher::kDeflectorRelayID};
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};
     frc::PWM actuator2{RobotMap::Launcher::kActuator2ID};
 
