@@ -63,6 +63,7 @@ IntakePivot::IntakePivot()
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
 
+    pivotMotorConfig.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
     pivotMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
 
     pivotMotorConfig.Feedback.FeedbackSensorSource = signals::FeedbackSensorSourceValue::RemoteCANcoder;
@@ -153,7 +154,7 @@ frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
 
 frc2::CommandPtr IntakePivot::SetPositionCommand(std::function<units::degree_t()> angle)
 {
-    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { positionController.SetSetpoint(angle().value()); }).Until([this] { return IsWithinTolerance(); }).FinallyDo([this] { positionVoltageOut.Output = 0_V; }).WithName("Set Position");
+    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { positionController.SetSetpoint(angle().value()); }).FinallyDo([this] { positionVoltageOut.Output = 0_V; }).WithName("Set Position");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
@@ -176,8 +177,8 @@ frc2::CommandPtr IntakePivot::BounceCommand()
 {
     return frc2::cmd::RepeatingSequence
     (
-        SetPositionToBounceCommand(),
-        SetPositionToGroundCommand()
+        SetPositionToBounceCommand().Until([this] { return IsWithinTolerance(); }),
+        SetPositionToGroundCommand().Until([this] { return IsWithinTolerance(); })
     ).WithName("Bounce");
 }
 

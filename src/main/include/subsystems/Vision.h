@@ -58,7 +58,7 @@ namespace VisionConstants
 	}
 
 	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 8};
-	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.5, 0.5, 1};
+	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.25, 0.25, 10};
 
 	const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};
 

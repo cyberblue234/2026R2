@@ -105,8 +105,8 @@ void RobotContainer::ConfigureBindings()
             intakeRoller.EjectCommand(), launcher.EjectCommand(), floor.EjectCommand(), feeder.EjectCommand()
         ).WithName("Eject"));
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToGroundCommand());
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToHomeCommand());
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToHomeCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(IntakePivotConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(-IntakePivotConstants::kManualSpeed));
 
@@ -179,7 +179,7 @@ return frc2::cmd::Run
             frc::SmartDashboard::PutNumber("Generic/Total Height (ft)", (zOffset + targetPose.Z()).convert<units::feet>().value());
 
             units::standard_gravity_t g{-1};
-            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
+            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g) - 1_mps;
             units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
             units::meters_per_second_t vx = (targetPose.X() - turretPose.X()) / timeOfFlight - turretVx;
             units::meters_per_second_t vy = (targetPose.Y() - turretPose.Y()) / timeOfFlight - turretVy;
@@ -280,11 +280,11 @@ frc2::CommandPtr RobotContainer::Feed()
 {
     return frc2::cmd::Sequence
     (
-        frc2::cmd::Wait(0.15_s),
+        frc2::cmd::Wait(0.1_s),
         frc2::cmd::Parallel
         (
             feeder.FeedCommand(),
-            frc2::cmd::Wait(0.125_s).AndThen(floor.FeedCommand().AlongWith(intakePivot.BounceCommand()))
+            frc2::cmd::Wait(0.35_s).AndThen(floor.FeedCommand().AlongWith(intakePivot.BounceCommand()))
         )
     );
 }

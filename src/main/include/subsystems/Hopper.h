@@ -16,7 +16,7 @@ namespace HopperConstants
     inline constexpr double kI = 0.0;
     inline constexpr double kD = 0.0;
     inline constexpr double kS = 0.0;
-    inline constexpr double kV = 12.0 / frc::DCMotor::KrakenX60(1).freeSpeed.value();
+    inline constexpr double kV = 0.025;
     inline constexpr double kA = 0.0;
     inline constexpr double kFloorMotorSpeed = 0.83;
 }

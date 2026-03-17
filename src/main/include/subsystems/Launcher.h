@@ -142,7 +142,7 @@ private:
         std::vector<double> rpms;
         for (int i = 0; i < 3; i++)
         {
-            rpms.push_back(launcherOmegas.at(0).convert<units::revolutions_per_minute>().value());
+            rpms.push_back(launcherOmegas.at(i).convert<units::revolutions_per_minute>().value());
         }
         return rpms;
     }

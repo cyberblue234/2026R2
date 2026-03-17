@@ -12,7 +12,7 @@ using namespace ctre::phoenix6;
 
 namespace ClimberConstants
 {
-    inline constexpr units::turn_t kMaxPosition = 100_tr;
+    inline constexpr units::turn_t kMaxPosition = 80_tr;
     inline constexpr double kMotorSpeed = 0.5;
 }
 
