@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4255878713932155,
-        "y": 5.91747272060265
+        "x": 0.6367349137931042,
+        "y": 5.931099137931035
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4255878713932155,
-        "y": 5.91747272060265
+        "x": 1.8193534482758627,
+        "y": 6.097252155172414
       },
       "isLocked": false,
       "linkedName": "End of Depot 2"
     },
     {
       "anchor": {
-        "x": 1.95915540540549,
-        "y": 3.7535304054066714
+        "x": 2.0734698275862073,
+        "y": 3.4485775862068966
       },
       "prevControl": {
-        "x": 1.9295270270271119,
-        "y": 4.242398648649914
+        "x": 2.0832435344827593,
+        "y": 4.1913793103448285
       },
       "nextControl": {
-        "x": 2.009381772851071,
-        "y": 2.9247953425545807
+        "x": 2.0625463563086726,
+        "y": 2.6183937691142702
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.4036655405405406,
-        "y": 0.6869932432432426
+        "x": 0.5878663793103456,
+        "y": 0.6532974137931036
       },
       "prevControl": {
-        "x": 0.6777280405405409,
-        "y": 0.7092145270270267
+        "x": 1.780258620689656,
+        "y": 0.4480495689655174
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End of Depot 3"
     }
   ],
   "rotationTargets": [],
@@ -50,8 +50,8 @@
   "eventMarkers": [
     {
       "name": "Align and Shoot",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": 2.0,
+      "waypointRelativePos": 0.20466786355475755,
+      "endWaypointRelativePos": 1.5691202872531427,
       "command": {
         "type": "named",
         "data": {
@@ -61,8 +61,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 0.7,
+    "maxAcceleration": 0.75,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -70,7 +70,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,

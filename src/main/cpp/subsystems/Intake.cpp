@@ -95,7 +95,7 @@ IntakePivot::IntakePivot()
     pivotCancoder.GetConfigurator().Apply(configs::CANcoderConfiguration{});
     configs::CANcoderConfiguration pivotCancoderConfig;
     pivotCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = IntakeConstants::kDiscontinuityPointAngle;
-    pivotCancoderConfig.MagnetSensor.MagnetOffset = IntakeConstants::kMagnetOffset;
+    pivotCancoderConfig.MagnetSensor.MagnetOffset = pivotCancoder.GetAbsolutePosition().GetValue();
     pivotCancoderConfig.MagnetSensor.SensorDirection = signals::SensorDirectionValue::Clockwise_Positive;
     pivotCancoder.GetConfigurator().Apply(pivotCancoderConfig);
 

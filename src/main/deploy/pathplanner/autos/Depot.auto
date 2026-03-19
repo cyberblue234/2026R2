@@ -21,6 +21,18 @@
           "data": {
             "pathName": "Depot 3"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Align and Shoot"
+          }
         }
       ]
     }

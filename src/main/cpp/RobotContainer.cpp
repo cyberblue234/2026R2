@@ -223,11 +223,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate / 2)); // Drive counterclockwise with negative X (left)
         }),
         intakeRoller.IntakeCommand(),
-        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).AndThen(Feed()),
-        // intakePivot.BounceCommand(),
-        // hopper.FeedLauncherCommand().OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }),
-        frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); } ), frc2::cmd::Wait(40_ms)
-                , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
+        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).AndThen(Feed())
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
 }
 
@@ -237,9 +233,6 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     (   
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
-        // hopper.FeedLauncherCommand().OnlyIf([this] { return IsAlignmentWithinTolerances(); }).Repeatedly(),
-        frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }).OnlyIf([this] { return IsAlignmentWithinTolerances(); } ), frc2::cmd::Wait(40_ms)
-                , frc2::cmd::RunOnce([this] { launcher.SimulateShootingFuel(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation),
         launcher.LaunchCommand([this] { return LauncherState{pitch, pitchTolerance, omega}; }),
         frc2::cmd::Either
         (
@@ -269,13 +262,6 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
             ),
             frc::DriverStation::IsTeleop
         )
-        // ,
-        // frc2::cmd::Either
-        // (
-        //     intakePivot.SetPositionToGroundCommand().OnlyWhile(GetIntakeSwitchSupplier()),
-        //     intakePivot.BounceCommand().Until(GetIntakeSwitchSupplier()),
-        //     GetIntakeSwitchSupplier()
-        // ).Repeatedly()
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
 }
 
@@ -287,7 +273,15 @@ frc2::CommandPtr RobotContainer::Feed()
         frc2::cmd::Parallel
         (
             feeder.FeedCommand(),
-            frc2::cmd::Wait(0.35_s).AndThen(floor.FeedCommand().AlongWith(intakePivot.BounceCommand()))
+            frc2::cmd::Wait(0.15_s).AndThen
+            (
+                frc2::cmd::Parallel
+                (
+                    floor.FeedCommand(),
+                    intakePivot.BounceCommand(),
+                    frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
+                )
+            )
         )
     );
 }

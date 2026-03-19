@@ -29,6 +29,8 @@ public:
     frc2::CommandPtr FeedCommand();
     frc2::CommandPtr EjectCommand();
 
+    bool IsFloorRunning() { return units::math::abs(floorMotor.GetVelocity().GetValue()) > 0.15_tps;  }
+
     void InitSendable(wpi::SendableBuilder &builder) override;
 private:
     hardware::TalonFX floorMotor{RobotMap::Hopper::kFloorMotorID};

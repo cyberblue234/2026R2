@@ -58,7 +58,7 @@ namespace RobotContainerConstants
         inline constexpr units::meter_t kHubToleranceRadius = 16_in;
         inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
         inline constexpr units::meter_t kHubZOffset = 1_m;
-        inline constexpr units::meter_t kPassZOffset = 4.5_m;
+        inline constexpr units::meter_t kPassZOffset = 5.25_m;
     }
 
     namespace IntakePivotConstants

@@ -87,6 +87,7 @@ public:
     units::radians_per_second_t GetLowestLauncherOmega()
     {
         std::array<units::radians_per_second_t, 3> launcherOmegas = GetLauncherOmegas();
+        if (frc::RobotBase::IsSimulation()) return launcherOmegas.at(0);
         std::array<units::radians_per_second_t, 3>::iterator min = std::min_element(launcherOmegas.begin(), launcherOmegas.end());
         return *min;
     }
