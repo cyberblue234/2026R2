@@ -18,7 +18,7 @@ namespace IntakeConstants
 
     constexpr units::degree_t kPivotTolerance = 40_deg;
 
-    constexpr double kIntakeRollerSpeed = 0.8;
+    constexpr double kIntakeRollerSpeed = 0.85;
     constexpr double kEjectRollerSpeed = -1.0;
 
     constexpr double kP = 0.016;

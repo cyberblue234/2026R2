@@ -47,7 +47,7 @@ namespace RobotContainerConstants
 
     namespace TargetConstants
     {
-        inline constexpr double kP = 2;
+        inline constexpr double kP = 4;
         inline constexpr double kI = 30;
         inline constexpr double kD = 0;
 
@@ -93,13 +93,13 @@ namespace RobotContainerConstants
 
         namespace Translation
         {
-            constexpr double kP = 8.0;
+            constexpr double kP = 2.0;
             constexpr double kI = 0.0;
             constexpr double kD = 0.1;
         }
         namespace Rotation
         {
-            constexpr double kP = 5.0;
+            constexpr double kP = 2.0;
             constexpr double kI = 0.0;
             constexpr double kD = 0.1;
         }

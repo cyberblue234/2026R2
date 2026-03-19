@@ -16,28 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.0734698275862073,
-        "y": 3.4485775862068966
+        "x": 3.2627389443651924,
+        "y": 4.778972895863053
       },
       "prevControl": {
-        "x": 2.0832435344827593,
-        "y": 4.1913793103448285
-      },
-      "nextControl": {
-        "x": 2.0625463563086726,
-        "y": 2.6183937691142702
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.5878663793103456,
-        "y": 0.6532974137931036
-      },
-      "prevControl": {
-        "x": 1.780258620689656,
-        "y": 0.4480495689655174
+        "x": 2.848701854493581,
+        "y": 4.9212981455064195
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,8 +34,8 @@
   "eventMarkers": [
     {
       "name": "Align and Shoot",
-      "waypointRelativePos": 0.20466786355475755,
-      "endWaypointRelativePos": 1.5691202872531427,
+      "waypointRelativePos": 0.25,
+      "endWaypointRelativePos": 1.630579297245963,
       "command": {
         "type": "named",
         "data": {
@@ -61,7 +45,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 0.7,
+    "maxVelocity": 0.8,
     "maxAcceleration": 0.75,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -70,10 +54,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -33.69006752597979
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Depot",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5878663793103456,
-        "y": 0.6532974137931036
+        "x": 3.2627389443651924,
+        "y": 4.778972895863053
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4568346803821806,
-        "y": 1.8943127608909263
+        "x": 4.131707245437028,
+        "y": 6.019988242960875
       },
       "isLocked": false,
       "linkedName": "End of Depot 3"
@@ -20,8 +20,8 @@
         "y": 2.7165371621621626
       },
       "prevControl": {
-        "x": 1.4368056557022018,
-        "y": 1.885916989253125
+        "x": 1.4368056557022015,
+        "y": 1.8859169892531251
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 30.57922687248902
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Depot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -33.69006752597979
   },
   "useDefaultConstraints": true
 }

@@ -15,6 +15,12 @@ RobotContainer::RobotContainer()
     frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
 
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AlignAndLaunch());
+    pathplanner::NamedCommands::registerCommand("Manual Shoot", frc2::cmd::Parallel
+    (   
+        launcher.LaunchCommand([this] { return LauncherState{73_deg, 5_deg, 3350_rpm}; }),
+        intakeRoller.IntakeCommand(),
+        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(50_rpm); }).AndThen(Feed())
+    ));
     pathplanner::NamedCommands::registerCommand("Intake to Ground", intakePivot.SetPositionToGroundCommand());
     pathplanner::NamedCommands::registerCommand("Intake", intakeRoller.IntakeCommand().AlongWith(intakePivot.SetPositionToGroundCommand()));
 
@@ -26,10 +32,10 @@ RobotContainer::RobotContainer()
         [this](const frc::ChassisSpeeds& speeds, const pathplanner::DriveFeedforwards& feedforwards) {
             autonSetSpeeds = speeds;
             autonSetFeedforwards = feedforwards;
-            auto alignToHubCommand = pathplanner::NamedCommands::getCommand("Align and Shoot");
-            if (alignToHubCommand.IsScheduled()) {
-                return;
-            }
+            // auto alignToHubCommand = pathplanner::NamedCommands::getCommand("Align and Shoot");
+            // if (alignToHubCommand.IsScheduled()) {
+            //     return;
+            // }
             drivetrain.SetControl(autonDrive.WithSpeeds(speeds)
             .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
             .WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));
