@@ -49,15 +49,28 @@ namespace VisionConstants
 		constexpr std::string_view kCameraName = "TurretCam";
 	}
 
-    namespace BackCamera1
+    namespace BackCameraLeft
 	{
 		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d{-7_in, -5_in, 8_in},
-			frc::Rotation3d{0_deg, 0_deg, 180_deg}};
-		constexpr std::string_view kCameraName = "BackCam1";
+			frc::Translation3d{-11_in, 2_in, 20_in},
+			frc::Rotation3d{0_deg, 0_deg, 125_deg}};
+		constexpr std::string_view kCameraName = "BackCamLeft";
 	}
 
-	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 8};
+    namespace BackCameraRight
+	{
+		constexpr frc::Transform3d kRobotToCamera{
+			frc::Translation3d
+            {
+                VisionConstants::BackCameraLeft::kRobotToCamera.X(), 
+                -VisionConstants::BackCameraLeft::kRobotToCamera.Y(), 
+                VisionConstants::BackCameraLeft::kRobotToCamera.Z()
+            },
+			frc::Rotation3d{0_deg, 0_deg, 235_deg}};
+		constexpr std::string_view kCameraName = "BackCamRight";
+	}
+
+	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 40};
 	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.25, 0.25, 10};
 
 	const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};

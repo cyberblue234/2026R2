@@ -31,9 +31,12 @@ void Telemetry::UpdateTelemetry()
     turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     turretVisionPosePublisher.Set(container.turretVisionPose);
     turretVisionTargetsPublisher.Set(container.turretVisionTargets);
-    backCam1Pose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCamera1::kRobotToCamera));
-    backCam1VisionPosePublisher.Set(container.backCamera1Pose);
-    backCam1VisionTargetsPublisher.Set(container.backCamera1Targets);
+    backCamLeftPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraLeft::kRobotToCamera));
+    backCamLeftVisionPosePublisher.Set(container.backCameraLeftPose);
+    backCamLeftVisionTargetsPublisher.Set(container.backCameraLeftTargets);
+    backCamRightPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraRight::kRobotToCamera));
+    backCamRightVisionPosePublisher.Set(container.backCameraRightPose);
+    backCamRightVisionTargetsPublisher.Set(container.backCameraRightTargets);
 
     intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
 

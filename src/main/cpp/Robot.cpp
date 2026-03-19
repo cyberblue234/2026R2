@@ -21,7 +21,8 @@ void Robot::RobotPeriodic()
     frc2::CommandScheduler::GetInstance().Run();
     telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
-    // container.backCamera1Vision.Periodic();
+    container.backCameraLeftVision.Periodic();
+    container.backCameraRightVision.Periodic();
 }
 
 /**
@@ -82,7 +83,8 @@ void Robot::SimulationPeriodic()
 {
     frc::Pose2d robotPose = container.drivetrain.GetState().Pose;
     container.turretVision.SimPeriodic(robotPose);
-    container.backCamera1Vision.SimPeriodic(robotPose);
+    container.backCameraLeftVision.SimPeriodic(robotPose);
+    container.backCameraRightVision.SimPeriodic(robotPose);
 }
 
 #ifndef RUNNING_FRC_TESTS

@@ -209,15 +209,27 @@ public:
         }
     };
 
-    frc::Pose3d backCamera1Pose;
-    std::vector<frc::Pose3d> backCamera1Targets;
-    Vision backCamera1Vision
+    frc::Pose3d backCameraLeftPose;
+    std::vector<frc::Pose3d> backCameraLeftTargets;
+    Vision backCameraLeftVision
     {
-        visionMeasurementConsumer, VisionConstants::BackCamera1::kCameraName, VisionConstants::BackCamera1::kRobotToCamera,
+        visionMeasurementConsumer, VisionConstants::BackCameraLeft::kCameraName, VisionConstants::BackCameraLeft::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
-            backCamera1Pose = pose;
-            backCamera1Targets = targets;
+            backCameraLeftPose = pose;
+            backCameraLeftTargets = targets;
+        }
+    };
+
+    frc::Pose3d backCameraRightPose;
+    std::vector<frc::Pose3d> backCameraRightTargets;
+    Vision backCameraRightVision
+    {
+        visionMeasurementConsumer, VisionConstants::BackCameraRight::kCameraName, VisionConstants::BackCameraRight::kRobotToCamera,
+        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+        {
+            backCameraRightPose = pose;
+            backCameraRightTargets = targets;
         }
     };
 
