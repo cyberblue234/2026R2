@@ -39,6 +39,8 @@ namespace IntakeConstants
     constexpr double kMotorToCANcoderRatio = 25;
     constexpr double kCANcoderToPivotRatio = 1.75;
     constexpr double kMotorToPivotRatio = kMotorToCANcoderRatio * kCANcoderToPivotRatio;
+
+    inline constexpr double kManualSpeed = 0.2;
 }
 
 class IntakeRoller : public frc2::SubsystemBase
@@ -83,7 +85,7 @@ private:
         IntakeConstants::kMotorToPivotRatio,
         295.7_mm,
         IntakeConstants::kHomePosition,
-        230_deg,
+        IntakeConstants::kGroundPosition,
         false,
         IntakeConstants::kHomePosition
     };

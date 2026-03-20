@@ -61,11 +61,6 @@ namespace RobotContainerConstants
         inline constexpr units::meter_t kPassZOffset = 4_m;
     }
 
-    namespace IntakePivotConstants
-    {
-        inline constexpr double kManualSpeed = 0.2;
-    }
-
     namespace PathPlannerConstants
     {
         inline const pathplanner::ModuleConfig kModuleConfig

@@ -129,8 +129,8 @@ namespace OperatorConstants
     constexpr int kTargetHubSwitch = 3;
     constexpr int kTargetPassSwitch = 5;
     
-    constexpr int kManualIntakePivotDown = 4;
-    constexpr int kManualIntakePivotUp = 2;
+    constexpr int kManualIntakePivotDown = 2;
+    constexpr int kManualIntakePivotUp = 4;
 
     constexpr int kHeightAdjusterAxis = 0;
 } // namespace OperatorConstants
