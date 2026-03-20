@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6367349137931042,
-        "y": 5.931099137931035
+        "x": 0.5059078950065063,
+        "y": 5.955941089260087
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8193534482758627,
-        "y": 6.097252155172414
+        "x": 1.6885264294892648,
+        "y": 6.122094106501465
       },
       "isLocked": false,
       "linkedName": "End of Depot 2"
@@ -31,19 +31,7 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Align and Shoot",
-      "waypointRelativePos": 0.25,
-      "endWaypointRelativePos": 1.630579297245963,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Align and Shoot"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 0.8,
     "maxAcceleration": 0.75,
@@ -54,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -33.69006752597979
+    "rotation": -28.82978798308322
   },
   "reversed": false,
   "folder": "Depot",

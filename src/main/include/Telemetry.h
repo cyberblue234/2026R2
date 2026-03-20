@@ -40,6 +40,7 @@ private:
     nt::StructArrayPublisher<frc::SwerveModuleState> moduleTargets = drivetrainTable->GetStructArrayTopic<frc::SwerveModuleState>("Module Targets").Publish();
     nt::StructArrayPublisher<frc::SwerveModulePosition> modulePositions = drivetrainTable->GetStructArrayTopic<frc::SwerveModulePosition>("Module Positions").Publish();
     nt::StructPublisher<frc::ChassisSpeeds> chassisSpeeds = drivetrainTable->GetStructTopic<frc::ChassisSpeeds>("Chassis Speeds").Publish();
+    nt::StructPublisher<frc::ChassisSpeeds> autoChassisSpeeds = drivetrainTable->GetStructTopic<frc::ChassisSpeeds>("Auto Chassis Speeds").Publish();
 
     std::shared_ptr<nt::NetworkTable> hopperTable = smartdashboardTable->GetSubTable(hopperTableName);
     std::shared_ptr<nt::NetworkTable> floorTable = hopperTable->GetSubTable(feederTableName);

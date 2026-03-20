@@ -10,6 +10,13 @@ RobotContainer::RobotContainer()
 {
     ConfigureBindings();
 
+    std::vector<std::string> autos = pathplanner::AutoBuilder::getAllAutoNames();
+    autoChooser.SetDefaultOption("Nothing", "Nothing");
+	for (auto i = autos.begin(); i != autos.end(); ++i)
+	{
+		autoChooser.AddOption(*i, *i);
+	}
+
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
     frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
@@ -17,7 +24,7 @@ RobotContainer::RobotContainer()
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AlignAndLaunch());
     pathplanner::NamedCommands::registerCommand("Manual Shoot", frc2::cmd::Parallel
     (   
-        launcher.LaunchCommand([this] { return LauncherState{73_deg, 5_deg, 3350_rpm}; }),
+        launcher.LaunchCommand([this] { return LauncherState{73_deg, 1_deg, 3400_rpm}; }),
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(50_rpm); }).AndThen(Feed())
     ));
@@ -36,9 +43,7 @@ RobotContainer::RobotContainer()
             // if (alignToHubCommand.IsScheduled()) {
             //     return;
             // }
-            drivetrain.SetControl(autonDrive.WithSpeeds(speeds)
-            .WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX)
-            .WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));
+            drivetrain.SetControl(autonDrive.WithSpeeds(speeds));
         },
         std::make_shared<pathplanner::PPHolonomicDriveController>(
             pathplanner::PIDConstants{PathPlannerConstants::Translation::kP, PathPlannerConstants::Translation::kI, PathPlannerConstants::Translation::kD},
@@ -52,14 +57,15 @@ RobotContainer::RobotContainer()
             }
             return false;
         },
-        {}
+        &drivetrain
     );
 }
 
 std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
 {
-    // Return the command to run in autonomous
-    return pathplanner::PathPlannerAuto("Depot").ToPtr();
+	std::string auton = autoChooser.GetSelected();
+    if (auton == "Nothing") return {};
+    return pathplanner::PathPlannerAuto(auton).ToPtr();
 }
 
 void RobotContainer::ConfigureBindings()
@@ -168,7 +174,7 @@ return frc2::cmd::Run
             {
                 targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
                 toleranceRadius = TargetConstants::kHubToleranceRadius;
-                zOffset = TargetConstants::kHubZOffset + units::meter_t{GetHeightAdjustment(-0.25, 4)};
+                zOffset = TargetConstants::kHubZOffset;
             }
             else
             {
@@ -176,7 +182,7 @@ return frc2::cmd::Run
                         ? frc::Translation3d{FieldConstants::kBluePassPose.X(), FieldConstants::kBluePassPose.Y() + passOffset, FieldConstants::kBluePassPose.Z()} 
                         : frc::Translation3d{FieldConstants::kRedPassPose.X(), FieldConstants::kRedPassPose.Y() - passOffset, FieldConstants::kRedPassPose.Z()};
                 toleranceRadius = TargetConstants::kPassToleranceRadius;
-                zOffset = TargetConstants::kPassZOffset + units::meter_t{GetHeightAdjustment(-2, 4)};
+                zOffset = TargetConstants::kPassZOffset;
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
@@ -275,7 +281,7 @@ frc2::CommandPtr RobotContainer::Feed()
 {
     return frc2::cmd::Sequence
     (
-        frc2::cmd::Wait(0.1_s),
+        frc2::cmd::Wait(0.2_s),
         frc2::cmd::Parallel
         (
             feeder.FeedCommand(),

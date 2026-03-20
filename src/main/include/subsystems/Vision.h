@@ -70,8 +70,8 @@ namespace VisionConstants
 		constexpr std::string_view kCameraName = "BackCamRight";
 	}
 
-	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 10000};
-	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.25, 0.25, 10000};
+	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4.0, 4.0, 9999999.0};
+	inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.5, 0.5, 9999999.0};
 
 	const frc::AprilTagFieldLayout kTagLayout{frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2026RebuiltAndyMark)};
 

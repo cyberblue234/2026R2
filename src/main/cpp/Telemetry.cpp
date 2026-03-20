@@ -12,7 +12,7 @@ Telemetry::Telemetry(RobotContainer& container) : container(container)
     frc::SmartDashboard::PutData(intakePivotTableName, &container.intakePivot);
     frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
-    
+    frc::SmartDashboard::PutData(genericTableName + "/Auto Chooser", &container.autoChooser);
 }
 
 void Telemetry::UpdateTelemetry()
@@ -23,6 +23,7 @@ void Telemetry::UpdateTelemetry()
     moduleTargets.Set(state.ModuleTargets);
     modulePositions.Set(state.ModulePositions);
     chassisSpeeds.Set(state.Speeds);
+    autoChassisSpeeds.Set(container.autonSetSpeeds);
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
     frc::SmartDashboard::PutNumber(genericTableName + "/Manual Set Speed", container.launcherSetSpeed.value());

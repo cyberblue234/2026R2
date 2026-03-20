@@ -118,11 +118,6 @@ public:
 
     LauncherState currentState;
 
-    void SimulateShootingFuel()
-    {
-        ctre::phoenix6::sim::TalonFXSimState& sim = launcherMotor1.GetSimState();
-    }
-
 private:
     hardware::TalonFX launcherMotor1{RobotMap::Launcher::kLauncherMotor1ID};
     hardware::TalonFX launcherMotor2{RobotMap::Launcher::kLauncherMotor2ID};
