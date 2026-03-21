@@ -5,7 +5,9 @@ Floor::Floor()
     // Basic Configs that both motors will have
     configs::TalonFXConfiguration motorConfigs;
     motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = 120_A;
+    motorConfigs.CurrentLimits.StatorCurrentLimit = 60_A;
+    motorConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfigs.CurrentLimits.SupplyCurrentLimit = 20_A;
     motorConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
     motorConfigs.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
 
@@ -42,7 +44,7 @@ Feeder::Feeder()
 {
     configs::TalonFXConfiguration motorConfigs;
     motorConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfigs.CurrentLimits.StatorCurrentLimit = 120_A;
+    motorConfigs.CurrentLimits.StatorCurrentLimit = 60_A;
     motorConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Coast;
     motorConfigs.MotorOutput.Inverted = signals::InvertedValue::CounterClockwise_Positive;
     motorConfigs = motorConfigs.WithSlot0

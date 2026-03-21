@@ -7,7 +7,7 @@ IntakeRoller::IntakeRoller()
     rollerMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration rollerMotorConfig;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
+    rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 40_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
 
     SetDefaultCommand(StopMotorCommand());
@@ -61,7 +61,9 @@ IntakePivot::IntakePivot()
     configs::TalonFXConfiguration pivotMotorConfig;
     
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
+    pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 60_A;
+    pivotMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 30_A;
 
     pivotMotorConfig.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
     pivotMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
