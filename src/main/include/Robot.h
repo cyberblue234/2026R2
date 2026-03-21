@@ -8,6 +8,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
+#include <frc/DataLogManager.h>
 
 #include "RobotContainer.h"
 #include "Telemetry.h"

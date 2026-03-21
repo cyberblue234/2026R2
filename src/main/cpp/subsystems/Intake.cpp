@@ -47,6 +47,8 @@ frc2::CommandPtr IntakeRoller::EjectCommand()
 void IntakeRoller::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Set Speed", [this] { return motorSpeed; }, [this] (double set) { motorSpeed = set;});
+    builder.AddDoubleProperty("Supply Current", [this] { return rollerMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
+    builder.AddDoubleProperty("Stator Current", [this] { return rollerMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }
@@ -195,14 +197,8 @@ void IntakePivot::SimulationPeriodic()
 
 void IntakePivot::InitSendable(wpi::SendableBuilder &builder)
 {
-    builder.AddDoubleProperty("Ground Position", [this] { return groundPosition.value(); }, [this] (double set) { groundPosition = units::degree_t{set};});
-    builder.AddDoubleProperty("Home Position", [this] { return homePosition.value(); }, [this] (double set) { homePosition = units::degree_t{set};});
-    builder.AddDoubleProperty("Bounce Position", [this] { return bouncePosition.value(); }, [this] (double set) { bouncePosition = units::degree_t{set};});
-    builder.AddDoubleProperty("Tolerance", [this] { return tolerance.value(); }, [this] (double set) { tolerance = units::degree_t{set};});
-    builder.AddBooleanProperty("Is Within Tolerance", [this] { return IsWithinTolerance(); }, nullptr);
-    builder.AddDoubleProperty("Goal", [this] { return positionController.GetSetpoint(); }, nullptr);
-    builder.AddDoubleProperty("Setpoint", [this] { return units::turn_t(pivotMotor.GetClosedLoopReference().GetValue()).convert<units::degree>().value(); }, nullptr);
-    builder.AddDoubleProperty("Current Position", [this] { return GetAngle().value(); }, nullptr);
+    builder.AddDoubleProperty("Supply Current", [this] { return pivotMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
+    builder.AddDoubleProperty("Stator Current", [this] { return pivotMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }

@@ -155,9 +155,9 @@ void Launcher::InitSendable(wpi::SendableBuilder& builder)
     builder.AddDoubleProperty("Launcher Set Angle (degrees)", [this] { return currentState.pitch.value(); }, nullptr);
     builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);
     builder.AddDoubleProperty("Launcher Angle (deg)", [this] { return GetLauncherAngle().value(); }, nullptr);
-    builder.AddDoubleProperty("Actuator 1 Position", [this] { return actuator1.GetSpeed(); }, nullptr);
-    builder.AddDoubleProperty("Actuator 2 Position", [this] { return actuator2.GetSpeed(); }, nullptr);
     builder.AddDoubleProperty("Loss Factor", [this] { return loss; }, [this](double newLoss) { loss = newLoss; });
+    builder.AddDoubleArrayProperty("Supply Currents", [this] { return std::vector<double>{launcherMotor1.GetSupplyCurrent().GetValueAsDouble(), launcherMotor2.GetSupplyCurrent().GetValueAsDouble(), launcherMotor3.GetSupplyCurrent().GetValueAsDouble()}; }, nullptr);
+    builder.AddDoubleArrayProperty("Stator Currents", [this] { return std::vector<double>{launcherMotor1.GetStatorCurrent().GetValueAsDouble(), launcherMotor2.GetStatorCurrent().GetValueAsDouble(), launcherMotor3.GetStatorCurrent().GetValueAsDouble()}; }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }

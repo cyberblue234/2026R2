@@ -35,6 +35,8 @@ frc2::CommandPtr Floor::EjectCommand()
 void Floor::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Floor Set Speed", [this] { return floorMotorSpeed; }, [this] (double set) { floorMotorSpeed = set;});
+    builder.AddDoubleProperty("Supply Current", [this] { return floorMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
+    builder.AddDoubleProperty("Stator Current", [this] { return floorMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }
@@ -83,6 +85,8 @@ void Feeder::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Feeder Set Speed (rpm)", [this] { return feederMotorSpeed.value(); }, [this] (double set) { feederMotorSpeed = units::revolutions_per_minute_t{set};});
     builder.AddDoubleProperty("Feeder Speed (rpm)", [this] { return feederMotor.GetVelocity().GetValue().convert<units::revolutions_per_minute>().value(); }, nullptr);
+    builder.AddDoubleProperty("Supply Current", [this] { return feederMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
+    builder.AddDoubleProperty("Stator Current", [this] { return feederMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }

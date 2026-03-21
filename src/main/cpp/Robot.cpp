@@ -6,7 +6,10 @@
 
 #include <frc2/command/CommandScheduler.h>
 
-Robot::Robot() {}
+Robot::Robot() 
+{
+    frc::DataLogManager::Start();
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -19,7 +22,7 @@ Robot::Robot() {}
 void Robot::RobotPeriodic()
 {
     frc2::CommandScheduler::GetInstance().Run();
-    // telemetry.UpdateTelemetry();
+    telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
     container.backCameraLeftVision.Periodic();
     container.backCameraRightVision.Periodic();

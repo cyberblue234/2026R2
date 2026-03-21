@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Constants.h"
+#include "frc/smartdashboard/Field2d.h"
 #include "RobotContainer.h"
 
 namespace TelemetryConstants
@@ -36,6 +37,7 @@ private:
 
     std::shared_ptr<nt::NetworkTable> drivetrainTable = smartdashboardTable->GetSubTable(drivetrainTableName);
     nt::StructPublisher<frc::Pose2d> drivetrainPose = drivetrainTable->GetStructTopic<frc::Pose2d>("Pose").Publish();
+    frc::Field2d field;
     nt::StructArrayPublisher<frc::SwerveModuleState> moduleStates = drivetrainTable->GetStructArrayTopic<frc::SwerveModuleState>("Module States").Publish();
     nt::StructArrayPublisher<frc::SwerveModuleState> moduleTargets = drivetrainTable->GetStructArrayTopic<frc::SwerveModuleState>("Module Targets").Publish();
     nt::StructArrayPublisher<frc::SwerveModulePosition> modulePositions = drivetrainTable->GetStructArrayTopic<frc::SwerveModulePosition>("Module Positions").Publish();

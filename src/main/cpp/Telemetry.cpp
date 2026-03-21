@@ -13,32 +13,34 @@ Telemetry::Telemetry(RobotContainer& container) : container(container)
     frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
     frc::SmartDashboard::PutData(genericTableName + "/Auto Chooser", &container.autoChooser);
+    frc::SmartDashboard::PutData(genericTableName, &field);
 }
 
 void Telemetry::UpdateTelemetry()
 {
     swerve::impl::SwerveDrivetrainImpl::SwerveDriveState state = container.drivetrain.GetState();
     drivetrainPose.Set(state.Pose);
-    moduleStates.Set(state.ModuleStates);
-    moduleTargets.Set(state.ModuleTargets);
-    modulePositions.Set(state.ModulePositions);
-    chassisSpeeds.Set(state.Speeds);
-    autoChassisSpeeds.Set(container.autonSetSpeeds);
+    field.SetRobotPose(state.Pose);
+    // moduleStates.Set(state.ModuleStates);
+    // moduleTargets.Set(state.ModuleTargets);
+    // modulePositions.Set(state.ModulePositions);
+    // chassisSpeeds.Set(state.Speeds);
+    // autoChassisSpeeds.Set(container.autonSetSpeeds);
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
     frc::SmartDashboard::PutNumber(genericTableName + "/Manual Set Speed", container.launcherSetSpeed.value());
     frc::SmartDashboard::PutBoolean(genericTableName + "/Is Alignment Within Tolerances", container.IsAlignmentWithinTolerances());
     
-    turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
-    turretVisionPosePublisher.Set(container.turretVisionPose);
-    turretVisionTargetsPublisher.Set(container.turretVisionTargets);
-    backCamLeftPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraLeft::kRobotToCamera));
-    backCamLeftVisionPosePublisher.Set(container.backCameraLeftPose);
-    backCamLeftVisionTargetsPublisher.Set(container.backCameraLeftTargets);
-    backCamRightPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraRight::kRobotToCamera));
-    backCamRightVisionPosePublisher.Set(container.backCameraRightPose);
-    backCamRightVisionTargetsPublisher.Set(container.backCameraRightTargets);
+    // turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
+    // turretVisionPosePublisher.Set(container.turretVisionPose);
+    // turretVisionTargetsPublisher.Set(container.turretVisionTargets);
+    // backCamLeftPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraLeft::kRobotToCamera));
+    // backCamLeftVisionPosePublisher.Set(container.backCameraLeftPose);
+    // backCamLeftVisionTargetsPublisher.Set(container.backCameraLeftTargets);
+    // backCamRightPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraRight::kRobotToCamera));
+    // backCamRightVisionPosePublisher.Set(container.backCameraRightPose);
+    // backCamRightVisionTargetsPublisher.Set(container.backCameraRightTargets);
 
-    intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
+    // intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
 
 }

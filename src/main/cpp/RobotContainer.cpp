@@ -186,9 +186,6 @@ return frc2::cmd::Run
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
-            
-            frc::SmartDashboard::PutNumber("Generic/Z Offset (ft)", zOffset.convert<units::feet>().value());
-            frc::SmartDashboard::PutNumber("Generic/Total Height (ft)", (zOffset + targetPose.Z()).convert<units::feet>().value());
 
             units::standard_gravity_t g{-1};
             units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);

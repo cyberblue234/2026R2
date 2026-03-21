@@ -53,18 +53,43 @@ void CommandSwerveDrivetrain::StartSimThread()
 
 void CommandSwerveDrivetrain::InitSendable(wpi::SendableBuilder &builder)
 {
-    builder.AddDoubleProperty("Velocity X (m\\s)", [this] { return vX.value(); }, nullptr);
-    builder.AddDoubleProperty("Velocity Y (m\\s)", [this] { return vY.value(); }, nullptr);
-    builder.AddDoubleProperty("Velocity Yaw (rad\\s)", [this] { return vYaw.value(); }, nullptr);
-    builder.AddDoubleArrayProperty("Wheel Velocities (m\\s)", [this] 
-        { 
-            std::vector<double> wheelVelocities;
-            for (auto const& moduleState : GetState().ModuleStates) {
-                wheelVelocities.push_back(moduleState.speed.value());
-            }
-            return wheelVelocities;
-        }, nullptr);
-
+    builder.AddDoubleArrayProperty("Drive Supply Currents", [this] 
+    { 
+        std::vector<double> supplyCurrents;
+        for (auto const& motors : GetModules())
+        {
+            supplyCurrents.push_back(motors->GetDriveMotor().GetSupplyCurrent().GetValueAsDouble());
+        }
+        return supplyCurrents; 
+    }, nullptr);
+    builder.AddDoubleArrayProperty("Steer Supply Currents", [this] 
+    { 
+        std::vector<double> supplyCurrents;
+        for (auto const& motors : GetModules())
+        {
+            supplyCurrents.push_back(motors->GetSteerMotor().GetSupplyCurrent().GetValueAsDouble());
+        }
+        return supplyCurrents; 
+    }, nullptr);
+    builder.AddDoubleArrayProperty("Drive Stator Currents", [this] 
+    { 
+        std::vector<double> statorCurrents;
+        for (auto const& motors : GetModules())
+        {
+            statorCurrents.push_back(motors->GetDriveMotor().GetStatorCurrent().GetValueAsDouble());
+        }
+        return statorCurrents; 
+    }, nullptr);
+    builder.AddDoubleArrayProperty("Steer Stator Currents", [this] 
+    { 
+        std::vector<double> statorCurrents;
+        for (auto const& motors : GetModules())
+        {
+            statorCurrents.push_back(motors->GetSteerMotor().GetStatorCurrent().GetValueAsDouble());
+        }
+        return statorCurrents; 
+    }, nullptr);
+    
     ADD_DEFAULT_COMMAND;
     ADD_CURRENT_COMMAND;
 }
