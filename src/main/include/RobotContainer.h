@@ -176,7 +176,7 @@ public:
     Feeder feeder;
     Launcher launcher;
     Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, true};
-    Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, false};
+    // Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, false};
 
     std::function<void(frc::Pose2d pose, units::second_t timestamp,
                           Eigen::Matrix<double, 3, 1> stddevs)> visionMeasurementConsumer =  

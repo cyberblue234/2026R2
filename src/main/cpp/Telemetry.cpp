@@ -2,8 +2,8 @@
 
 Telemetry::Telemetry(RobotContainer& container) : container(container)
 {
-    frc::SmartDashboard::PutData(climbersTableName + "/1", &container.climber1);
-    frc::SmartDashboard::PutData(climbersTableName + "/2", &container.climber2);
+    // frc::SmartDashboard::PutData(climbersTableName + "/1", &container.climber1);
+    // frc::SmartDashboard::PutData(climbersTableName + "/2", &container.climber2);
     frc::SmartDashboard::PutData(drivetrainTableName, &container.drivetrain);
     frc::SmartDashboard::PutData(drivetrainTableName + "/Align Heading Controller", &container.alignToHub.HeadingController);
     frc::SmartDashboard::PutData(hopperTableName + "/" + floorTableName, &container.floor);

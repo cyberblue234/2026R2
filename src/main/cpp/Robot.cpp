@@ -19,7 +19,7 @@ Robot::Robot() {}
 void Robot::RobotPeriodic()
 {
     frc2::CommandScheduler::GetInstance().Run();
-    telemetry.UpdateTelemetry();
+    // telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
     container.backCameraLeftVision.Periodic();
     container.backCameraRightVision.Periodic();
