@@ -8,7 +8,7 @@ Floor::Floor()
     motorConfigs.CurrentLimits.StatorCurrentLimit = 60_A;
     motorConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfigs.CurrentLimits.SupplyCurrentLimit = 20_A;
-    motorConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
+    motorConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Coast;
     motorConfigs.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
 
     floorMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});

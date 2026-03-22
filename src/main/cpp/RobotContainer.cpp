@@ -287,7 +287,7 @@ frc2::CommandPtr RobotContainer::Feed()
                 frc2::cmd::Parallel
                 (
                     floor.FeedCommand(),
-                    intakePivot.BounceCommand(),
+                    frc2::cmd::Wait(1_s).AndThen(intakePivot.BounceCommand()),
                     frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
                 )
             )

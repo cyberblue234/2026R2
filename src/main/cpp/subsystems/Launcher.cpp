@@ -16,6 +16,8 @@ Launcher::Launcher()
     configs::TalonFXConfiguration launcherMotorConfig;
     launcherMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     launcherMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
+    launcherMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    launcherMotorConfig.CurrentLimits.SupplyCurrentLimit = 80_A;
     launcherMotorConfig.Slot0 = pidConfigs;
     launcherMotorConfig.MotionMagic = motionMagicConfigs;
     launcherMotorConfig.MotorOutput.Inverted = signals::InvertedValue::CounterClockwise_Positive;

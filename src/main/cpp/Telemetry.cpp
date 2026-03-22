@@ -13,7 +13,7 @@ Telemetry::Telemetry(RobotContainer& container) : container(container)
     frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
     frc::SmartDashboard::PutData(genericTableName + "/Auto Chooser", &container.autoChooser);
-    frc::SmartDashboard::PutData(genericTableName, &field);
+    frc::SmartDashboard::PutData(genericTableName + "/field", &field);
 }
 
 void Telemetry::UpdateTelemetry()
