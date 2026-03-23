@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5898169467333023,
-        "y": 5.991951450074566
+        "x": 3.560328102710413,
+        "y": 5.955941089260087
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0425025718378476,
-        "y": 5.991951450074566
+        "x": 3.013013727814958,
+        "y": 5.955941089260087
       },
       "isLocked": false,
       "linkedName": null
@@ -54,12 +54,6 @@
         "type": "parallel",
         "data": {
           "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "Intake To Ground"
-              }
-            },
             {
               "type": "named",
               "data": {

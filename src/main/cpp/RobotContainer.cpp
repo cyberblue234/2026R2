@@ -28,7 +28,6 @@ RobotContainer::RobotContainer()
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(50_rpm); }).AndThen(Feed())
     ));
-    pathplanner::NamedCommands::registerCommand("Intake to Ground", intakePivot.SetPositionToGroundCommand());
     pathplanner::NamedCommands::registerCommand("Intake", intakeRoller.IntakeCommand().AlongWith(intakePivot.SetPositionToGroundCommand()));
 
     pathplanner::AutoBuilder::configure

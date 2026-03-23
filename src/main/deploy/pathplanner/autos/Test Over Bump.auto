@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Field Right 1B"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Align and Shoot"
+            "pathName": "Over Bump"
           }
         }
       ]
