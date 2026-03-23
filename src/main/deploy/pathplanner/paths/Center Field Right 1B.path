@@ -8,8 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.671292134831459,
-        "y": 2.5674943820224714
+        "x": 3.215258426966292,
+        "y": 2.6184494382022465
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.103157303370786,
+        "y": 2.6184494382022465
+      },
+      "prevControl": {
+        "x": 2.837995102675264,
+        "y": 2.6184494382022465
+      },
+      "nextControl": {
+        "x": 5.6423761342172725,
+        "y": 2.6184494382022465
       },
       "isLocked": false,
       "linkedName": null
@@ -78,23 +94,23 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.9518716577540108,
+      "waypointRelativePos": 1.9,
       "rotationDegrees": -7.516178575202212
     },
     {
-      "waypointRelativePos": 1.6718110236220518,
+      "waypointRelativePos": 2.671811023622052,
       "rotationDegrees": 110.0
     },
     {
-      "waypointRelativePos": 2.5093962415034032,
-      "rotationDegrees": 140.7978717657107
+      "waypointRelativePos": 3.5093962415034032,
+      "rotationDegrees": 118.28020223195088
     }
   ],
   "constraintZones": [
     {
       "name": "Over 1",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.6854901960784275,
+      "minWaypointRelativePos": 0.6058823529411749,
+      "maxWaypointRelativePos": 1.5313725490195988,
       "constraints": {
         "maxVelocity": 4.0,
         "maxAcceleration": 3.0,
@@ -106,8 +122,8 @@
     },
     {
       "name": "Over 2",
-      "minWaypointRelativePos": 2.9819607843137264,
-      "maxWaypointRelativePos": 3.786440677966098,
+      "minWaypointRelativePos": 3.9819607843137264,
+      "maxWaypointRelativePos": 4.786440677966098,
       "constraints": {
         "maxVelocity": 4.0,
         "maxAcceleration": 2.0,
@@ -119,8 +135,8 @@
     },
     {
       "name": "Balls",
-      "minWaypointRelativePos": 1.5513725490196153,
-      "maxWaypointRelativePos": 3.126274509803908,
+      "minWaypointRelativePos": 2.7549019607843066,
+      "maxWaypointRelativePos": 4.080392156862753,
       "constraints": {
         "maxVelocity": 0.5,
         "maxAcceleration": 1.0,
@@ -135,7 +151,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.24406779661016928,
+      "waypointRelativePos": 0.5,
       "endWaypointRelativePos": 3.0940170940170932,
       "command": {
         "type": "named",
