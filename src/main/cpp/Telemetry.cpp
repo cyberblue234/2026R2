@@ -28,8 +28,9 @@ void Telemetry::UpdateTelemetry()
     // autoChassisSpeeds.Set(container.autonSetSpeeds);
     
     targetPublisher.Set(container.target == Targets::Hub ? "Hub" : container.target == Targets::Pass ? "Pass" : "Manual");
-    frc::SmartDashboard::PutNumber(genericTableName + "/Manual Set Speed", container.launcherSetSpeed.value());
-    frc::SmartDashboard::PutBoolean(genericTableName + "/Is Alignment Within Tolerances", container.IsAlignmentWithinTolerances());
+    manualSetSpeedPublisher.Set(container.launcherSetSpeed.value());
+    alignmentWithinTolerance.Set(container.IsAlignmentWithinTolerances());
+    robotVoltagePublisher.Set(frc::RobotController::GetBatteryVoltage().value());
     
     // turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     // turretVisionPosePublisher.Set(container.turretVisionPose);

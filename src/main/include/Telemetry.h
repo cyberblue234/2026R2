@@ -54,6 +54,10 @@ private:
 
     std::shared_ptr<nt::NetworkTable> genericTable = smartdashboardTable->GetSubTable(genericTableName);
     nt::StringPublisher targetPublisher = genericTable->GetStringTopic("Target").Publish();
+    nt::DoublePublisher manualSetSpeedPublisher = genericTable->GetDoubleTopic("Manual Set Speed").Publish();
+    nt::BooleanPublisher alignmentWithinTolerance = genericTable->GetBooleanTopic("Is Alignment Within Tolerances").Publish();
+
+    nt::DoublePublisher robotVoltagePublisher = genericTable->GetDoubleTopic("Robot Voltage").Publish();
 
     std::shared_ptr<nt::NetworkTable> visionTable = smartdashboardTable->GetSubTable(visionTableName);
     nt::StructPublisher<frc::Pose3d> turretCamPose = visionTable->GetSubTable(turretCameraTableName)->GetStructTopic<frc::Pose3d>("Camera Pose").Publish();
