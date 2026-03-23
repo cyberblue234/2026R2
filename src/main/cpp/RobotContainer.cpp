@@ -97,8 +97,8 @@ void RobotContainer::ConfigureBindings()
         launcherSetSpeed -= 50_rpm; 
         if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
 
-    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset += 0.1_m; if (passOffset > 2.5_m) passOffset = 2.5_m; }));
-    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset -= 0.1_m; if (passOffset < -2.5_m) passOffset = -2.5_m; }));
+    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset += 0.1_m; if (passOffset > 2_m) passOffset = 2.5_m; }));
+    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset -= 0.1_m; if (passOffset < -2_m) passOffset = -2.5_m; }));
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
@@ -243,53 +243,36 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
         launcher.LaunchCommand([this] { return LauncherState{pitch, pitchTolerance, omega}; }),
-        frc2::cmd::Either
+        // Driver control during teleop
+        drivetrain.ApplyRequest
         (
-            // Driver control during teleop
-            drivetrain.ApplyRequest
-            (
-                [this]()
-                {
-                    return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-                    .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                    .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
-                    .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
-                }
-            ),
-            // Follow path but with rotational override during autonomous
-            drivetrain.ApplyRequest
-            (
-                [this]
-                {
-                    frc::ChassisSpeeds setSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(autonSetSpeeds, drivetrain.GetState().Pose.Rotation().RotateBy(drivetrain.GetOperatorForwardDirection()));
-                    return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
-                    .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
-                    .WithVelocityX(setSpeeds.vx)
-                    .WithVelocityY(setSpeeds.vy)
-                    .WithDeadband(0_mps);
-                }
-            ),
-            frc::DriverStation::IsTeleop
-        )
+            [this]()
+            {
+                return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
+                .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
+                .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
+                .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
+            }
+        ).Until([this] { return IsAlignmentWithinTolerances() && joystick.GetRightTriggerAxis() > 0.5; })
+        .AndThen(drivetrain.ApplyRequest
+        (
+            [this] { return brake; }
+        ))
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
 }
 
 frc2::CommandPtr RobotContainer::Feed()
 {
-    return frc2::cmd::Sequence
+    return frc2::cmd::Parallel
     (
-        frc2::cmd::Wait(0.2_s),
-        frc2::cmd::Parallel
+        feeder.FeedCommand(),
+        frc2::cmd::Wait(0.1_s).AndThen
         (
-            feeder.FeedCommand(),
-            frc2::cmd::Wait(0.15_s).AndThen
+            frc2::cmd::Parallel
             (
-                frc2::cmd::Parallel
-                (
-                    floor.FeedCommand(),
-                    frc2::cmd::Wait(1_s).AndThen(intakePivot.BounceCommand()),
-                    frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
-                )
+                floor.FeedCommand(),
+                intakePivot.BounceCommand(),
+                frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
             )
         )
     );

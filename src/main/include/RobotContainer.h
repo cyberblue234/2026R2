@@ -38,7 +38,7 @@ namespace RobotContainerConstants
     namespace DriveConstants
     {
         inline constexpr units::meters_per_second_t kMaxSpeed = TunerConstants::kSpeedAt12Volts;
-        inline constexpr units::radians_per_second_t kMaxAngularRate = 1_tps;
+        inline constexpr units::radians_per_second_t kMaxAngularRate = 0.75_tps;
 
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 15_mps_sq;
         inline constexpr units::degrees_per_second_squared_t kAngularAccelerationLimit = 4_tr_per_s_sq;
@@ -155,6 +155,8 @@ public:
         .WithSteerRequestType(swerve::SteerRequestType::Position);
     frc::ChassisSpeeds autonSetSpeeds;
     pathplanner::DriveFeedforwards autonSetFeedforwards;
+
+    swerve::requests::SwerveDriveBrake brake;
 
     units::degree_t targetYaw;
     units::degree_t yawTolerance;
