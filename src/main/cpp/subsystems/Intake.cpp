@@ -6,6 +6,8 @@ IntakeRoller::IntakeRoller()
 {
     rollerMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     configs::TalonFXConfiguration rollerMotorConfig;
+    rollerMotorConfig.MotorOutput.Inverted = signals::InvertedValue::CounterClockwise_Positive;
+    rollerMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 50_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
@@ -108,8 +110,8 @@ IntakePivot::IntakePivot()
 
 void IntakePivot::SetPosition(units::degree_t angle)
 {
-    positionController.SetSetpoint(angle.value());
-    pivotMotor.SetControl(positionVoltageOut.WithOutput(units::volt_t{positionController.Calculate(GetAngle().value())}));
+    pivotMotorPositionControl.Position = angle;
+    pivotMotor.SetControl(pivotMotorPositionControl);
 }
 
 void IntakePivot::SetPositionToGround()
@@ -134,7 +136,7 @@ void IntakePivot::StopMotor()
 
 bool IntakePivot::IsWithinTolerance()
 {
-    return units::math::abs(units::degree_t{positionController.GetSetpoint()} - GetAngle()) < tolerance;
+    return units::math::abs(pivotMotorPositionControl.Position - GetAngle()) < tolerance;
 }
 
 frc2::CommandPtr IntakePivot::StopMotorCommand()
@@ -158,27 +160,27 @@ frc2::CommandPtr IntakePivot::SetSpeedCommand(double speed)
 
 frc2::CommandPtr IntakePivot::SetPositionCommand(std::function<units::degree_t()> angle)
 {
-    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { positionController.SetSetpoint(angle().value()); }).FinallyDo([this] { positionVoltageOut.Output = 0_V; }).WithName("Set Position");
+    return Run([this, angle] { SetPosition(angle()); }).BeforeStarting([this, angle] { pivotMotorPositionControl.Position = angle(); }).WithName("Set Position");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
-    return SetSpeedCommand(IntakeConstants::kManualSpeed).WithTimeout(0.8_s);
-    // return SetPositionCommand([this] { return groundPosition; }).WithName("Set Position to Ground");
+    // return SetSpeedCommand(IntakeConstants::kManualSpeed).WithTimeout(0.8_s);
+    return SetPositionCommand([this] { return groundPosition; }).WithName("Set Position to Ground");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(0.8_s);
-    // return SetPositionCommand([this] { return homePosition; }).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
+    // return SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(0.8_s);
+    return SetPositionCommand([this] { return homePosition; }).WithName("Set Position to Home");
 }
 
 frc2::CommandPtr IntakePivot::BounceCommand()
 {
     return frc2::cmd::RepeatingSequence
     (
-        SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(0.25_s),
-        SetSpeedCommand(0.1).WithTimeout(0.4_s)
+        SetPositionCommand([this] { return bouncePosition; }).Until([this] { return IsWithinTolerance(); }),
+        SetPositionToHomeCommand().Until([this] { return IsWithinTolerance(); })
     ).WithName("Bounce");
 }
 

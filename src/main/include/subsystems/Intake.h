@@ -14,14 +14,14 @@ namespace IntakeConstants
 {
     constexpr units::degree_t kGroundPosition = 110_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
-    constexpr units::degree_t kBouncePosition = 50_deg;
+    constexpr units::degree_t kBouncePosition = 80_deg;
 
-    constexpr units::degree_t kPivotTolerance = 40_deg;
+    constexpr units::degree_t kPivotTolerance = 3_deg;
 
     constexpr double kIntakeRollerSpeed = 0.85;
     constexpr double kEjectRollerSpeed = -1.0;
 
-    constexpr double kP = 0.016;
+    constexpr double kP = 0.0;
     constexpr double kI = 0.0;
     constexpr double kD = 0.0;
     constexpr double kS = 0.0;
