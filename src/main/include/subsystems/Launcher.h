@@ -29,19 +29,19 @@ namespace LauncherConstants
     constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
     constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
     
-    constexpr double kLoss = 0.535; // 0% loss
+    constexpr double kLoss = 0.545;
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = -0.3472_tr;
 
     constexpr frc::Translation3d kTurretOffset{10.5_in, 0_m, 22.5_in};
 
-    constexpr double kP = 1;
+    constexpr double kP = 0;
     constexpr double kI = 0;
     constexpr double kD = 0;
-    constexpr double kS = 0.3;
-    constexpr double kV = 0.15;
-    constexpr double kA = 0.1;
+    constexpr double kS = 0;
+    constexpr double kV = 0.115;
+    constexpr double kA = 0;
     constexpr units::radians_per_second_t kCruiseVelocity = 100_rad_per_s;
     constexpr units::radians_per_second_squared_t kAcceleration = 1000_rad_per_s_sq;
 };

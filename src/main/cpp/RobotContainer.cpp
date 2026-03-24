@@ -264,8 +264,8 @@ frc2::CommandPtr RobotContainer::Feed()
 {
     return frc2::cmd::Parallel
     (
-        feeder.FeedCommand(),
-        frc2::cmd::Wait(0.1_s).AndThen
+        frc2::cmd::Wait(0.1_s).AndThen(feeder.FeedCommand()),
+        frc2::cmd::Wait(0.35_s).AndThen
         (
             frc2::cmd::Parallel
             (

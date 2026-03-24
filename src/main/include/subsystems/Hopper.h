@@ -10,13 +10,13 @@ using namespace ctre::phoenix6;
 
 namespace HopperConstants
 {
-    inline constexpr units::revolutions_per_minute_t kFeederMotorSpeed = 4000_rpm;
+    inline constexpr units::revolutions_per_minute_t kFeederMotorSpeed = 5000_rpm;
     inline constexpr double kFeederEjectSpeed = -0.85;
-    inline constexpr double kP = 1.0;
+    inline constexpr double kP = 0.0;
     inline constexpr double kI = 0.0;
     inline constexpr double kD = 0.0;
     inline constexpr double kS = 0.0;
-    inline constexpr double kV = 0.025;
+    inline constexpr double kV = 0.115;
     inline constexpr double kA = 0.0;
     inline constexpr double kFloorMotorSpeed = 0.6;
 }
