@@ -55,7 +55,7 @@ namespace RobotContainerConstants
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 3_mps_sq;
         inline constexpr double kDeadband = 0.2;
 
-        inline constexpr units::meter_t kHubToleranceRadius = 16_in;
+        inline constexpr units::meter_t kHubToleranceRadius = 20_in;
         inline constexpr units::meter_t kPassToleranceRadius = 1.5_m;
         inline constexpr units::meter_t kHubZOffset = 1.25_m;
         inline constexpr units::meter_t kPassZOffset = 4_m;

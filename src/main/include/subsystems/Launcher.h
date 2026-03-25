@@ -31,6 +31,8 @@ namespace LauncherConstants
     
     constexpr double kLoss = 0.545;
 
+    constexpr double kOmegaToVelocityRatio = 550;
+
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = -0.3472_tr;
 
@@ -54,10 +56,9 @@ struct LauncherState
 
     LauncherState() {}
 
-    LauncherState(units::degree_t pitch, units::degree_t tolerance, units::radians_per_second_t omega)
+    LauncherState(units::degree_t pitch, units::radians_per_second_t omega)
     {
         this->pitch = pitch;
-        this->tolerance = tolerance;
         this->omega = omega;
     }
 };
@@ -69,11 +70,12 @@ public:
     Launcher();
 
     double GetLoss() const { return loss; }
+    double GetSpeedRatio() const { return omegaToVelocityRatio; }
 
     void LowerDeflector();
     void RaiseDeflector();
     void StopDeflector();
-    void SetLauncherAngle(units::degree_t angle, units::degree_t tolerance);
+    void SetLauncherAngle(units::degree_t angle);
     void SetLauncherSpeed(units::turns_per_second_t omega);
     void StopLauncher();
     bool IsLauncherSpeedWithinTolerance(units::radians_per_second_t tolerance = 0.5_tps);
@@ -126,6 +128,7 @@ private:
     controls::VelocityVoltage launcherMotorVelocityControl{0_tps};
     
     double loss = LauncherConstants::kLoss;
+    double omegaToVelocityRatio = LauncherConstants::kOmegaToVelocityRatio;
 
     frc::Relay deflectorRelay{RobotMap::Launcher::kDeflectorRelayID};
     frc::PWM actuator1{RobotMap::Launcher::kActuator1ID};

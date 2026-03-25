@@ -38,8 +38,6 @@ Launcher::Launcher()
     deflectorCANcoderConfig.MagnetSensor.MagnetOffset = LauncherConstants::kMagnetOffset;
     deflectorCANcoderConfig.MagnetSensor.SensorDirection = signals::InvertedValue::CounterClockwise_Positive;
     deflectorCANcoder.GetConfigurator().Apply(deflectorCANcoderConfig);
-
-    SetDefaultCommand(StopMotorsCommand());
 }
 
 void Launcher::LowerDeflector()
@@ -57,13 +55,13 @@ void Launcher::StopDeflector()
     deflectorRelay.Set(frc::Relay::Value::kOff);
 }
 
-void Launcher::SetLauncherAngle(units::degree_t angle, units::degree_t tolerance)
+void Launcher::SetLauncherAngle(units::degree_t angle)
 {   
     units::degree_t error = GetLauncherAngle() - angle;
     if (units::math::abs(error) > 1_deg)
     {
-        if (error >= 0_deg) RaiseDeflector();
-        else LowerDeflector();
+        if (error >= 0_deg && GetLauncherAngle() < 80_deg) RaiseDeflector();
+        else if (error < 0_deg && GetLauncherAngle() > 52_deg) LowerDeflector();
     }
     else
     {
@@ -132,7 +130,7 @@ frc2::CommandPtr Launcher::LaunchCommand(std::function<LauncherState()> setState
     {
         currentState = setState();
         SetLauncherSpeed(currentState.omega);
-        SetLauncherAngle(currentState.pitch, currentState.tolerance);
+        SetLauncherAngle(currentState.pitch);
     }).WithName("Launch");
 }
 
@@ -155,9 +153,9 @@ void Launcher::InitSendable(wpi::SendableBuilder& builder)
     builder.AddDoubleArrayProperty("Launcher Speed (rpm)", [this] { return GetPublishableLauncherRPMs(); }, nullptr);
     builder.AddDoubleProperty("Launcher Set Speed (rpm)", [this] { return currentState.omega.convert<units::revolutions_per_minute>().value(); }, nullptr);
     builder.AddDoubleProperty("Launcher Set Angle (degrees)", [this] { return currentState.pitch.value(); }, nullptr);
-    builder.AddBooleanProperty("Launcher at Speed", [this] { return IsLauncherSpeedWithinTolerance(); }, nullptr);
     builder.AddDoubleProperty("Launcher Angle (deg)", [this] { return GetLauncherAngle().value(); }, nullptr);
     builder.AddDoubleProperty("Loss Factor", [this] { return loss; }, [this](double newLoss) { loss = newLoss; });
+    builder.AddDoubleProperty("Omega to Velocity Ratio", [this] { return GetSpeedRatio(); }, [this] (double set) { omegaToVelocityRatio = set; });
     builder.AddDoubleArrayProperty("Supply Currents", [this] { return std::vector<double>{launcherMotor1.GetSupplyCurrent().GetValueAsDouble(), launcherMotor2.GetSupplyCurrent().GetValueAsDouble(), launcherMotor3.GetSupplyCurrent().GetValueAsDouble()}; }, nullptr);
     builder.AddDoubleArrayProperty("Stator Currents", [this] { return std::vector<double>{launcherMotor1.GetStatorCurrent().GetValueAsDouble(), launcherMotor2.GetStatorCurrent().GetValueAsDouble(), launcherMotor3.GetStatorCurrent().GetValueAsDouble()}; }, nullptr);
     ADD_DEFAULT_COMMAND;

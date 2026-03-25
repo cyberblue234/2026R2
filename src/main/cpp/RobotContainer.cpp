@@ -24,7 +24,7 @@ RobotContainer::RobotContainer()
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AlignAndLaunch());
     pathplanner::NamedCommands::registerCommand("Manual Shoot", frc2::cmd::Parallel
     (   
-        launcher.LaunchCommand([this] { return LauncherState{73_deg, 1_deg, 3400_rpm}; }),
+        launcher.LaunchCommand([this] { return LauncherState{73_deg, 3400_rpm}; }),
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(50_rpm); }).AndThen(Feed())
     ));
@@ -79,6 +79,15 @@ void RobotContainer::ConfigureBindings()
                 .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed)) // Drive left with negative X (left)
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
         }).WithName("Drive")
+    );
+
+    launcher.SetDefaultCommand(
+        frc2::cmd::Either
+        (
+            launcher.StopMotorsCommand(),
+            launcher.LaunchCommand([this] { return LauncherState{77_deg, 3500_rpm}; }),
+            frc::DriverStation::IsTest
+        )
     );
 
     joystick.LeftTrigger().WhileTrue
@@ -200,7 +209,8 @@ return frc2::cmd::Run
             vy = deltaY / timeOfFlight - turretVy;
             vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight;
             auto v_sq = vx*vx + vy*vy + vz*vz;
-            omega = units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            units::meters_per_second_t v = units::math::sqrt(v_sq);
+            omega = units::revolutions_per_minute_t{(launcher.GetSpeedRatio() * v).value()}; //units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
             frc::SmartDashboard::PutNumber("Generic/Desired Omega (rpm)", omega.convert<units::revolutions_per_minute>().value());
             
             frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
@@ -209,12 +219,12 @@ return frc2::cmd::Run
             frc::SmartDashboard::PutNumber("Generic/Target Yaw (deg)", targetYaw.value());
             frc::SmartDashboard::PutNumber("Generic/Yaw tolerance (deg)", yawTolerance.value());
             units::meters_per_second_t maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
-            units::radians_per_second_t maxOmega{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            units::revolutions_per_minute_t maxOmega{(launcher.GetSpeedRatio() * units::math::hypot(maxVr, vz)).value()}; //{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
             omegaTolerance = maxOmega - omega;
             frc::SmartDashboard::PutNumber("Generic/Omega Tolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
-            auto minPitch = units::math::acos(maxVr / units::math::sqrt(v_sq));
-            pitchTolerance = pitch - minPitch;
-            frc::SmartDashboard::PutNumber("Generic/Pitch Tolerance (deg)", pitchTolerance.value());
+            // auto minPitch = units::math::acos(maxVr / v);
+            // pitchTolerance = pitch - minPitch;
+            // frc::SmartDashboard::PutNumber("Generic/Pitch Tolerance (deg)", pitchTolerance.value());
         }
     ).IgnoringDisable(true);
 }
@@ -223,7 +233,7 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
 {
     return frc2::cmd::Parallel
     (   
-        launcher.LaunchCommand([this] { return LauncherState{units::degree_t{GetHeightAdjustment(52, 80)}, 5_deg, launcherSetSpeed}; }),
+        launcher.LaunchCommand([this] { return LauncherState{units::degree_t{GetHeightAdjustment(52, 80)}, launcherSetSpeed}; }),
         drivetrain.ApplyRequest([this]() -> auto&& {
             return drive
                 .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed / 2)) // Drive forward with negative Y (forward)
@@ -241,7 +251,7 @@ frc2::CommandPtr RobotContainer::AlignAndLaunch()
     (   
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
-        launcher.LaunchCommand([this] { return LauncherState{pitch, pitchTolerance, omega}; }),
+        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; }),
         // Driver control during teleop
         drivetrain.ApplyRequest
         (
