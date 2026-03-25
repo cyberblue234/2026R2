@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.1065493549404117,
-        "y": 5.955941089260087
+        "x": 1.0761055634807417,
+        "y": 6.266918687589158
       },
       "prevControl": {
-        "x": 1.9818116975748925,
-        "y": 6.085777460770328
+        "x": 1.9513679061152225,
+        "y": 6.396755059099399
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.4981006647673304,
+      "waypointRelativePos": 0.23321186881832434,
       "endWaypointRelativePos": 1.0,
       "command": {
         "type": "named",
@@ -54,7 +54,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -146.30993247402017
   },
   "reversed": false,
   "folder": "Depot",

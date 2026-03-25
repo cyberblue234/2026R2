@@ -130,25 +130,25 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
-    joystick.POVUp().WhileTrue
-    (
-        frc2::cmd::Parallel(climber1.ExtendClimberCommand()).WithName("Extend Climbers Without Limits")
-    );
+    // joystick.POVUp().WhileTrue
+    // (
+    //     frc2::cmd::Parallel(climber1.ExtendClimberCommand()).WithName("Extend Climbers Without Limits")
+    // );
 
-    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
-    (   
-        frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand()).WithName("Extend Climbers With Limits")
-    );
+    // controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
+    // (   
+    //     frc2::cmd::Parallel(climber1.ExtendClimberWithLimitCommand()).WithName("Extend Climbers With Limits")
+    // );
 
-    joystick.POVDown().WhileTrue
-    (
-        frc2::cmd::Parallel(climber1.RetractClimberCommand()).WithName("Retract Climbers Without Limits")
-    );
+    // joystick.POVDown().WhileTrue
+    // (
+    //     frc2::cmd::Parallel(climber1.RetractClimberCommand()).WithName("Retract Climbers Without Limits")
+    // );
 
-    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
-    (
-        frc2::cmd::Parallel(climber1.RetractClimberWithLimitCommand()).WithName("Retract Climbers With Limits")
-    );
+    // controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
+    // (
+    //     frc2::cmd::Parallel(climber1.RetractClimberWithLimitCommand()).WithName("Retract Climbers With Limits")
+    // );
 
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }

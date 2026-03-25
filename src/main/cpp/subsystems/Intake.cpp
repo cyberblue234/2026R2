@@ -164,13 +164,13 @@ frc2::CommandPtr IntakePivot::SetPositionCommand(std::function<units::degree_t()
 
 frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 {
-    return SetSpeedCommand(IntakeConstants::kManualSpeed).WithTimeout(0.8_s);
+    return SetSpeedCommand(IntakeConstants::kManualSpeed);
     // return SetPositionCommand([this] { return groundPosition; }).WithName("Set Position to Ground");
 }
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return SetSpeedCommand(-IntakeConstants::kManualSpeed);
+    return SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(0.9_s);
     // return SetPositionCommand([this] { return homePosition; }).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
 }
 

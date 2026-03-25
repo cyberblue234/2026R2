@@ -60,8 +60,8 @@ void Launcher::SetLauncherAngle(units::degree_t angle)
     units::degree_t error = GetLauncherAngle() - angle;
     if (units::math::abs(error) > 1_deg)
     {
-        if (error >= 0_deg && GetLauncherAngle() < 80_deg) RaiseDeflector();
-        else if (error < 0_deg && GetLauncherAngle() > 52_deg) LowerDeflector();
+        if (error >= 0_deg && GetLauncherAngle() > 52_deg) RaiseDeflector();
+        else if (error < 0_deg && GetLauncherAngle() < 80_deg) LowerDeflector();
     }
     else
     {
