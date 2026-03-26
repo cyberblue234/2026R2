@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.648803191489444,
-        "y": 5.947606382977078
+        "x": 2.7840085592011405,
+        "y": 5.801126961483595
       },
       "isLocked": false,
       "linkedName": "Shooting Position"
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.638513513513512,
+      "waypointRelativePos": 0.7616580310880797,
       "rotationDegrees": 180.0
     }
   ],
@@ -47,10 +47,45 @@
         "nominalVoltage": 12.0,
         "unlimited": false
       }
+    },
+    {
+      "name": "Shooting",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.6,
+      "constraints": {
+        "maxVelocity": 0.35,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 720.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.63,
+        "y": 4.03
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.6,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [
+    {
+      "name": "Shoot",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.6,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Shoot"
+        }
+      }
+    },
     {
       "name": "Intake",
       "waypointRelativePos": 0.6549707602339185,
@@ -59,6 +94,17 @@
         "type": "named",
         "data": {
           "name": "Intake"
+        }
+      }
+    },
+    {
+      "name": "Clear Column",
+      "waypointRelativePos": 0.7038001041124436,
+      "endWaypointRelativePos": 0.7537740760020863,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Clear Column"
         }
       }
     }
@@ -76,7 +122,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Center Field",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -35.0

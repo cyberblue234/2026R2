@@ -24,6 +24,16 @@ RobotContainer::RobotContainer()
     frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
 
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AlignAndLaunch());
+    pathplanner::NamedCommands::registerCommand("Shoot", frc2::cmd::Parallel
+    (
+        intakeRoller.IntakeCommand(),
+        frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
+        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; })
+    ));
+    pathplanner::NamedCommands::registerCommand("Clear Column", frc2::cmd::Parallel
+    (
+        launcher.EjectCommand(), feeder.EjectCommand()
+    ));
     pathplanner::NamedCommands::registerCommand("Manual Shoot", frc2::cmd::Parallel
     (   
         launcher.LaunchCommand([this] { return LauncherState{73_deg, 3400_rpm}; }),
