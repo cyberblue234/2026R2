@@ -3,39 +3,44 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5612065806261883,
-        "y": 4.072835446227931
+        "x": 3.2112274198943824,
+        "y": 4.929696462637119
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7263149740559243,
-        "y": 4.561817510846951
+        "x": 2.648803191489444,
+        "y": 5.947606382977078
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Shooting Position"
     },
     {
       "anchor": {
-        "x": 0.360556358460542,
-        "y": 5.977933420363277
+        "x": 0.4116846679005609,
+        "y": 5.969486807095109
       },
       "prevControl": {
-        "x": 3.0801616379315897,
-        "y": 6.077704741380888
+        "x": 1.5725310487664563,
+        "y": 5.969486807095109
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "End of Depot 1"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.638513513513512,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Balls",
-      "minWaypointRelativePos": 0.8922800718132842,
+      "minWaypointRelativePos": 0.8343079922027299,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.4,
+        "maxVelocity": 0.7,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -48,7 +53,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.3411131059245958,
+      "waypointRelativePos": 0.6549707602339185,
       "endWaypointRelativePos": 1.0,
       "command": {
         "type": "named",
@@ -59,22 +64,22 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
-    "maxAngularVelocity": 540.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.2,
+    "velocity": 0.4,
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Depot",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -35.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

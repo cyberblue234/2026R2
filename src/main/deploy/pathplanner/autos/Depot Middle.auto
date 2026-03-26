@@ -17,12 +17,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Depot 3"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Align and Shoot"

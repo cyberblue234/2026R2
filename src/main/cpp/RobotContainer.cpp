@@ -16,6 +16,8 @@ RobotContainer::RobotContainer()
 	{
 		autoChooser.AddOption(*i, *i);
 	}
+    autoChooser.AddOption("Center Field Right", "Center Field Right");
+    autoChooser.AddOption("Center Field Right B", "Center Field Right B");
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
@@ -64,6 +66,8 @@ std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
 {
 	std::string auton = autoChooser.GetSelected();
     if (auton == "Nothing") return {};
+    else if (auton == "Center Field Right") return pathplanner::PathPlannerAuto("Center Field Left", true).ToPtr();
+    else if (auton == "Center Field Right B") return pathplanner::PathPlannerAuto("Center Field Left B", true).ToPtr();
     return pathplanner::PathPlannerAuto(auton).ToPtr();
 }
 
@@ -87,7 +91,7 @@ void RobotContainer::ConfigureBindings()
             launcher.StopMotorsCommand(),
             launcher.LaunchCommand([this] { return LauncherState{77_deg, 3500_rpm}; }),
             frc::DriverStation::IsTest
-        )
+        ).WithName("Launcher Default")
     );
 
     joystick.LeftTrigger().WhileTrue
