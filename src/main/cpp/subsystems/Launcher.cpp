@@ -38,6 +38,11 @@ Launcher::Launcher()
     deflectorCANcoderConfig.MagnetSensor.MagnetOffset = LauncherConstants::kMagnetOffset;
     deflectorCANcoderConfig.MagnetSensor.SensorDirection = signals::InvertedValue::CounterClockwise_Positive;
     deflectorCANcoder.GetConfigurator().Apply(deflectorCANcoderConfig);
+    if (frc::RobotBase::IsSimulation()) 
+    {
+        ctre::phoenix6::sim::CANcoderSimState& sim = deflectorCANcoder.GetSimState();
+        sim.SetRawPosition(205_deg); // Setting up sim so the angle is about 80_deg at the start
+    }
 }
 
 void Launcher::LowerDeflector()
@@ -70,7 +75,12 @@ void Launcher::SetLauncherAngle(units::degree_t angle)
     if (frc::RobotBase::IsSimulation())
     {
         ctre::phoenix6::sim::CANcoderSimState& sim = deflectorCANcoder.GetSimState();
-        sim.AddPosition(angle - deflectorCANcoder.GetAbsolutePosition().GetValue());
+        constexpr units::degrees_per_second_t kMaxSpeed = 10_deg_per_s;
+        constexpr units::degree_t kMaxStep = kMaxSpeed * 20_ms;
+        units::degree_t error = angle - GetLauncherAngle();
+        if (units::math::abs(error) > kMaxStep) {
+            sim.AddPosition(kMaxStep * (error.value() > 0 ? 1 : -1)); // step toward target
+        }
     }
 }
 
