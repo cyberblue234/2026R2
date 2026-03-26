@@ -94,6 +94,16 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Launcher Default")
     );
 
+    intakeRoller.SetDefaultCommand
+    (
+        frc2::cmd::Either
+        (
+            intakeRoller.IntakeCommand(),
+            intakeRoller.StopMotorCommand(),
+            [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }
+        )
+    );
+
     joystick.LeftTrigger().WhileTrue
     (
         drivetrain.ApplyRequest([this]() -> auto&& {
@@ -122,7 +132,7 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Launch")
     );
 
-    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
+    // controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(
         frc2::cmd::Parallel
         (

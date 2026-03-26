@@ -10,7 +10,7 @@ Telemetry::Telemetry(RobotContainer& container) : container(container)
     frc::SmartDashboard::PutData(hopperTableName + "/" + feederTableName, &container.feeder);
     frc::SmartDashboard::PutData(launcherTableName, &container.launcher);
     frc::SmartDashboard::PutData(intakePivotTableName, &container.intakePivot);
-    frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
+    // frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
     frc::SmartDashboard::PutData(genericTableName + "/Auto Chooser", &container.autoChooser);
     frc::SmartDashboard::PutData(genericTableName + "/field", &field);
@@ -21,8 +21,8 @@ void Telemetry::UpdateTelemetry()
     swerve::impl::SwerveDrivetrainImpl::SwerveDriveState state = container.drivetrain.GetState();
     drivetrainPose.Set(state.Pose);
     field.SetRobotPose(state.Pose);
-    // moduleStates.Set(state.ModuleStates);
-    // moduleTargets.Set(state.ModuleTargets);
+    moduleStates.Set(state.ModuleStates);
+    moduleTargets.Set(state.ModuleTargets);
     // modulePositions.Set(state.ModulePositions);
     // chassisSpeeds.Set(state.Speeds);
     // autoChassisSpeeds.Set(container.autonSetSpeeds);
@@ -42,6 +42,6 @@ void Telemetry::UpdateTelemetry()
     // backCamRightVisionPosePublisher.Set(container.backCameraRightPose);
     // backCamRightVisionTargetsPublisher.Set(container.backCameraRightTargets);
 
-    // intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
+    if (frc::RobotBase::IsSimulation()) intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
 
 }
