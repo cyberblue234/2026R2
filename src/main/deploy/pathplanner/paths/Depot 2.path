@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5230603448275866,
-        "y": 5.970193965517242
+        "x": 3.619948771448171,
+        "y": 4.9930445101424645
       },
       "isLocked": false,
       "linkedName": "End of Depot 1"
@@ -20,8 +20,8 @@
         "y": 4.929696462637119
       },
       "prevControl": {
-        "x": 2.178337613460225,
-        "y": 5.4172106357395835
+        "x": 2.692054117076955,
+        "y": 5.309256202705564
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.18867924528301894,
+      "waypointRelativePos": 0.1865284974093255,
       "rotationDegrees": 180.0
     }
   ],
@@ -64,7 +64,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.2,
+    "maxVelocity": 1.5,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
