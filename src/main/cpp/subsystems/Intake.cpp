@@ -10,6 +10,8 @@ IntakeRoller::IntakeRoller()
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 50_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
+
+    SetDefaultCommand(StopMotorCommand());
 }
 
 void IntakeRoller::SetMotor(double speed)

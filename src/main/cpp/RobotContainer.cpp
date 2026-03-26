@@ -104,16 +104,6 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Launcher Default")
     );
 
-    intakeRoller.SetDefaultCommand
-    (
-        frc2::cmd::Either
-        (
-            intakeRoller.IntakeCommand(),
-            intakeRoller.StopMotorCommand(),
-            [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }
-        )
-    );
-
     joystick.LeftTrigger().WhileTrue
     (
         drivetrain.ApplyRequest([this]() -> auto&& {
@@ -142,15 +132,26 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Launch")
     );
 
-    // controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
+    controlBoard.Button(OperatorConstants::kLaunchButton).OnFalse
+    (
+        frc2::cmd::Either
+        (
+            intakePivot.SetPositionToHomeCommand(),
+            intakePivot.SetPositionToGroundCommand(),
+            [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeTogglePositionSwitch); }
+        ).WithName("After Launch Position")
+    );
+
+    controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(
         frc2::cmd::Parallel
         (
             intakeRoller.EjectCommand(), launcher.EjectCommand(), floor.EjectCommand(), feeder.EjectCommand()
-        ).WithName("Eject"));
+        ).WithName("Eject")
+    );
 
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToHomeCommand());
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
