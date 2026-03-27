@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.619948771448171,
-        "y": 4.9930445101424645
+        "x": 1.1666761768901568,
+        "y": 5.516476462196862
       },
       "isLocked": false,
       "linkedName": "End of Depot 1"
     },
     {
       "anchor": {
-        "x": 3.2112274198943824,
-        "y": 4.929696462637119
+        "x": 2.2535235378031384,
+        "y": 4.85660485021398
       },
       "prevControl": {
-        "x": 2.692054117076955,
-        "y": 5.309256202705564
+        "x": 1.4772039942938655,
+        "y": 5.3353352353780314
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.1865284974093255,
+      "waypointRelativePos": 0.4404145077720186,
       "rotationDegrees": 180.0
     }
   ],
@@ -38,7 +38,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.22649572649572172,
+      "maxWaypointRelativePos": 0.5101509630400837,
       "constraints": {
         "maxVelocity": 10.0,
         "maxAcceleration": 5.0,
@@ -73,7 +73,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -35.0
+    "rotation": -18.900757905686998
   },
   "reversed": false,
   "folder": "Depot",

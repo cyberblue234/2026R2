@@ -31,6 +31,7 @@ void Telemetry::UpdateTelemetry()
     manualSetSpeedPublisher.Set(container.launcherSetSpeed.value());
     alignmentWithinTolerance.Set(container.IsAlignmentWithinTolerances());
     robotVoltagePublisher.Set(frc::RobotController::GetBatteryVoltage().value());
+    visionEnabledPublisher.Set(container.visionEnabled);
     
     // turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
     // turretVisionPosePublisher.Set(container.turretVisionPose);

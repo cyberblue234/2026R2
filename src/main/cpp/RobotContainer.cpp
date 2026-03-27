@@ -23,6 +23,9 @@ RobotContainer::RobotContainer()
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
     frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
 
+    pathplanner::NamedCommands::registerCommand("Enable Vision", frc2::cmd::RunOnce([this] { visionEnabled = true; }));
+    pathplanner::NamedCommands::registerCommand("Disable Vision", frc2::cmd::RunOnce([this] { visionEnabled = false; }));
+
     pathplanner::NamedCommands::registerCommand("Align and Shoot", AlignAndLaunch());
     pathplanner::NamedCommands::registerCommand("Shoot", frc2::cmd::Parallel
     (

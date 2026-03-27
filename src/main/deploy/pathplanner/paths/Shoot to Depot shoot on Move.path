@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2112274198943824,
-        "y": 4.929696462637119
+        "x": 2.2535235378031384,
+        "y": 4.85660485021398
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2794008559201138,
-        "y": 5.477660485021398
+        "x": 1.3216969738288697,
+        "y": 5.40456887259826
       },
       "isLocked": false,
       "linkedName": "Shooting Position"
@@ -125,7 +125,7 @@
   "folder": "Center Field",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -35.0
+    "rotation": -18.900757905686998
   },
   "useDefaultConstraints": false
 }

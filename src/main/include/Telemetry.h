@@ -56,6 +56,7 @@ private:
     nt::StringPublisher targetPublisher = genericTable->GetStringTopic("Target").Publish();
     nt::DoublePublisher manualSetSpeedPublisher = genericTable->GetDoubleTopic("Manual Set Speed").Publish();
     nt::BooleanPublisher alignmentWithinTolerance = genericTable->GetBooleanTopic("Is Alignment Within Tolerances").Publish();
+    nt::BooleanPublisher visionEnabledPublisher = genericTable->GetBooleanTopic("Vision Enabled").Publish();
 
     nt::DoublePublisher robotVoltagePublisher = genericTable->GetDoubleTopic("Robot Voltage").Publish();
 

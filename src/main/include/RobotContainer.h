@@ -180,12 +180,14 @@ public:
     // Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, true};
     // Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, false};
 
+    bool visionEnabled = true;
+
     std::function<void(frc::Pose2d pose, units::second_t timestamp,
                           Eigen::Matrix<double, 3, 1> stddevs)> visionMeasurementConsumer =  
             [=, this](frc::Pose2d pose, units::second_t timestamp,
                           Eigen::Matrix<double, 3, 1> stddevs) 
             {
-                if (frc::RobotBase::IsReal())
+                if (visionEnabled && frc::RobotBase::IsReal())
                 {
                     std::array<double, 3> stddevsArr{stddevs(0), stddevs(1), stddevs(2)};
                     drivetrain.AddVisionMeasurement(pose, timestamp, stddevsArr);
