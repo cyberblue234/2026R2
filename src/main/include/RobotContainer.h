@@ -37,7 +37,7 @@ namespace RobotContainerConstants
 {
     namespace DriveConstants
     {
-        inline constexpr units::meters_per_second_t kMaxSpeed = TunerConstants::kSpeedAt12Volts;
+        inline constexpr units::meters_per_second_t kMaxSpeed = 5_mps;
         inline constexpr units::radians_per_second_t kMaxAngularRate = 0.75_tps;
 
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 15_mps_sq;
@@ -179,8 +179,7 @@ public:
     Floor floor;
     Feeder feeder;
     Launcher launcher;
-    // Climber climber1{RobotMap::Climber::kClimberMotor1ID, RobotMap::Climber::kClimberLimitSwitch1ID, true};
-    // Climber climber2{RobotMap::Climber::kClimberMotor2ID, RobotMap::Climber::kClimberLimitSwitch2ID, false};
+    // Climber climber;
 
     bool visionEnabled = true;
 

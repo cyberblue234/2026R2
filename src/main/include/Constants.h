@@ -145,9 +145,9 @@ namespace RobotMap
 
     namespace Climber
     {
-        constexpr int kClimberMotor1ID = 17;
+        // Spark Flex
+        constexpr int kClimberMotorID = 1;
         constexpr int kClimberLimitSwitch1ID = 0;
-        constexpr int kClimberMotor2ID = 14;
         constexpr int kClimberLimitSwitch2ID = 1;
     }
 }

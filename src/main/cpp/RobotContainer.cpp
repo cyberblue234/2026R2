@@ -169,9 +169,31 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Eject")
     );
 
+    // joystick.POVUp().WhileTrue
+    // (
+    //     climber.ExtendClimberCommand()
+    // );
+
+    // controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
+    // (   
+    //     climber.ExtendClimberWithLimitCommand()
+    // );
+
+    // joystick.POVDown().WhileTrue
+    // (
+    //     climber.RetractClimberCommand()
+    // );
+
+    // controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
+    // (
+    //     climber.RetractClimberWithLimitCommand()
+    // );
+
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToHomeCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
+
+    
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
@@ -292,13 +314,13 @@ frc2::CommandPtr RobotContainer::Feed()
 {
     return frc2::cmd::Parallel
     (
-        frc2::cmd::Wait(0.1_s).AndThen(feeder.FeedCommand()),
-        frc2::cmd::Wait(0.35_s).AndThen
+        feeder.FeedCommand(),
+        frc2::cmd::Wait(0.15_s).AndThen
         (
             frc2::cmd::Parallel
             (
                 floor.FeedCommand(),
-                intakePivot.BounceCommand(),
+                frc2::cmd::Wait(3_s).AndThen(intakePivot.BounceCommand()),
                 frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
             )
         )

@@ -1,14 +1,13 @@
 #include "subsystems/Climber.h"
 
-Climber::Climber(int motorID, int limitSwitchID, bool inverted) : climberMotor(motorID), climberLimitSwitch(limitSwitchID)
+Climber::Climber()
 {
-    climberMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
-    configs::TalonFXConfiguration climberMotorConfig;
-    climberMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    climberMotorConfig.CurrentLimits.StatorCurrentLimit = 120_A;
-    climberMotorConfig.MotorOutput.Inverted = inverted ? signals::InvertedValue::Clockwise_Positive : signals::InvertedValue::CounterClockwise_Positive;
-    climberMotorConfig.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
-    climberMotor.GetConfigurator().Apply(climberMotorConfig);
+    rev::spark::SparkBaseConfig config;
+    config.SetIdleMode(rev::spark::SparkBaseConfig::IdleMode::kBrake);
+    config.SmartCurrentLimit(60);
+    config.Inverted(false);
+    motor.Configure(config, rev::ResetMode::kResetSafeParameters,
+                    rev::PersistMode::kNoPersistParameters);
 
     climberLimitSwitchTrigger.Debounce(60_ms).OnTrue(ResetClimberEncoderCommand());
 
@@ -17,24 +16,24 @@ Climber::Climber(int motorID, int limitSwitchID, bool inverted) : climberMotor(m
 
 void Climber::ExtendClimber()
 {
-    climberMotor.Set(motorSpeed);
+    motor.Set(motorSpeed);
 }
 
 void Climber::RetractClimber()
 {
-    climberMotor.Set(-motorSpeed);
+    motor.Set(-motorSpeed);
 }
 
 void Climber::StopClimber()
 {
-    climberMotor.StopMotor();
+    motor.StopMotor();
 }
 
 frc2::CommandPtr Climber::ResetClimberEncoderCommand()
 {
     return frc2::cmd::RunOnce([this]
         {
-            climberMotor.SetPosition(0_tr);
+            motor.GetEncoder().SetPosition(0);
             isRegistered = true; 
         }
     ).WithName("Reset Climber Encoder");
@@ -65,13 +64,16 @@ frc2::CommandPtr Climber::RetractClimberCommand()
 
 frc2::CommandPtr Climber::RetractClimberWithLimitCommand()
 {
-    return RetractClimberCommand().Unless([this] { return climberLimitSwitch.Get(); }).Until([this] { return climberLimitSwitch.Get(); });
+    return RetractClimberCommand().Unless([this] { return GetLimitSwitches(); })
+    .Until([this] { return GetLimitSwitches(); })
+    .WithName("Retract Climber With Limits");
 }
 
 void Climber::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Position (tr)", [this] { return GetClimberPosition().value(); }, nullptr);
-    builder.AddBooleanProperty("Limit Switch", [this] { return climberLimitSwitch.Get(); }, nullptr);
+    builder.AddBooleanProperty("Limit Switch 1", [this] { return climberLimitSwitch1.Get(); }, nullptr);
+    builder.AddBooleanProperty("Limit Switch 2", [this] { return climberLimitSwitch2.Get(); }, nullptr);
     builder.AddDoubleProperty("Motor Speed", [this] { return motorSpeed; }, [this] (double set) { motorSpeed = set;});
     builder.AddDoubleProperty("Max Position", [this] { return maxPosition.value(); }, [this] (double set) { maxPosition = units::turn_t{set};});
     ADD_DEFAULT_COMMAND;

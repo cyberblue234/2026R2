@@ -2,8 +2,7 @@
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
-#include <ctre/phoenix6/TalonFX.hpp>
-#include <ctre/phoenix6/core/CoreTalonFX.hpp>
+#include <rev/SparkFlex.h>
 #include <frc/DigitalInput.h>
 #include <frc2/command/button/Trigger.h>
 #include "Constants.h"
@@ -19,7 +18,7 @@ namespace ClimberConstants
 class Climber : public frc2::SubsystemBase
 {
 public:
-    Climber(int motorID, int limitSwitchID, bool inverted);
+    Climber();
 
     void ExtendClimber();
     void RetractClimber();
@@ -27,7 +26,7 @@ public:
 
     units::turn_t GetClimberPosition()
     {
-        return climberMotor.GetPosition().GetValue();
+        return units::turn_t{motor.GetEncoder().GetPosition()};
     }
 
     frc2::CommandPtr ResetClimberEncoderCommand();
@@ -39,11 +38,17 @@ public:
 
     void InitSendable(wpi::SendableBuilder &builder) override;
 
+    bool GetLimitSwitches()
+    {
+        return climberLimitSwitch1.Get() || climberLimitSwitch2.Get();
+    }
+
 private:
-    hardware::TalonFX climberMotor;
-    frc::DigitalInput climberLimitSwitch;
+    rev::spark::SparkFlex motor{RobotMap::Climber::kClimberMotorID, rev::spark::SparkFlex::MotorType::kBrushless};
+    frc::DigitalInput climberLimitSwitch1{RobotMap::Climber::kClimberLimitSwitch1ID};
+    frc::DigitalInput climberLimitSwitch2{RobotMap::Climber::kClimberLimitSwitch2ID};
     frc2::Trigger climberLimitSwitchTrigger{[this]
-                                            { return climberLimitSwitch.Get(); }};
+                                            { return GetLimitSwitches(); }};
 
     double motorSpeed = ClimberConstants::kMotorSpeed;
     units::turn_t maxPosition = ClimberConstants::kMaxPosition;
