@@ -4,41 +4,24 @@
 
 #pragma once
 
-
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
 #include <units/area.h>
-#include <units/capacitance.h>
 #include <units/charge.h>
-#include <units/concentration.h>
-#include <units/conductance.h>
 #include <units/current.h>
 #include <units/curvature.h>
-#include <units/data.h>
-#include <units/data_transfer_rate.h>
 #include <units/density.h>
 #include <units/dimensionless.h>
 #include <units/energy.h>
 #include <units/force.h>
 #include <units/frequency.h>
-#include <units/illuminance.h>
-#include <units/impedance.h>
-#include <units/inductance.h>
 #include <units/length.h>
-#include <units/luminous_flux.h>
-#include <units/luminous_intensity.h>
-#include <units/magnetic_field_strength.h>
-#include <units/magnetic_flux.h>
 #include <units/mass.h>
 #include <units/moment_of_inertia.h>
 #include <units/power.h>
-#include <units/pressure.h>
-#include <units/radiation.h>
 #include <units/solid_angle.h>
-#include <units/substance.h>
-#include <units/temperature.h>
 #include <units/time.h>
 #include <units/torque.h>
 #include <units/velocity.h>
@@ -191,8 +174,8 @@ namespace FieldConstants
 {
     constexpr frc::Translation3d kBlueHubPose{4.63_m, 4.03_m, 1.8288_m};
     constexpr frc::Translation3d kRedHubPose{11.9_m, kBlueHubPose.Y(), kBlueHubPose.Z()};
-    constexpr frc::Translation3d kBluePassPose{1.5_m, kBlueHubPose.Y(), 0_m};
-    constexpr frc::Translation3d kRedPassPose{15_m, kBlueHubPose.Y(), 0_m};
+    constexpr frc::Translation3d kBluePassPose{1_m, kBlueHubPose.Y(), 0_m};
+    constexpr frc::Translation3d kRedPassPose{15.5_m, kBlueHubPose.Y(), 0_m};
 }
 
 #define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)

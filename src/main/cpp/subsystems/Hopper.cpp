@@ -11,6 +11,17 @@ Floor::Floor()
     motorConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Coast;
     motorConfigs.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
 
+    motorConfigs = motorConfigs.WithSlot0
+    (
+        configs::Slot0Configs{}
+        .WithKP(HopperConstants::Floor::kP)
+        .WithKI(HopperConstants::Floor::kI)
+        .WithKD(HopperConstants::Floor::kD)
+        .WithKS(HopperConstants::Floor::kS)
+        .WithKV(HopperConstants::Floor::kV)
+        .WithKA(HopperConstants::Floor::kA)
+    );
+
     floorMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
     floorMotor.GetConfigurator().Apply(motorConfigs);
 
@@ -24,17 +35,18 @@ frc2::CommandPtr Floor::StopCommand()
 
 frc2::CommandPtr Floor::FeedCommand()
 {
-    return RunOnce([this]{ floorMotor.Set(floorMotorSpeed); }).WithName("Feed Launcher");
+    return RunOnce([this]{ floorMotor.SetControl(floorVelocityRequest.WithVelocity(floorMotorSpeed)); }).WithName("Feed Launcher");
 }
 
 frc2::CommandPtr Floor::EjectCommand()
 {
-    return Run([this] { floorMotor.Set(-floorMotorSpeed); });
+    return Run([this] { floorMotor.Set(HopperConstants::Floor::kEjectSpeed); });
 }
 
 void Floor::InitSendable(wpi::SendableBuilder &builder)
 {
-    builder.AddDoubleProperty("Floor Set Speed", [this] { return floorMotorSpeed; }, [this] (double set) { floorMotorSpeed = set;});
+    builder.AddDoubleProperty("Floor Set Speed (rpm)", [this] { return floorMotorSpeed.value(); }, [this] (double set) { floorMotorSpeed = units::revolutions_per_minute_t{set};});
+    builder.AddDoubleProperty("Floor Speed (rpm)", [this] { return floorMotor.GetVelocity().GetValue().convert<units::revolutions_per_minute>().value(); }, nullptr);
     builder.AddDoubleProperty("Supply Current", [this] { return floorMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
     builder.AddDoubleProperty("Stator Current", [this] { return floorMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
@@ -52,12 +64,12 @@ Feeder::Feeder()
     motorConfigs = motorConfigs.WithSlot0
     (
         configs::Slot0Configs{}
-        .WithKP(HopperConstants::kP)
-        .WithKI(HopperConstants::kI)
-        .WithKD(HopperConstants::kD)
-        .WithKS(HopperConstants::kS)
-        .WithKV(HopperConstants::kV)
-        .WithKA(HopperConstants::kA)
+        .WithKP(HopperConstants::Feeder::kP)
+        .WithKI(HopperConstants::Feeder::kI)
+        .WithKD(HopperConstants::Feeder::kD)
+        .WithKS(HopperConstants::Feeder::kS)
+        .WithKV(HopperConstants::Feeder::kV)
+        .WithKA(HopperConstants::Feeder::kA)
     );
 
     feederMotor.GetConfigurator().Apply(configs::TalonFXConfiguration{});
@@ -78,7 +90,7 @@ frc2::CommandPtr Feeder::FeedCommand()
 
 frc2::CommandPtr Feeder::EjectCommand()
 {
-    return Run([this] { feederMotor.Set(HopperConstants::kFeederEjectSpeed); });
+    return Run([this] { feederMotor.Set(HopperConstants::Feeder::kEjectSpeed); });
 }
 
 void Feeder::InitSendable(wpi::SendableBuilder &builder)
