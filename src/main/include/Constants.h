@@ -76,6 +76,8 @@
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 
+#include <wpi/print.h>
+
 #include <numbers>
 #include <string>
 #include <array>

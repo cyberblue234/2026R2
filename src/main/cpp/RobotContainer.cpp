@@ -30,7 +30,7 @@ RobotContainer::RobotContainer()
     pathplanner::NamedCommands::registerCommand("Shoot", frc2::cmd::Parallel
     (
         intakeRoller.IntakeCommand(),
-        frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
+        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) && IsAlignmentWithinTolerances(); }).AndThen(Feed()),
         launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; })
     ));
     pathplanner::NamedCommands::registerCommand("Clear Column", frc2::cmd::Parallel
@@ -112,17 +112,13 @@ void RobotContainer::ConfigureBindings()
 
     joystick.RightTrigger().WhileTrue
     (
-        Align().Repeatedly()
+        Align()
     );
 
     joystick.A().WhileTrue
     (
-        drivetrain.ApplyRequest([this] { return brake; })
-        .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
-        .WithName("Brake")
+        drivetrain.ApplyRequest([this] { return brake; }).WithName("Brake")
     );
-
-
 
     launcher.SetDefaultCommand(
         frc2::cmd::Either
@@ -169,31 +165,29 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Eject")
     );
 
-    // joystick.POVUp().WhileTrue
-    // (
-    //     climber.ExtendClimberCommand()
-    // );
+    joystick.POVUp().WhileTrue
+    (
+        climber.ExtendClimberCommand()
+    );
 
-    // controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
-    // (   
-    //     climber.ExtendClimberWithLimitCommand()
-    // );
+    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
+    (   
+        climber.ExtendClimberWithLimitCommand()
+    );
 
-    // joystick.POVDown().WhileTrue
-    // (
-    //     climber.RetractClimberCommand()
-    // );
+    joystick.POVDown().WhileTrue
+    (
+        climber.RetractClimberCommand()
+    );
 
-    // controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
-    // (
-    //     climber.RetractClimberWithLimitCommand()
-    // );
+    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
+    (
+        climber.RetractClimberWithLimitCommand()
+    );
 
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToHomeCommand());
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
-
-    
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
@@ -282,7 +276,8 @@ frc2::CommandPtr RobotContainer::ManualLaunch()
         launcher.LaunchCommand([this] { return LauncherState{units::degree_t{GetHeightAdjustment(52, 80)}, launcherSetSpeed}; }),
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(100_rpm); }).AndThen(Feed())
-    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
+    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
+    .WithName("Manual Launch");
 }
 
 frc2::CommandPtr RobotContainer::Launch()
@@ -290,9 +285,13 @@ frc2::CommandPtr RobotContainer::Launch()
     return frc2::cmd::Parallel
     (   
         intakeRoller.IntakeCommand(),
-        frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); }).AndThen(Feed()),
-        launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, omega}; })
-    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming);
+        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance); }).AndThen(Feed()),
+        launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, omega}; }),
+        frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); })
+            .AndThen(frc2::cmd::Run([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0); }).WithTimeout(0.2_s)
+            .AndThen(frc2::cmd::RunOnce([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0); })))
+    ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
+    .WithName("Launch");
 }
 
 frc2::CommandPtr RobotContainer::Align()
@@ -305,7 +304,7 @@ frc2::CommandPtr RobotContainer::Align()
             return alignToHub.WithTargetDirection(frc::Rotation2d{targetYaw})
             .WithTargetRateFeedforward(alignToHub.HeadingController.GetSetpoint().velocity)
             .WithVelocityX(alignmentXLimiter.Calculate(-joystick.GetLeftY() * TargetConstants::kMaxSpeed))
-            .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed)); // + joystick.GetRightX() * 1.5_mps));
+            .WithVelocityY(alignmentYLimiter.Calculate(-joystick.GetLeftX() * TargetConstants::kMaxSpeed));
         }
     ).WithName("Align");
 }
@@ -324,7 +323,7 @@ frc2::CommandPtr RobotContainer::Feed()
                 frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
             )
         )
-    );
+    ).WithName("Feed");
 }
 
 frc2::CommandPtr RobotContainer::UpdateTargetCommand()

@@ -117,8 +117,7 @@ public:
 
     bool IsAlignmentWithinTolerances()
     {
-        return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) 
-            && units::math::abs(frc::Rotation2d(targetYaw).RelativeTo(drivetrain.GetState().Pose.Rotation()).Degrees()) < yawTolerance;
+        return units::math::abs(frc::Rotation2d(targetYaw).RelativeTo(drivetrain.GetState().Pose.Rotation()).Degrees()) < yawTolerance;
     }
 
     frc2::CommandXboxController joystick{
@@ -179,7 +178,7 @@ public:
     Floor floor;
     Feeder feeder;
     Launcher launcher;
-    // Climber climber;
+    Climber climber;
 
     bool visionEnabled = true;
 

@@ -8,6 +8,7 @@ Launcher::Launcher()
     pidConfigs.kD = LauncherConstants::kD;
     pidConfigs.kS = LauncherConstants::kS;
     pidConfigs.kV = LauncherConstants::kV;
+    if (frc::RobotBase::IsSimulation()) pidConfigs.kV = 0.12;
     pidConfigs.kA = LauncherConstants::kA;
     configs::MotionMagicConfigs motionMagicConfigs;
     motionMagicConfigs.MotionMagicCruiseVelocity = LauncherConstants::kCruiseVelocity;
