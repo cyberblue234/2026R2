@@ -44,7 +44,7 @@ namespace VisionConstants
 	namespace TurretCamera
 	{
 		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d{-1.039_in, 0_in, 26.05_in},
+			frc::Translation3d{-1.375_in, 0_in, 25.75_in},
 			frc::Rotation3d{0_deg, -18.1_deg, 0_deg}};
 		constexpr std::string_view kCameraName = "TurretCam";
 	}
@@ -52,8 +52,8 @@ namespace VisionConstants
     namespace BackCameraLeft
 	{
 		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d{-12.25_in, 1.25_in, 20.5_in},
-			frc::Rotation3d{0_deg, 0_deg, 112.5_deg}};
+			frc::Translation3d{-13.125_in, 1.5_in, 20.5_in},
+			frc::Rotation3d{0_deg, 0_deg, 145_deg}};
 		constexpr std::string_view kCameraName = "BackCamLeft";
 	}
 
@@ -63,10 +63,10 @@ namespace VisionConstants
 			frc::Translation3d
             {
                 VisionConstants::BackCameraLeft::kRobotToCamera.X(), 
-                -VisionConstants::BackCameraLeft::kRobotToCamera.Y(), 
+                -0.75_in, 
                 VisionConstants::BackCameraLeft::kRobotToCamera.Z()
             },
-			frc::Rotation3d{0_deg, 0_deg, 247.5_deg}};
+			frc::Rotation3d{0_deg, 0_deg, -145_deg}};
 		constexpr std::string_view kCameraName = "BackCamRight";
 	}
 

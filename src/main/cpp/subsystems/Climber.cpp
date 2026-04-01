@@ -5,7 +5,7 @@ Climber::Climber()
     rev::spark::SparkBaseConfig config;
     config.SetIdleMode(rev::spark::SparkBaseConfig::IdleMode::kBrake);
     config.SmartCurrentLimit(60);
-    config.Inverted(false);
+    config.Inverted(true);
     motor.Configure(config, rev::ResetMode::kResetSafeParameters,
                     rev::PersistMode::kNoPersistParameters);
 
