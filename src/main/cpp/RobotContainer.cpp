@@ -88,18 +88,16 @@ std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
 
 void RobotContainer::ConfigureBindings()
 {
-    // Configure your trigger bindings here
-
-    drivetrain.SetDefaultCommand(
-        // Drivetrain will execute this command periodically
+    // Drivetrain Controls
+    drivetrain.SetDefaultCommand
+    (
         drivetrain.ApplyRequest([this]() -> auto&& {
             return drive
                 .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed)) // Drive forward with negative Y (forward)
                 .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed)) // Drive left with negative X (left)
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
         }).WithName("Drive")
-    );
-
+    ); // Drive field centric
     joystick.LeftTrigger().WhileTrue
     (
         drivetrain.ApplyRequest([this]() -> auto&& {
@@ -108,18 +106,11 @@ void RobotContainer::ConfigureBindings()
                     .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed / 3)) // Drive left with negative X (left)
                     .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate / 3)); // Drive counterclockwise with negative X (left)
            }).WithName("Drive Robot Centric")
-    );
+    ); // Drive robot centric
+    joystick.RightTrigger().WhileTrue(Align()); // Align to Hub or Pass position
+    joystick.A().WhileTrue(drivetrain.ApplyRequest([this] { return brake; }).WithName("Brake")); // Set wheels to X state
 
-    joystick.RightTrigger().WhileTrue
-    (
-        Align()
-    );
-
-    joystick.A().WhileTrue
-    (
-        drivetrain.ApplyRequest([this] { return brake; }).WithName("Brake")
-    );
-
+    // Launching Controls
     launcher.SetDefaultCommand(
         frc2::cmd::Either
         (
@@ -145,10 +136,7 @@ void RobotContainer::ConfigureBindings()
             Launch(), // Run auto launch otherwise
             [this] { return target == Targets::Manual; }
         ).WithName("Launch")
-    );
-
-    controlBoard.Button(OperatorConstants::kLaunchButton).OnFalse
-    (
+    ).OnFalse(
         frc2::cmd::Either
         (
             intakePivot.SetPositionToHomeCommand(),
@@ -157,6 +145,7 @@ void RobotContainer::ConfigureBindings()
         ).WithName("After Launch Position")
     );
 
+    // Intake Roller Controls
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(
         frc2::cmd::Parallel
@@ -165,31 +154,20 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Eject")
     );
 
-    joystick.POVUp().WhileTrue
-    (
-        climber.ExtendClimberCommand()
-    );
-
-    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue
-    (   
-        climber.ExtendClimberWithLimitCommand()
-    );
-
-    joystick.POVDown().WhileTrue
-    (
-        climber.RetractClimberCommand()
-    );
-
-    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue
-    (
-        climber.RetractClimberWithLimitCommand()
-    );
-
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnTrue(intakePivot.SetPositionToHomeCommand());
-    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch).OnFalse(intakePivot.SetPositionToGroundCommand());
+    // Intake Pivot Controls
+    controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch)
+        .OnTrue(intakePivot.SetPositionToHomeCommand())
+        .OnFalse(intakePivot.SetPositionToGroundCommand());
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
+    // Climber Controls
+    joystick.POVUp().WhileTrue(climber.ExtendClimberCommand());
+    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(climber.ExtendClimberWithLimitCommand());
+    joystick.POVDown().WhileTrue(climber.RetractClimberCommand());
+    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberWithLimitCommand());
+
+    // Other Controls
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
