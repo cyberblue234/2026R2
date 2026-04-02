@@ -115,7 +115,12 @@ void RobotContainer::ConfigureBindings()
         frc2::cmd::Either
         (
             launcher.StopMotorsCommand(),
-            launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 3500_rpm}; }),
+            frc2::cmd::Either
+            (
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 3500_rpm}; }).Until([this] { return target != Targets::Hub; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 4000_rpm}; }).Until([this] { return target != Targets::Pass; }),
+                [this] { return target != Targets::Pass; }
+            ),
             frc::DriverStation::IsTest
         ).WithName("Launcher Default")
     );
@@ -162,9 +167,9 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
     // Climber Controls
-    joystick.POVUp().WhileTrue(climber.ExtendClimberCommand());
+    joystick.POVUp().WhileTrue(climber.ExtendClimberCommand().OnlyIf(frc::DriverStation::IsTest)); // Extend climber without limit switch in test mode for testing purposes
     controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(climber.ExtendClimberWithLimitCommand());
-    joystick.POVDown().WhileTrue(climber.RetractClimberCommand());
+    joystick.POVDown().WhileTrue(climber.RetractClimberCommand().OnlyIf(frc::DriverStation::IsTest));
     controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberWithLimitCommand());
 
     // Other Controls
@@ -196,19 +201,19 @@ return frc2::cmd::Run
             units::meter_t zOffset;
             std::optional<frc::DriverStation::Alliance> alliance = frc::DriverStation::GetAlliance();
             if (!alliance) alliance = frc::DriverStation::Alliance::kBlue;
-            if (target == Targets::Hub)
-            {
-                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
-                toleranceRadius = TargetConstants::kHubToleranceRadius;
-                zOffset = TargetConstants::kHubZOffset;
-            }
-            else
+            if (target == Targets::Pass)
             {
                 targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue 
                         ? frc::Translation3d{FieldConstants::kBluePassPose.X(), FieldConstants::kBluePassPose.Y() + passOffset, FieldConstants::kBluePassPose.Z()} 
                         : frc::Translation3d{FieldConstants::kRedPassPose.X(), FieldConstants::kRedPassPose.Y() - passOffset, FieldConstants::kRedPassPose.Z()};
                 toleranceRadius = TargetConstants::kPassToleranceRadius;
                 zOffset = TargetConstants::kPassZOffset;
+            }
+            else
+            {
+                targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
+                toleranceRadius = TargetConstants::kHubToleranceRadius;
+                zOffset = TargetConstants::kHubZOffset;
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
@@ -264,7 +269,7 @@ frc2::CommandPtr RobotContainer::Launch()
     (   
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance); }).AndThen(Feed()),
-        launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, omega}; }),
+        launcher.LaunchCommand([this] { return LauncherState{target == Targets::Hub ? TargetConstants::kLauncherAngle : TargetConstants::kPassLauncherAngle, omega}; }),
         frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); })
             .AndThen(frc2::cmd::Run([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0); }).WithTimeout(0.2_s)
             .AndThen(frc2::cmd::RunOnce([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0); })))
@@ -297,7 +302,7 @@ frc2::CommandPtr RobotContainer::Feed()
             frc2::cmd::Parallel
             (
                 floor.FeedCommand(),
-                frc2::cmd::Wait(3_s).AndThen(intakePivot.BounceCommand()),
+                frc2::cmd::Wait(1.5_s).AndThen(intakePivot.BounceCommand()),
                 frc2::cmd::RepeatingSequence(frc2::cmd::RunOnce([this] {simFuelManager.ShootActivated(); }), frc2::cmd::Wait(80_ms)).OnlyIf(frc::RobotBase::IsSimulation)
             )
         )

@@ -61,6 +61,7 @@ namespace RobotContainerConstants
         inline constexpr units::meter_t kPassZOffset = 4_m;
 
         inline constexpr units::degree_t kLauncherAngle = 70_deg;
+        inline constexpr units::degree_t kPassLauncherAngle = 52_deg;
     }
 
     namespace PathPlannerConstants

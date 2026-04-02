@@ -165,7 +165,7 @@ namespace RobotConstants
     inline constexpr units::meter_t kWheelBase = 20_in; // Distance between front and back wheels
 
     inline constexpr units::kilogram_t kBatteryMass = 12.89_lb;
-    inline constexpr units::kilogram_t kBumperMass = 20.0_lb;
+    inline constexpr units::kilogram_t kBumperMass = 16.0_lb;
     inline constexpr units::kilogram_t kMass = 115_lb + kBumperMass + kBatteryMass; 
     inline constexpr units::kilogram_square_meter_t kMOI = 10_kg_sq_m;
 
@@ -176,8 +176,8 @@ namespace FieldConstants
 {
     constexpr frc::Translation3d kBlueHubPose{4.63_m, 4.03_m, 1.8288_m};
     constexpr frc::Translation3d kRedHubPose{11.9_m, kBlueHubPose.Y(), kBlueHubPose.Z()};
-    constexpr frc::Translation3d kBluePassPose{1_m, kBlueHubPose.Y(), 0_m};
-    constexpr frc::Translation3d kRedPassPose{15.5_m, kBlueHubPose.Y(), 0_m};
+    constexpr frc::Translation3d kBluePassPose{0.75_m, kBlueHubPose.Y(), 12_in};
+    constexpr frc::Translation3d kRedPassPose{15.75_m, kBlueHubPose.Y(), 12_in};
 }
 
 #define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)
