@@ -23,7 +23,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Align and Shoot"
+                  "name": "Shoot"
                 }
               }
             ]
@@ -32,19 +32,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot to Depot no shoot on Move"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot 2"
+            "pathName": "Center Field 2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Align and Shoot"
+            "name": "Shoot"
           }
         }
       ]

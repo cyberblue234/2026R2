@@ -47,6 +47,28 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "Stop Launcher",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Launcher"
+        }
+      }
+    },
+    {
+      "name": "Stop Hopper",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Hopper"
+        }
+      }
+    },
+    {
       "name": "Intake",
       "waypointRelativePos": 0.27693909422175994,
       "endWaypointRelativePos": 1.0,

@@ -15,9 +15,14 @@ RobotContainer::RobotContainer()
 	for (auto i = autos.begin(); i != autos.end(); ++i)
 	{
 		autoChooser.AddOption(*i, *i);
+        std::size_t leftPos = i->find("Left");
+        // Only add the right version of the path if it's not a depot path, since depot paths are one-sided
+        if(leftPos != std::string::npos && i->find("Depot") == std::string::npos)
+        {
+            i->replace(leftPos, 4, "Right");
+            autoChooser.AddOption(*i, *i);
+        }
 	}
-    autoChooser.AddOption("Center Field Right", "Center Field Right");
-    autoChooser.AddOption("Center Field Right B", "Center Field Right B");
 
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
@@ -26,13 +31,13 @@ RobotContainer::RobotContainer()
     pathplanner::NamedCommands::registerCommand("Enable Vision", frc2::cmd::RunOnce([this] { visionEnabled = true; }));
     pathplanner::NamedCommands::registerCommand("Disable Vision", frc2::cmd::RunOnce([this] { visionEnabled = false; }));
 
-    pathplanner::NamedCommands::registerCommand("Align and Shoot", Launch());
-    pathplanner::NamedCommands::registerCommand("Shoot", frc2::cmd::Parallel
-    (
-        intakeRoller.IntakeCommand(),
-        frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance) && IsAlignmentWithinTolerances(); }).AndThen(Feed()),
-        launcher.LaunchCommand([this] { return LauncherState{pitch, omega}; })
-    ));
+    // Stars flywheel
+    pathplanner::NamedCommands::registerCommand("Prepare Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 3600_rpm}; }));
+    // For some reason the default commands aren't registering during autonomous routines, so manually adding stop commands
+    pathplanner::NamedCommands::registerCommand("Stop Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }));
+    pathplanner::NamedCommands::registerCommand("Stop Hopper", feeder.StopCommand().AlongWith(floor.StopCommand()));
+    pathplanner::NamedCommands::registerCommand("Align and Shoot", Launch().AlongWith(Align()));
+    pathplanner::NamedCommands::registerCommand("Shoot", Launch());
     pathplanner::NamedCommands::registerCommand("Clear Column", frc2::cmd::Parallel
     (
         launcher.EjectCommand(), feeder.EjectCommand()
@@ -43,6 +48,7 @@ RobotContainer::RobotContainer()
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(50_rpm); }).AndThen(Feed())
     ));
+
     pathplanner::NamedCommands::registerCommand("Intake", intakeRoller.IntakeCommand().AlongWith(intakePivot.SetPositionToGroundCommand()));
 
     pathplanner::AutoBuilder::configure
@@ -53,11 +59,7 @@ RobotContainer::RobotContainer()
         [this](const frc::ChassisSpeeds& speeds, const pathplanner::DriveFeedforwards& feedforwards) {
             autonSetSpeeds = speeds;
             autonSetFeedforwards = feedforwards;
-            // auto alignToHubCommand = pathplanner::NamedCommands::getCommand("Align and Shoot");
-            // if (alignToHubCommand.IsScheduled()) {
-            //     return;
-            // }
-            drivetrain.SetControl(autonDrive.WithSpeeds(speeds));
+            drivetrain.SetControl(autonDrive.WithSpeeds(speeds).WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX).WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));
         },
         std::make_shared<pathplanner::PPHolonomicDriveController>(
             pathplanner::PIDConstants{PathPlannerConstants::Translation::kP, PathPlannerConstants::Translation::kI, PathPlannerConstants::Translation::kD},
@@ -80,9 +82,14 @@ RobotContainer::RobotContainer()
 std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
 {
 	std::string auton = autoChooser.GetSelected();
+    std::size_t rightPos = auton.find("Right");
+    if(rightPos != std::string::npos)    
+    {
+        // Converts the right string back to a left for PathPlannerAuto, then passes true for the mirror parameter to mirror the path
+        auton.replace(rightPos, 5, "Left");
+        return pathplanner::PathPlannerAuto(auton, true).ToPtr();
+    }
     if (auton == "Nothing") return {};
-    else if (auton == "Center Field Right") return pathplanner::PathPlannerAuto("Center Field Left", true).ToPtr();
-    else if (auton == "Center Field Right B") return pathplanner::PathPlannerAuto("Center Field Left B", true).ToPtr();
     return pathplanner::PathPlannerAuto(auton).ToPtr();
 }
 

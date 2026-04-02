@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.2535235378031384,
-        "y": 4.85660485021398
+        "x": 3.0,
+        "y": 4.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5418972895863048,
-        "y": 5.309457917261056
+        "x": 2.2883737517831664,
+        "y": 5.252853067047075
       },
       "isLocked": false,
       "linkedName": "Shooting Position"
@@ -52,24 +52,46 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "Clear Column",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.13953488372093037,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Clear Column"
+        }
+      }
+    },
+    {
+      "name": "Stop Launcher",
+      "waypointRelativePos": 0.15,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Launcher"
+        }
+      }
+    },
+    {
+      "name": "Stop Hopper",
+      "waypointRelativePos": 0.15,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Hopper"
+        }
+      }
+    },
+    {
       "name": "Intake",
-      "waypointRelativePos": 0.08745445080687324,
+      "waypointRelativePos": 0.19933554817275734,
       "endWaypointRelativePos": 1.0,
       "command": {
         "type": "named",
         "data": {
           "name": "Intake"
-        }
-      }
-    },
-    {
-      "name": "Clear Column",
-      "waypointRelativePos": 0.25611660593440905,
-      "endWaypointRelativePos": 0.37064029151483535,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Clear Column"
         }
       }
     }
@@ -90,7 +112,7 @@
   "folder": "Center Field",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -18.900757905686998
+    "rotation": -25.649628210024428
   },
   "useDefaultConstraints": false
 }

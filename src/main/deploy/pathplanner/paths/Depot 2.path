@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.2535235378031384,
-        "y": 4.85660485021398
+        "x": 3.0,
+        "y": 4.8
       },
       "prevControl": {
-        "x": 1.4772039942938655,
-        "y": 5.3353352353780314
+        "x": 2.223680456490727,
+        "y": 5.278730385164051
       },
       "nextControl": null,
       "isLocked": false,
@@ -61,6 +61,17 @@
           "name": "Intake"
         }
       }
+    },
+    {
+      "name": "Prepare Launcher",
+      "waypointRelativePos": 0.41528239202657785,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Prepare Launcher"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -73,7 +84,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -18.900757905686998
+    "rotation": -25.649628210024428
   },
   "reversed": false,
   "folder": "Depot",

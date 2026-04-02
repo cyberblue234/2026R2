@@ -6,9 +6,12 @@
     "Center Field",
     "Depot"
   ],
-  "autoFolders": [],
-  "defaultMaxVel": 1.0,
-  "defaultMaxAccel": 1.0,
+  "autoFolders": [
+    "Center Field",
+    "Depot"
+  ],
+  "defaultMaxVel": 1.5,
+  "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
