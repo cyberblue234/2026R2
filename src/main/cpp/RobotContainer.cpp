@@ -149,12 +149,7 @@ void RobotContainer::ConfigureBindings()
             [this] { return target == Targets::Manual; }
         ).WithName("Launch")
     ).OnFalse(
-        frc2::cmd::Either
-        (
-            intakePivot.SetPositionToHomeCommand(),
-            intakePivot.SetPositionToGroundCommand(),
-            [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeTogglePositionSwitch); }
-        ).WithName("After Launch Position")
+        IntakePivotDefaultCommand()
     );
 
     // Intake Roller Controls
@@ -191,7 +186,7 @@ return frc2::cmd::Run
         {
             auto drivetrainState = drivetrain.GetState();
             frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
-            frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
+            frc::ChassisSpeeds robotSpeeds = drivetrain.GetFieldRelativeVelocities(); //frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
             units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
             units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
             frc::Translation3d turretPose
@@ -226,24 +221,24 @@ return frc2::cmd::Run
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
 
             units::standard_gravity_t g{-1};
-            units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
-            units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
+            // units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
+            // units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
             units::meter_t deltaX = targetPose.X() - turretPose.X();
             units::meter_t deltaY = targetPose.Y() - turretPose.Y();
+            // units::meters_per_second_t vx = deltaX / timeOfFlight - turretVx;
+            // units::meters_per_second_t vy = deltaY / timeOfFlight - turretVy;
+            // pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
+            // frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
+            units::meter_t deltaR = units::math::hypot(deltaX, deltaY);
+            units::second_t timeOfFlight = units::math::sqrt((2 * (deltaR * units::math::tan(launcher.GetLauncherAngle()) - deltaZ)) / -g);
             units::meters_per_second_t vx = deltaX / timeOfFlight - turretVx;
             units::meters_per_second_t vy = deltaY / timeOfFlight - turretVy;
-            pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
-            units::meter_t deltaR = units::math::hypot(deltaX, deltaY);
-            timeOfFlight = units::math::sqrt((2 * (deltaR * units::math::tan(launcher.GetLauncherAngle()) - deltaZ)) / -g);
-            vx = deltaX / timeOfFlight - turretVx;
-            vy = deltaY / timeOfFlight - turretVy;
-            vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight;
+            units::meters_per_second_t vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight;
             auto v_sq = vx*vx + vy*vy + vz*vz;
             units::meters_per_second_t v = units::math::sqrt(v_sq);
             omega = units::revolutions_per_minute_t{(launcher.GetSpeedRatio() * v).value()}; //units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
             frc::SmartDashboard::PutNumber("Generic/Desired Omega (rpm)", omega.convert<units::revolutions_per_minute>().value());
             
-            frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
             targetYaw = units::math::atan2(vy, vx);
             yawTolerance = units::math::atan(toleranceRadius / deltaR);
             frc::SmartDashboard::PutNumber("Generic/Target Yaw (deg)", targetYaw.value());
@@ -278,7 +273,7 @@ frc2::CommandPtr RobotContainer::Launch()
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance); }).AndThen(Feed()),
         launcher.LaunchCommand([this] { return LauncherState{target == Targets::Hub ? TargetConstants::kLauncherAngle : TargetConstants::kPassLauncherAngle, omega}; }),
         frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); })
-            .AndThen(frc2::cmd::Run([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0); }).WithTimeout(0.2_s)
+            .AndThen(frc2::cmd::Run([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0); }).WithTimeout(0.5_s)
             .AndThen(frc2::cmd::RunOnce([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0); })))
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
     .WithName("Launch");
@@ -314,6 +309,16 @@ frc2::CommandPtr RobotContainer::Feed()
             )
         )
     ).WithName("Feed");
+}
+
+frc2::CommandPtr RobotContainer::IntakePivotDefaultCommand()
+{
+    return frc2::cmd::Either
+    (
+        intakePivot.SetPositionToHomeCommand(),
+        intakePivot.SetPositionToGroundCommand(),
+        [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeTogglePositionSwitch); }
+    ).WithName("After Launch Position");
 }
 
 frc2::CommandPtr RobotContainer::UpdateTargetCommand()

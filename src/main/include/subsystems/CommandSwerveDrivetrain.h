@@ -279,6 +279,13 @@ public:
         TunerSwerveDrivetrain::AddVisionMeasurement(std::move(visionRobotPose), utils::FPGAToCurrentTime(timestamp), visionMeasurementStdDevs);
     }
 
+    void CalculateVelocityWithIMU();
+
+    frc::ChassisSpeeds GetFieldRelativeVelocities()
+    {
+        return frc::ChassisSpeeds::FromRobotRelativeSpeeds(vX, vY, vYaw, GetState().Pose.Rotation());
+    }
+
     units::meters_per_second_t GetVelocityX()
     {
         return vX;

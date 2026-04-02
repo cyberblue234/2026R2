@@ -9,6 +9,8 @@
 Robot::Robot() 
 {
     frc::DataLogManager::Start();
+
+    AddPeriodic([this] { container.drivetrain.CalculateVelocityWithIMU(); }, 10_ms, 5_ms);
 }
 
 /**
@@ -64,6 +66,7 @@ void Robot::TeleopInit()
     {
         autonomousCommand->Cancel();
     }
+    frc2::CommandScheduler::GetInstance().Schedule(container.IntakePivotDefaultCommand());
 }
 
 /**

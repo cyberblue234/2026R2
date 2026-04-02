@@ -21,20 +21,17 @@ void CommandSwerveDrivetrain::Periodic()
             m_hasAppliedOperatorPerspective = true;
         }
     }
+}
 
-    frc::Pose2d pose = GetState().Pose;
+void CommandSwerveDrivetrain::CalculateVelocityWithIMU()
+{
+    units::meters_per_second_squared_t ax = GetPigeon2().GetAccelerationX().GetValue();
+    units::meters_per_second_squared_t ay = GetPigeon2().GetAccelerationY().GetValue();
     units::second_t currentTime = utils::GetSystemTime();
     units::second_t deltaTime = currentTime - lastTime;
-    units::meter_t currentX = pose.X();
-    vX = (currentX - lastX) / deltaTime;
-    units::meter_t currentY = pose.Y();
-    vY = (currentY - lastY) / deltaTime;
-    units::radian_t currentYaw = pose.Rotation().Radians();
-    vYaw = (currentYaw - lastYaw) / deltaTime;
-    lastX = currentX;
-    lastY = currentY;
-    lastYaw = currentYaw;
-    lastTime = currentTime;
+    vX += ax * deltaTime;
+    vY += ay * deltaTime;
+    vYaw = GetPigeon2().GetAngularVelocityZDevice().GetValue();
 }
 
 void CommandSwerveDrivetrain::StartSimThread()

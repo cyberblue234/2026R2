@@ -246,6 +246,8 @@ public:
     std::optional<frc2::CommandPtr> GetAutonomousCommand();
     frc::SendableChooser<std::string> autoChooser;
 
+    frc2::CommandPtr IntakePivotDefaultCommand();
+
     void ConfigureBindings();
 
 private:

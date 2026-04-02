@@ -48,11 +48,16 @@ public:
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    static constexpr units::ampere_t kSlipCurrent = 80_A;
+    static constexpr units::ampere_t kSlipCurrent = 100_A;
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `With*InitialConfigs()` API documentation.
-    static constexpr configs::TalonFXConfiguration driveInitialConfigs{};
+    static constexpr configs::TalonFXConfiguration driveInitialConfigs = configs::TalonFXConfiguration{}
+        .WithCurrentLimits(
+            configs::CurrentLimitsConfigs{}
+                .WithSupplyCurrentLimit(70_A)
+                .WithSupplyCurrentLimitEnable(true)
+        );
     static constexpr configs::TalonFXConfiguration steerInitialConfigs = configs::TalonFXConfiguration{}
         .WithCurrentLimits(
             configs::CurrentLimitsConfigs{}
