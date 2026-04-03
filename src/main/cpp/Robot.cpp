@@ -28,6 +28,7 @@ void Robot::RobotPeriodic()
     container.turretVision.Periodic();
     // container.backCameraLeftVision.Periodic();
     // container.backCameraRightVision.Periodic();
+    container.backLeftVision.Periodic();
 }
 
 /**
@@ -93,6 +94,7 @@ void Robot::SimulationPeriodic()
     container.turretVision.SimPeriodic(robotPose);
     container.backCameraLeftVision.SimPeriodic(robotPose);
     container.backCameraRightVision.SimPeriodic(robotPose);
+    container.backLeftVision.SimPeriodic(robotPose);
 }
 
 #ifndef RUNNING_FRC_TESTS

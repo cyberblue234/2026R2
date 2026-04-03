@@ -231,7 +231,14 @@ public:
         }
     };
 
-    
+    Vision backLeftVision
+    {
+        visionMeasurementConsumer, VisionConstants::BackLeft::kCameraName, VisionConstants::BackLeft::kRobotToCamera,
+        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+        {
+            
+        }
+    };
 
     FuelManager simFuelManager;
     frc2::CommandPtr fuelUpdateCommand = simFuelManager.UpdateFuel
