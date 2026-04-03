@@ -179,7 +179,7 @@ public:
     Floor floor;
     Feeder feeder;
     Launcher launcher;
-    Climber climber;
+    // Climber climber;
 
     bool visionEnabled = true;
 

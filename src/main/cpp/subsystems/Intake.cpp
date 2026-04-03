@@ -8,7 +8,7 @@ IntakeRoller::IntakeRoller()
     configs::TalonFXConfiguration rollerMotorConfig;
     rollerMotorConfig.MotorOutput.Inverted = signals::InvertedValue::Clockwise_Positive;
     rollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 50_A;
+    rollerMotorConfig.CurrentLimits.StatorCurrentLimit = 80_A;
     rollerMotor.GetConfigurator().Apply(rollerMotorConfig);
 
     SetDefaultCommand(StopMotorCommand());
@@ -170,7 +170,7 @@ frc2::CommandPtr IntakePivot::SetPositionToGroundCommand()
 
 frc2::CommandPtr IntakePivot::SetPositionToHomeCommand()
 {
-    return SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(0.9_s);
+    return SetSpeedCommand(-IntakeConstants::kManualSpeed).WithTimeout(1_s);
     // return SetPositionCommand([this] { return homePosition; }).AndThen(SetMotorToBrakeCommand()).WithName("Set Position to Home");
 }
 

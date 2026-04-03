@@ -10,7 +10,7 @@ Robot::Robot()
 {
     frc::DataLogManager::Start();
 
-    AddPeriodic([this] { container.drivetrain.CalculateVelocityWithIMU(); }, 10_ms, 5_ms);
+    // AddPeriodic([this] { container.drivetrain.CalculateVelocityWithIMU(); }, 10_ms, 5_ms);
 }
 
 /**
@@ -26,8 +26,8 @@ void Robot::RobotPeriodic()
     frc2::CommandScheduler::GetInstance().Run();
     telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
-    container.backCameraLeftVision.Periodic();
-    container.backCameraRightVision.Periodic();
+    // container.backCameraLeftVision.Periodic();
+    // container.backCameraRightVision.Periodic();
 }
 
 /**

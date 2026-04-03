@@ -124,8 +124,8 @@ void RobotContainer::ConfigureBindings()
             launcher.StopMotorsCommand(),
             frc2::cmd::Either
             (
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 3500_rpm}; }).Until([this] { return target != Targets::Hub; }),
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 4000_rpm}; }).Until([this] { return target != Targets::Pass; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }).Until([this] { return target != Targets::Hub; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 0_rpm}; }).Until([this] { return target != Targets::Pass; }),
                 [this] { return target != Targets::Pass; }
             ),
             frc::DriverStation::IsTest
@@ -169,10 +169,10 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
     // Climber Controls
-    joystick.POVUp().WhileTrue(climber.ExtendClimberCommand().OnlyIf(frc::DriverStation::IsTest)); // Extend climber without limit switch in test mode for testing purposes
-    controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(climber.ExtendClimberWithLimitCommand());
-    joystick.POVDown().WhileTrue(climber.RetractClimberCommand().OnlyIf(frc::DriverStation::IsTest));
-    controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberWithLimitCommand());
+    // joystick.POVUp().WhileTrue(climber.ExtendClimberCommand().OnlyIf(frc::DriverStation::IsTest)); // Extend climber without limit switch in test mode for testing purposes
+    // controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(climber.ExtendClimberWithLimitCommand());
+    // joystick.POVDown().WhileTrue(climber.RetractClimberCommand().OnlyIf(frc::DriverStation::IsTest));
+    // controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberWithLimitCommand());
 
     // Other Controls
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
@@ -186,7 +186,7 @@ return frc2::cmd::Run
         {
             auto drivetrainState = drivetrain.GetState();
             frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
-            frc::ChassisSpeeds robotSpeeds = drivetrain.GetFieldRelativeVelocities(); //frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
+            frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
             units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
             units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
             frc::Translation3d turretPose
