@@ -48,6 +48,7 @@ frc2::CommandPtr IntakeRoller::EjectCommand()
 void IntakeRoller::InitSendable(wpi::SendableBuilder &builder)
 {
     builder.AddDoubleProperty("Set Speed", [this] { return motorSpeed; }, [this] (double set) { motorSpeed = set;});
+    builder.AddDoubleProperty("Motor Speed (rpm)", [this] { return rollerMotor.GetVelocity().GetValue().convert<units::revolutions_per_minute>().value(); }, nullptr);
     builder.AddDoubleProperty("Supply Current", [this] { return rollerMotor.GetSupplyCurrent().GetValueAsDouble(); }, nullptr);
     builder.AddDoubleProperty("Stator Current", [this] { return rollerMotor.GetStatorCurrent().GetValueAsDouble(); }, nullptr);
     ADD_DEFAULT_COMMAND;
