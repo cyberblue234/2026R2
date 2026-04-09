@@ -124,8 +124,8 @@ void RobotContainer::ConfigureBindings()
             launcher.StopMotorsCommand(),
             frc2::cmd::Either
             (
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }).Until([this] { return target != Targets::Hub; }),
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 0_rpm}; }).Until([this] { return target != Targets::Pass; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 2500_rpm}; }).Until([this] { return target != Targets::Hub; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 2500_rpm}; }).Until([this] { return target != Targets::Pass; }),
                 [this] { return target != Targets::Pass; }
             ),
             frc::DriverStation::IsTest

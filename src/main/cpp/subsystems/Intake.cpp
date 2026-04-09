@@ -64,7 +64,7 @@ IntakePivot::IntakePivot()
     configs::TalonFXConfiguration pivotMotorConfig;
     
     pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 13_A;
+    pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 14_A;
     pivotMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
     pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 20_A;
 
