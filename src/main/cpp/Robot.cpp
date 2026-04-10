@@ -9,7 +9,7 @@
 Robot::Robot() 
 {
     frc::DataLogManager::Start();
-
+    ctre::phoenix6::SignalLogger::EnableAutoLogging(false);
     // AddPeriodic([this] { container.drivetrain.CalculateVelocityWithIMU(); }, 10_ms, 5_ms);
 }
 
