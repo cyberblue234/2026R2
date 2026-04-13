@@ -73,7 +73,15 @@ namespace VisionConstants
     namespace BackLeft
 	{
 		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d{-10.5_in, 12_in, 13.75_in},
+			frc::Translation3d{-10.5_in, 12_in, 14_in},
+			frc::Rotation3d{0_deg, 0_deg, 180_deg}};
+		constexpr std::string_view kCameraName = "BackLeft";
+	}
+
+    namespace BackRight
+	{
+		constexpr frc::Transform3d kRobotToCamera{
+			frc::Translation3d{-10.5_in, -12_in, 14_in},
 			frc::Rotation3d{0_deg, 0_deg, 180_deg}};
 		constexpr std::string_view kCameraName = "BackLeft";
 	}

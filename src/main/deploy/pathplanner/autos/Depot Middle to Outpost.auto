@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot 1B"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outpost 1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outpost 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Align and Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Depot",
+  "choreoAuto": false
+}

@@ -205,33 +205,42 @@ public:
         }
     };
 
-    frc::Pose3d backCameraLeftPose;
-    std::vector<frc::Pose3d> backCameraLeftTargets;
-    Vision backCameraLeftVision
-    {
-        visionMeasurementConsumer, VisionConstants::BackCameraLeft::kCameraName, VisionConstants::BackCameraLeft::kRobotToCamera,
-        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
-        {
-            backCameraLeftPose = pose;
-            backCameraLeftTargets = targets;
-        }
-    };
+    // frc::Pose3d backCameraLeftPose;
+    // std::vector<frc::Pose3d> backCameraLeftTargets;
+    // Vision backCameraLeftVision
+    // {
+    //     visionMeasurementConsumer, VisionConstants::BackCameraLeft::kCameraName, VisionConstants::BackCameraLeft::kRobotToCamera,
+    //     [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+    //     {
+    //         backCameraLeftPose = pose;
+    //         backCameraLeftTargets = targets;
+    //     }
+    // };
 
-    frc::Pose3d backCameraRightPose;
-    std::vector<frc::Pose3d> backCameraRightTargets;
-    Vision backCameraRightVision
-    {
-        visionMeasurementConsumer, VisionConstants::BackCameraRight::kCameraName, VisionConstants::BackCameraRight::kRobotToCamera,
-        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
-        {
-            backCameraRightPose = pose;
-            backCameraRightTargets = targets;
-        }
-    };
+    // frc::Pose3d backCameraRightPose;
+    // std::vector<frc::Pose3d> backCameraRightTargets;
+    // Vision backCameraRightVision
+    // {
+    //     visionMeasurementConsumer, VisionConstants::BackCameraRight::kCameraName, VisionConstants::BackCameraRight::kRobotToCamera,
+    //     [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+    //     {
+    //         backCameraRightPose = pose;
+    //         backCameraRightTargets = targets;
+    //     }
+    // };
 
     Vision backLeftVision
     {
         visionMeasurementConsumer, VisionConstants::BackLeft::kCameraName, VisionConstants::BackLeft::kRobotToCamera,
+        [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
+        {
+            
+        }
+    };
+
+    Vision backRightVision
+    {
+        visionMeasurementConsumer, VisionConstants::BackRight::kCameraName, VisionConstants::BackRight::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             

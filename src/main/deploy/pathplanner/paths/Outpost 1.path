@@ -1,0 +1,120 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.360556358460542,
+        "y": 5.977933420363277
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.515789336342264,
+        "y": 5.977933420363277
+      },
+      "isLocked": false,
+      "linkedName": "End of Depot 1"
+    },
+    {
+      "anchor": {
+        "x": 2.206348314606741,
+        "y": 5.543269662921348
+      },
+      "prevControl": {
+        "x": 2.206348314606741,
+        "y": 5.97104942289138
+      },
+      "nextControl": {
+        "x": 2.206348314606741,
+        "y": 4.788859449004366
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.206348314606741,
+        "y": 2.3636741573033704
+      },
+      "prevControl": {
+        "x": 2.206348314606741,
+        "y": 2.9968304576304368
+      },
+      "nextControl": {
+        "x": 2.206348314606741,
+        "y": 1.6903253902492272
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.8203707865168532,
+        "y": 0.6719662921348311
+      },
+      "prevControl": {
+        "x": 1.819089887640449,
+        "y": 0.7331123595505609
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Outpost"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Stop Launcher",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Launcher"
+        }
+      }
+    },
+    {
+      "name": "Stop Hopper",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Hopper"
+        }
+      }
+    },
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.882382133995037,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.2,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Outpost",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}
