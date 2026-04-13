@@ -17,13 +17,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 7.0
+                  "waitTime": 5.5
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "Align and Shoot"
                 }
               }
             ]
@@ -33,6 +33,12 @@
           "type": "path",
           "data": {
             "pathName": "Center Field 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Align and Shoot"
           }
         }
       ]

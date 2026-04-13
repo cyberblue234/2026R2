@@ -63,8 +63,10 @@ public:
             configs::CurrentLimitsConfigs{}
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .WithStatorCurrentLimit(60_A)
+                .WithStatorCurrentLimit(50_A)
                 .WithStatorCurrentLimitEnable(true)
+                .WithSupplyCurrentLimit(40_A)
+                .WithSupplyCurrentLimitEnable(true)
         );
     static constexpr configs::CANcoderConfiguration encoderInitialConfigs{};
     // Configs for the Pigeon 2; leave this nullopt to skip applying Pigeon 2 configs

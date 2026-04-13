@@ -168,12 +168,6 @@ void RobotContainer::ConfigureBindings()
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
-    // Climber Controls
-    // joystick.POVUp().WhileTrue(climber.ExtendClimberCommand().OnlyIf(frc::DriverStation::IsTest)); // Extend climber without limit switch in test mode for testing purposes
-    // controlBoard.Button(OperatorConstants::kClimberExtendSwitch).WhileTrue(climber.ExtendClimberWithLimitCommand());
-    // joystick.POVDown().WhileTrue(climber.RetractClimberCommand().OnlyIf(frc::DriverStation::IsTest));
-    // controlBoard.Button(OperatorConstants::kClimberRetractSwitch).WhileTrue(climber.RetractClimberWithLimitCommand());
-
     // Other Controls
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }

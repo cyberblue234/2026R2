@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.5146452702732924,
-        "y": 5.901587837835686
+        "x": 2.993865546972655,
+        "y": 5.778828750601308
       },
       "isLocked": false,
       "linkedName": "Shooting Position"
@@ -68,8 +68,8 @@
         "y": 4.8
       },
       "prevControl": {
-        "x": 3.5425046184410527,
-        "y": 5.551905003770472
+        "x": 2.6110237068965523,
+        "y": 5.491282327586207
       },
       "nextControl": null,
       "isLocked": false,
@@ -79,7 +79,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.648769574944072,
-      "rotationDegrees": 0.0
+      "rotationDegrees": -17.844434757328326
     },
     {
       "waypointRelativePos": 1.0500863557858382,
@@ -97,7 +97,7 @@
       "maxWaypointRelativePos": 0.7744565217391304,
       "constraints": {
         "maxVelocity": 3.0,
-        "maxAcceleration": 3.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -110,7 +110,7 @@
       "maxWaypointRelativePos": 4.0,
       "constraints": {
         "maxVelocity": 3.0,
-        "maxAcceleration": 3.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -122,7 +122,7 @@
       "minWaypointRelativePos": 0.9966777408637867,
       "maxWaypointRelativePos": 2.2,
       "constraints": {
-        "maxVelocity": 1.25,
+        "maxVelocity": 2.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -133,17 +133,6 @@
   ],
   "pointTowardsZones": [],
   "eventMarkers": [
-    {
-      "name": "Disable Vision",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Disable Vision"
-        }
-      }
-    },
     {
       "name": "Stop Launcher",
       "waypointRelativePos": 0,
@@ -163,17 +152,6 @@
         "type": "named",
         "data": {
           "name": "Stop Hopper"
-        }
-      }
-    },
-    {
-      "name": "Enable Vision",
-      "waypointRelativePos": 0.36647579385737566,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Enable Vision"
         }
       }
     },
@@ -201,8 +179,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.5,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -218,5 +196,5 @@
     "velocity": 0,
     "rotation": -25.649628210024428
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

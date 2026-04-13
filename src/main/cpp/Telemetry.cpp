@@ -2,15 +2,12 @@
 
 Telemetry::Telemetry(RobotContainer& container) : container(container)
 {
-    // frc::SmartDashboard::PutData(climbersTableName, &container.climber);
-    // frc::SmartDashboard::PutData(climbersTableName + "/2", &container.climber2);
     frc::SmartDashboard::PutData(drivetrainTableName, &container.drivetrain);
     frc::SmartDashboard::PutData(drivetrainTableName + "/Align Heading Controller", &container.alignToHub.HeadingController);
     frc::SmartDashboard::PutData(hopperTableName + "/" + floorTableName, &container.floor);
     frc::SmartDashboard::PutData(hopperTableName + "/" + feederTableName, &container.feeder);
     frc::SmartDashboard::PutData(launcherTableName, &container.launcher);
     frc::SmartDashboard::PutData(intakePivotTableName, &container.intakePivot);
-    // frc::SmartDashboard::PutData(intakePivotTableName + "/Controller", &container.intakePivot.positionController);
     frc::SmartDashboard::PutData(intakeRollerTableName, &container.intakeRoller);
     frc::SmartDashboard::PutData(genericTableName + "/Auto Chooser", &container.autoChooser);
     frc::SmartDashboard::PutData(genericTableName + "/field", &field);

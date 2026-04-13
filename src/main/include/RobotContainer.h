@@ -28,7 +28,6 @@
 #include "subsystems/Intake.h"
 #include "subsystems/Hopper.h"
 #include "subsystems/Launcher.h"
-#include "subsystems/Climber.h"
 #include "subsystems/Vision.h"
 
 #include "sim/Fuel.hpp"
@@ -179,7 +178,6 @@ public:
     Floor floor;
     Feeder feeder;
     Launcher launcher;
-    // Climber climber;
 
     bool visionEnabled = true;
 
