@@ -17,8 +17,8 @@ namespace TelemetryConstants
     inline const std::string genericTableName = "Generic";
     inline const std::string visionTableName = "Vision";
     inline const std::string turretCameraTableName = "Turret";
-    inline const std::string backCameraLeftTableName = "Back Camera Left";
-    inline const std::string backCameraRightTableName = "Back Camera Right";
+    inline const std::string backCameraLeftTableName = "Back Left";
+    inline const std::string backCameraRightTableName = "Back Right";
 }
 
 using namespace TelemetryConstants;
@@ -61,13 +61,7 @@ private:
     nt::DoublePublisher robotVoltagePublisher = genericTable->GetDoubleTopic("Robot Voltage").Publish();
 
     std::shared_ptr<nt::NetworkTable> visionTable = smartdashboardTable->GetSubTable(visionTableName);
-    nt::StructPublisher<frc::Pose3d> turretCamPose = visionTable->GetSubTable(turretCameraTableName)->GetStructTopic<frc::Pose3d>("Camera Pose").Publish();
     nt::StructPublisher<frc::Pose3d> turretVisionPosePublisher = visionTable->GetSubTable(turretCameraTableName)->GetStructTopic<frc::Pose3d>("Estimated Pose").Publish();
-    nt::StructArrayPublisher<frc::Pose3d> turretVisionTargetsPublisher = visionTable->GetSubTable(turretCameraTableName)->GetStructArrayTopic<frc::Pose3d>("Targets").Publish();
-    nt::StructPublisher<frc::Pose3d> backCamLeftPose = visionTable->GetSubTable(backCameraLeftTableName)->GetStructTopic<frc::Pose3d>("Camera Pose").Publish();
     nt::StructPublisher<frc::Pose3d> backCamLeftVisionPosePublisher = visionTable->GetSubTable(backCameraLeftTableName)->GetStructTopic<frc::Pose3d>("Estimated Pose").Publish();
-    nt::StructArrayPublisher<frc::Pose3d> backCamLeftVisionTargetsPublisher = visionTable->GetSubTable(backCameraLeftTableName)->GetStructArrayTopic<frc::Pose3d>("Targets").Publish();
-    nt::StructPublisher<frc::Pose3d> backCamRightPose = visionTable->GetSubTable(backCameraRightTableName)->GetStructTopic<frc::Pose3d>("Camera Pose").Publish();
     nt::StructPublisher<frc::Pose3d> backCamRightVisionPosePublisher = visionTable->GetSubTable(backCameraRightTableName)->GetStructTopic<frc::Pose3d>("Estimated Pose").Publish();
-    nt::StructArrayPublisher<frc::Pose3d> backCamRightVisionTargetsPublisher = visionTable->GetSubTable(backCameraRightTableName)->GetStructArrayTopic<frc::Pose3d>("Targets").Publish();
 };

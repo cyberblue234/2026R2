@@ -30,15 +30,9 @@ void Telemetry::UpdateTelemetry()
     robotVoltagePublisher.Set(frc::RobotController::GetBatteryVoltage().value());
     visionEnabledPublisher.Set(container.visionEnabled);
     
-    // turretCamPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::TurretCamera::kRobotToCamera));
-    // turretVisionPosePublisher.Set(container.turretVisionPose);
-    // turretVisionTargetsPublisher.Set(container.turretVisionTargets);
-    // backCamLeftPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraLeft::kRobotToCamera));
-    // backCamLeftVisionPosePublisher.Set(container.backCameraLeftPose);
-    // backCamLeftVisionTargetsPublisher.Set(container.backCameraLeftTargets);
-    // backCamRightPose.Set(frc::Pose3d{state.Pose}.TransformBy(VisionConstants::BackCameraRight::kRobotToCamera));
-    // backCamRightVisionPosePublisher.Set(container.backCameraRightPose);
-    // backCamRightVisionTargetsPublisher.Set(container.backCameraRightTargets);
+    turretVisionPosePublisher.Set(container.turretVisionPose);
+    backCamLeftVisionPosePublisher.Set(container.backLeftVisionPose);
+    backCamRightVisionPosePublisher.Set(container.backRightVisionPose);
 
     if (frc::RobotBase::IsSimulation()) intakePose.Set(frc::Pose3d{0.31_m, 0_m, 0.28_m, frc::Rotation3d{0_deg, container.intakePivot.GetAngle(), 0_deg}});
 

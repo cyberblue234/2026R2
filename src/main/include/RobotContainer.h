@@ -194,56 +194,32 @@ public:
             };
 
     frc::Pose3d turretVisionPose;
-    std::vector<frc::Pose3d> turretVisionTargets;
     Vision turretVision
     {
         visionMeasurementConsumer, VisionConstants::TurretCamera::kCameraName, VisionConstants::TurretCamera::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
             turretVisionPose = pose;
-            turretVisionTargets = targets;
         }
     };
 
-    // frc::Pose3d backCameraLeftPose;
-    // std::vector<frc::Pose3d> backCameraLeftTargets;
-    // Vision backCameraLeftVision
-    // {
-    //     visionMeasurementConsumer, VisionConstants::BackCameraLeft::kCameraName, VisionConstants::BackCameraLeft::kRobotToCamera,
-    //     [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
-    //     {
-    //         backCameraLeftPose = pose;
-    //         backCameraLeftTargets = targets;
-    //     }
-    // };
-
-    // frc::Pose3d backCameraRightPose;
-    // std::vector<frc::Pose3d> backCameraRightTargets;
-    // Vision backCameraRightVision
-    // {
-    //     visionMeasurementConsumer, VisionConstants::BackCameraRight::kCameraName, VisionConstants::BackCameraRight::kRobotToCamera,
-    //     [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
-    //     {
-    //         backCameraRightPose = pose;
-    //         backCameraRightTargets = targets;
-    //     }
-    // };
-
+    frc::Pose3d backLeftVisionPose;
     Vision backLeftVision
     {
         visionMeasurementConsumer, VisionConstants::BackLeft::kCameraName, VisionConstants::BackLeft::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
-            
+            backLeftVisionPose = pose;
         }
     };
 
+    frc::Pose3d backRightVisionPose;
     Vision backRightVision
     {
         visionMeasurementConsumer, VisionConstants::BackRight::kCameraName, VisionConstants::BackRight::kRobotToCamera,
         [=, this](frc::Pose3d pose, std::vector<frc::Pose3d> targets)
         {
-            
+            backRightVisionPose = pose;
         }
     };
 

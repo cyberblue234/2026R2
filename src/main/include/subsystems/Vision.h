@@ -49,27 +49,6 @@ namespace VisionConstants
 		constexpr std::string_view kCameraName = "TurretCam";
 	}
 
-    namespace BackCameraLeft
-	{
-		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d{-13.125_in, 1.5_in, 20.5_in},
-			frc::Rotation3d{0_deg, 0_deg, 145_deg}};
-		constexpr std::string_view kCameraName = "BackCamLeft";
-	}
-
-    namespace BackCameraRight
-	{
-		constexpr frc::Transform3d kRobotToCamera{
-			frc::Translation3d
-            {
-                VisionConstants::BackCameraLeft::kRobotToCamera.X(), 
-                -0.75_in, 
-                VisionConstants::BackCameraLeft::kRobotToCamera.Z()
-            },
-			frc::Rotation3d{0_deg, 0_deg, -145_deg}};
-		constexpr std::string_view kCameraName = "BackCamRight";
-	}
-
     namespace BackLeft
 	{
 		constexpr frc::Transform3d kRobotToCamera{
@@ -83,7 +62,7 @@ namespace VisionConstants
 		constexpr frc::Transform3d kRobotToCamera{
 			frc::Translation3d{-10.5_in, -12_in, 14_in},
 			frc::Rotation3d{0_deg, 0_deg, 180_deg}};
-		constexpr std::string_view kCameraName = "BackLeft";
+		constexpr std::string_view kCameraName = "BackRight";
 	}
 
 	inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4.0, 4.0, 9999999.0};

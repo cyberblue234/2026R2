@@ -10,7 +10,6 @@ Robot::Robot()
 {
     frc::DataLogManager::Start();
     ctre::phoenix6::SignalLogger::EnableAutoLogging(false);
-    // AddPeriodic([this] { container.drivetrain.CalculateVelocityWithIMU(); }, 10_ms, 5_ms);
 }
 
 /**
@@ -26,8 +25,6 @@ void Robot::RobotPeriodic()
     frc2::CommandScheduler::GetInstance().Run();
     telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
-    // container.backCameraLeftVision.Periodic();
-    // container.backCameraRightVision.Periodic();
     container.backLeftVision.Periodic();
     container.backRightVision.Periodic();
 }
@@ -93,8 +90,6 @@ void Robot::SimulationPeriodic()
 {
     frc::Pose2d robotPose = container.drivetrain.GetState().Pose;
     container.turretVision.SimPeriodic(robotPose);
-    // container.backCameraLeftVision.SimPeriodic(robotPose);
-    // container.backCameraRightVision.SimPeriodic(robotPose);
     container.backLeftVision.SimPeriodic(robotPose);
     container.backRightVision.SimPeriodic(robotPose);
 }
