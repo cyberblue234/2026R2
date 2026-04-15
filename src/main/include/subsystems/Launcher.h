@@ -30,18 +30,18 @@ namespace LauncherConstants
     
     constexpr double kLoss = 0.56;
 
-    constexpr double kOmegaToVelocityRatio = 610;
+    constexpr double kOmegaToVelocityRatio = 590;
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = -0.3472_tr;
 
     constexpr frc::Translation3d kTurretOffset{10.5_in, 0_m, 22.5_in};
 
-    constexpr double kP = 0;
+    constexpr double kP = 0.05;
     constexpr double kI = 0;
     constexpr double kD = 0;
     constexpr double kS = 0;
-    constexpr double kV = 0.115;
+    constexpr double kV = 0.1175;
     constexpr double kA = 0;
     constexpr units::radians_per_second_t kCruiseVelocity = 100_rad_per_s;
     constexpr units::radians_per_second_squared_t kAcceleration = 1000_rad_per_s_sq;
