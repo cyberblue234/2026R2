@@ -37,7 +37,7 @@
         56,
         57,
         48,
-        32,
+        73,
         72
       ],
       "povConfig": [
@@ -57,24 +57,23 @@
     {
       "axisConfig": [
         {
-          "decKey": 68,
-          "incKey": 65
+          "decKey": 65,
+          "incKey": 68
         },
         {
-          "decKey": 83,
-          "incKey": 87
+          "decKey": 87,
+          "incKey": 83
         },
-        {
-          "decKey": 69,
-          "incKey": 81
-        },
+        {},
         {
           "decKey": 84,
-          "incKey": 82
+          "decayRate": 1.0,
+          "incKey": 32,
+          "keyRate": 1.0
         },
         {
-          "decKey": 67,
-          "incKey": 90
+          "decKey": 81,
+          "incKey": 69
         }
       ],
       "axisCount": 5,

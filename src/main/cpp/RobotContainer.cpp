@@ -153,7 +153,16 @@ void RobotContainer::ConfigureBindings()
             [this] { return target == Targets::Manual; }
         ).WithName("Launch")
     ).OnFalse(
-        IntakePivotDefaultCommand()
+        frc2::cmd::Parallel
+        (
+            IntakePivotDefaultCommand().AsProxy(),
+            frc2::cmd::Either
+            (
+                intakeRoller.IntakeCommand().Repeatedly().Until([this] { return !controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }),
+                intakeRoller.StopMotorCommand(),
+                [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }
+            ).WithName("After Launch Intake").AsProxy()
+        )
     );
 
     // Intake Roller Controls
@@ -269,10 +278,7 @@ frc2::CommandPtr RobotContainer::Launch()
     (   
         intakeRoller.IntakeCommand(),
         frc2::cmd::WaitUntil([this] { return launcher.IsLauncherSpeedWithinTolerance(omegaTolerance); }).AndThen(Feed()),
-        launcher.LaunchCommand([this] { return LauncherState{target == Targets::Hub ? TargetConstants::kLauncherAngle : TargetConstants::kPassLauncherAngle, omega}; }),
-        frc2::cmd::WaitUntil([this] { return IsAlignmentWithinTolerances(); })
-            .AndThen(frc2::cmd::Run([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0); }).WithTimeout(0.5_s)
-            .AndThen(frc2::cmd::RunOnce([this] { joystick.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0.0); })))
+        launcher.LaunchCommand([this] { return LauncherState{target == Targets::Hub ? TargetConstants::kLauncherAngle : TargetConstants::kPassLauncherAngle, omega}; })
     ).WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
     .WithName("Launch");
 }

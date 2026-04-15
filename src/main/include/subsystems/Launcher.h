@@ -28,7 +28,7 @@ namespace LauncherConstants
     constexpr units::kilogram_square_meter_t kShooterMOI = kFlywheelMOI + 3 * kStealthWheelMOI;
     constexpr units::kilogram_square_meter_t kFuelMOIInFlywheel{0.000339}; // Forced constant because WPILib wants to evaluate to 0
     
-    constexpr double kLoss = 0.545;
+    constexpr double kLoss = 0.56;
 
     constexpr double kOmegaToVelocityRatio = 610;
 
