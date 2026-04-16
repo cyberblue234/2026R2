@@ -114,12 +114,16 @@
       "rotationDegrees": 1.7637220112461125
     },
     {
-      "waypointRelativePos": 2.1236673773987214,
-      "rotationDegrees": -37.0292180284389
+      "waypointRelativePos": 1.5475113122171948,
+      "rotationDegrees": -24.981230536866473
     },
     {
       "waypointRelativePos": 3.344519015659956,
-      "rotationDegrees": -70.21841860666196
+      "rotationDegrees": -106.02381495901989
+    },
+    {
+      "waypointRelativePos": 4.733031674208145,
+      "rotationDegrees": -21.229179468136078
     }
   ],
   "constraintZones": [
@@ -200,8 +204,8 @@
     },
     {
       "name": "Intake",
-      "waypointRelativePos": 0.3,
-      "endWaypointRelativePos": 3.3617021276595773,
+      "waypointRelativePos": 0.20547945205479456,
+      "endWaypointRelativePos": 4.767123287671234,
       "command": {
         "type": "named",
         "data": {
@@ -211,7 +215,7 @@
     },
     {
       "name": "Enable Vision",
-      "waypointRelativePos": 0.7,
+      "waypointRelativePos": 0.5034246575342463,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

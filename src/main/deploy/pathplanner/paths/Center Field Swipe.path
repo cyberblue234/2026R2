@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3169636963055242,
-        "y": 5.479730840277488
+        "x": 3.187672413793104,
+        "y": 5.833362068965517
       },
       "isLocked": false,
       "linkedName": "Shooting Position"
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 4.614633620689656,
-        "y": 5.84313577586207
+        "y": 5.755172413793104
       },
       "prevControl": {
-        "x": 3.5146336206896556,
-        "y": 5.843135775869614
+        "x": 3.5146445819416297,
+        "y": 5.75026174844155
       },
       "nextControl": {
-        "x": 6.014633620689656,
-        "y": 5.84313577585247
+        "x": 6.803943965517242,
+        "y": 5.764946120689656
       },
       "isLocked": false,
       "linkedName": null
@@ -96,7 +96,7 @@
       "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 1.2500000000000004,
       "constraints": {
-        "maxVelocity": 4.0,
+        "maxVelocity": 2.5,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -109,7 +109,7 @@
       "minWaypointRelativePos": 2.5434782608695667,
       "maxWaypointRelativePos": 3.6739130434782594,
       "constraints": {
-        "maxVelocity": 4.0,
+        "maxVelocity": 2.5,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 1000.0,
         "maxAngularAcceleration": 1000.0,
