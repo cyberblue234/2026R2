@@ -79,7 +79,7 @@ RobotContainer::RobotContainer()
     drivetrain.SetStateStdDevs(std::array<double, 3>{0.5, 0.5, 3});
     // When the Pigeon 2 detects a sudden acceleration (like from going over the bump), increase the standard deviations for 0.5 seconds to trust the wheel encoders less, then set them back to normal
     frc2::Trigger([this] { return units::math::abs(drivetrain.GetPigeon2().GetAccelerationZ().GetValue()) > 0.5_mps_sq; }).Debounce(60_ms)
-        .OnTrue(frc2::cmd::Run([this] { drivetrain.SetStateStdDevs(std::array<double, 3>{3, 3, 15}); }).WithTimeout(0.5_s)
+        .OnTrue(frc2::cmd::Print("Increasing drivetrain std devs").AlongWith(frc2::cmd::Run([this] { drivetrain.SetStateStdDevs(std::array<double, 3>{5, 5, 15}); }).WithTimeout(0.5_s))
         .AndThen(frc2::cmd::Run([this] { drivetrain.SetStateStdDevs(std::array<double, 3>{0.5, 0.5, 3}); })));
 }
 
