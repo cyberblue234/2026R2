@@ -33,6 +33,9 @@ private:
     // doesn't have undefined behavior and potentially crash.
     std::optional<frc2::CommandPtr> autonomousCommand;
 
+    bool configuredWonAuto = false;
+    bool wonAuto = false;
+
     RobotContainer container;
     Telemetry telemetry{container};
 };

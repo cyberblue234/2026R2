@@ -27,6 +27,77 @@ void Robot::RobotPeriodic()
     container.turretVision.Periodic();
     container.backLeftVision.Periodic();
     container.backRightVision.Periodic();
+
+    frc::SmartDashboard::PutBoolean("Generic/Won Autonomous", wonAuto);
+
+    if (!configuredWonAuto && !frc::DriverStation::IsAutonomous())
+    {   
+        std::string gameData;
+        gameData = frc::DriverStation::GetGameSpecificMessage();
+        if (gameData.length() > 0)
+        {
+            configuredWonAuto = true;
+            switch (gameData[0])
+            {
+                case 'B' :
+                    wonAuto = frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue;
+                    break;
+                case 'R' :
+                    wonAuto = frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed;
+                    break;
+                default :
+                    configuredWonAuto = false;
+                    break;
+            }
+        }
+    }
+
+    units::second_t time = frc::DriverStation::GetMatchTime();
+    frc::SmartDashboard::PutNumber("Generic/Match Time", time.value());
+    if (frc::DriverStation::IsTeleop())
+    {
+        // Endgame period
+        if (time <= GameConstants::kEndgamePeriod)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", time.value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
+        }
+        // Fourth shift
+        else if (time <= GameConstants::kEndgamePeriod + GameConstants::kShiftTimes)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod).value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", wonAuto);
+        }
+        // Third shift
+        else if (time <= GameConstants::kEndgamePeriod + 2 * GameConstants::kShiftTimes)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - GameConstants::kShiftTimes).value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", !wonAuto);
+        }
+        // Second shift
+        else if (time <= GameConstants::kEndgamePeriod + 3 * GameConstants::kShiftTimes)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 2 * GameConstants::kShiftTimes).value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", wonAuto);
+        }
+        // First shift
+        else if (time <= GameConstants::kEndgamePeriod + 4 * GameConstants::kShiftTimes)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 3 * GameConstants::kShiftTimes).value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", !wonAuto);
+        }
+        // Transition period
+        else if (time <= GameConstants::kEndgamePeriod + 4 * GameConstants::kShiftTimes + GameConstants::kTransitionShiftTime)
+        {
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 4 * GameConstants::kShiftTimes).value());
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
+        }
+    }
+    else
+    {
+        frc::SmartDashboard::PutNumber("Generic/Shift Time", -1);
+    }
+    
 }
 
 /**
@@ -51,6 +122,7 @@ void Robot::AutonomousInit()
     {
         frc2::CommandScheduler::GetInstance().Schedule(autonomousCommand.value());
     }
+    frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
 }
 
 void Robot::AutonomousPeriodic() {}
@@ -66,6 +138,7 @@ void Robot::TeleopInit()
         autonomousCommand->Cancel();
     }
     frc2::CommandScheduler::GetInstance().Schedule(container.IntakePivotDefaultCommand());
+    frc::SmartDashboard::PutBoolean("Generic/Hub Active", false);
 }
 
 /**

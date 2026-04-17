@@ -180,5 +180,13 @@ namespace FieldConstants
     constexpr frc::Translation3d kRedPassPose{15.75_m, kBlueHubPose.Y(), 12_in};
 }
 
+namespace GameConstants
+{
+    constexpr units::second_t kAutonomousPeriod = 20_s;
+    constexpr units::second_t kTransitionShiftTime = 10_s;
+    constexpr units::second_t kShiftTimes = 25_s;
+    constexpr units::second_t kEndgamePeriod = 30_s;
+}
+
 #define ADD_DEFAULT_COMMAND builder.AddStringProperty("Default Command", [this] { return GetDefaultCommand()->GetName(); }, nullptr)
 #define ADD_CURRENT_COMMAND builder.AddStringProperty("Current Command", [this] { return GetCurrentCommand()->GetName(); }, nullptr)
