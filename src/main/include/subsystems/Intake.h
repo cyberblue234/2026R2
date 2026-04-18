@@ -15,7 +15,7 @@ namespace IntakeConstants
     constexpr units::degree_t kGroundPosition = 110_deg;
     constexpr units::degree_t kHomePosition = 0_deg;
 
-    constexpr double kIntakeRollerSpeed = 1.0;
+    constexpr double kIntakeRollerSpeed = 0.875;
     constexpr double kMotorToCANcoderRatio = 25;
     constexpr double kCANcoderToPivotRatio = 1.75;
     constexpr double kMotorToPivotRatio = kMotorToCANcoderRatio * kCANcoderToPivotRatio;
