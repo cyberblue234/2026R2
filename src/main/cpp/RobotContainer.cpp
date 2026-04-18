@@ -36,7 +36,7 @@ RobotContainer::RobotContainer()
     // For some reason the default commands aren't registering during autonomous routines, so manually adding stop commands
     pathplanner::NamedCommands::registerCommand("Stop Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }));
     pathplanner::NamedCommands::registerCommand("Stop Hopper", feeder.StopCommand().AlongWith(floor.StopCommand()));
-    pathplanner::NamedCommands::registerCommand("Align and Shoot", Align().AlongWith(Launch().Repeatedly().OnlyIf([this] { return IsAlignmentWithinTolerances();})));
+    pathplanner::NamedCommands::registerCommand("Align and Shoot", Align().AlongWith(Launch().OnlyIf([this] { return IsAlignmentWithinTolerances();}).Repeatedly()));
     pathplanner::NamedCommands::registerCommand("Shoot", Launch());
     pathplanner::NamedCommands::registerCommand("Clear Column", frc2::cmd::Parallel
     (
@@ -134,8 +134,8 @@ void RobotContainer::ConfigureBindings()
             launcher.StopMotorsCommand(),
             frc2::cmd::Either
             (
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 2500_rpm}; }).Until([this] { return target != Targets::Hub; }),
-                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 2500_rpm}; }).Until([this] { return target != Targets::Pass; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 1500_rpm}; }).Until([this] { return target != Targets::Hub; }),
+                launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 1500_rpm}; }).Until([this] { return target != Targets::Pass; }),
                 [this] { return target != Targets::Pass; }
             ),
             frc::DriverStation::IsTest

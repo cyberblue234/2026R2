@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3944143197926078,
-        "y": 1.4535461805411607
+        "x": 0.9855349500713263,
+        "y": 2.980499286733239
       },
       "isLocked": false,
       "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 1.9006179775280896,
-        "y": 3.00570786516854
+        "x": 3.0,
+        "y": 3.27
       },
       "prevControl": {
-        "x": 1.5745056179775276,
-        "y": 2.628640449438202
+        "x": 2.673887640449438,
+        "y": 2.892932584269662
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Shooting Position Other"
     }
   ],
   "rotationTargets": [
@@ -35,7 +35,7 @@
     },
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": -17.513241765488516
+      "rotationDegrees": -3.5877025279478088
     }
   ],
   "constraintZones": [],
@@ -63,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 20.532524785964963
+    "rotation": 26.20436907271631
   },
   "reversed": false,
   "folder": "Outpost",
