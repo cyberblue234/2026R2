@@ -36,7 +36,7 @@ RobotContainer::RobotContainer()
     // For some reason the default commands aren't registering during autonomous routines, so manually adding stop commands
     pathplanner::NamedCommands::registerCommand("Stop Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }));
     pathplanner::NamedCommands::registerCommand("Stop Hopper", feeder.StopCommand().AlongWith(floor.StopCommand()));
-    pathplanner::NamedCommands::registerCommand("Align and Shoot", Launch().AlongWith(Align()));
+    pathplanner::NamedCommands::registerCommand("Align and Shoot", Align().AlongWith(Launch().Repeatedly().OnlyIf([this] { return IsAlignmentWithinTolerances();})));
     pathplanner::NamedCommands::registerCommand("Shoot", Launch());
     pathplanner::NamedCommands::registerCommand("Clear Column", frc2::cmd::Parallel
     (

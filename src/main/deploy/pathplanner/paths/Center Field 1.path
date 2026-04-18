@@ -115,11 +115,11 @@
     },
     {
       "waypointRelativePos": 1.5475113122171948,
-      "rotationDegrees": -24.981230536866473
+      "rotationDegrees": -11.526886187560585
     },
     {
       "waypointRelativePos": 3.344519015659956,
-      "rotationDegrees": -106.02381495901989
+      "rotationDegrees": -129.3683853600348
     },
     {
       "waypointRelativePos": 4.733031674208145,
@@ -155,10 +155,10 @@
     },
     {
       "name": "Balls",
-      "minWaypointRelativePos": 2.6252532072923698,
+      "minWaypointRelativePos": 1.6691424713031688,
       "maxWaypointRelativePos": 4.2,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.75,
         "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
