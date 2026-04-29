@@ -36,8 +36,8 @@ namespace RobotContainerConstants
 {
     namespace DriveConstants
     {
-        inline constexpr units::meters_per_second_t kMaxSpeed = 5_mps;
-        inline constexpr units::radians_per_second_t kMaxAngularRate = 0.75_tps;
+        inline constexpr units::meters_per_second_t kMaxSpeed = 3_mps;
+        inline constexpr units::radians_per_second_t kMaxAngularRate = 0.5_tps;
 
         inline constexpr units::meters_per_second_squared_t kAccelerationLimit = 15_mps_sq;
         inline constexpr units::degrees_per_second_squared_t kAngularAccelerationLimit = 4_tr_per_s_sq;
@@ -166,7 +166,7 @@ public:
     units::radians_per_second_t omega;
     units::radians_per_second_t omegaTolerance;
 
-    units::revolutions_per_minute_t launcherSetSpeed = 3400_rpm;
+    units::revolutions_per_minute_t launcherSetSpeed = 2700_rpm;
 
     units::meter_t passOffset = 0_m;
 
