@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.7
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Center Field 1"

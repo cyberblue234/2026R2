@@ -6,9 +6,8 @@
 
 #include <frc2/command/CommandScheduler.h>
 
-Robot::Robot() 
+Robot::Robot()  
 {
-    frc::DataLogManager::Start();
     ctre::phoenix6::SignalLogger::EnableAutoLogging(false);
 }
 
@@ -123,6 +122,8 @@ void Robot::AutonomousInit()
         frc2::CommandScheduler::GetInstance().Schedule(autonomousCommand.value());
     }
     frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
+
+    frc::DataLogManager::Start();
 }
 
 void Robot::AutonomousPeriodic() {}
@@ -139,6 +140,8 @@ void Robot::TeleopInit()
     }
     frc2::CommandScheduler::GetInstance().Schedule(container.IntakePivotDefaultCommand());
     frc::SmartDashboard::PutBoolean("Generic/Hub Active", false);
+
+    frc::DataLogManager::Start();
 }
 
 /**
