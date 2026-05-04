@@ -30,7 +30,7 @@ namespace LauncherConstants
     
     constexpr double kLoss = 0.56;
 
-    constexpr double kOmegaToVelocityRatio = 556;
+    constexpr double kOmegaToVelocityRatio = 558;
 
     constexpr units::degree_t kDiscontinuityPointAngle = 300_deg;
     constexpr units::turn_t kMagnetOffset = -0.3472_tr;
