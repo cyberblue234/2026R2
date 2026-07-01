@@ -21,12 +21,16 @@ Robot::Robot()
  */
 void Robot::RobotPeriodic()
 {
+    // This block of code runs all scheduled commands. It is essential to call this in periodic if using commands at all, otherwise they will not run properly.
     frc2::CommandScheduler::GetInstance().Run();
+    // These are all update functions that need to do something every cycle of the code
     telemetry.UpdateTelemetry();
     container.turretVision.Periodic();
     container.backLeftVision.Periodic();
     container.backRightVision.Periodic();
 
+
+    // This was so the drivers could tell if they won autonomous based on the signal that FMS sent the laptop
     frc::SmartDashboard::PutBoolean("Generic/Won Autonomous", wonAuto);
 
     if (!configuredWonAuto && !frc::DriverStation::IsAutonomous())
@@ -51,8 +55,10 @@ void Robot::RobotPeriodic()
         }
     }
 
+    // More useful driver info for the 2026 season -- match timings and current shifts
     units::second_t time = frc::DriverStation::GetMatchTime();
     frc::SmartDashboard::PutNumber("Generic/Match Time", time.value());
+
     if (frc::DriverStation::IsTeleop())
     {
         // Endgame period
@@ -116,13 +122,14 @@ void Robot::DisabledPeriodic() {}
  */
 void Robot::AutonomousInit()
 {
+    // At the start of auto we want to run whatever autonomous command is selected by the DriverStation (Elastic)
     autonomousCommand = container.GetAutonomousCommand();
     if (autonomousCommand)
     {
         frc2::CommandScheduler::GetInstance().Schedule(autonomousCommand.value());
     }
     frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
-
+    // This starts the data log if it hasn't been started
     frc::DataLogManager::Start();
 }
 
@@ -164,6 +171,7 @@ void Robot::SimulationInit() {}
  */
 void Robot::SimulationPeriodic() 
 {
+    // Mostly used for vision simulation
     frc::Pose2d robotPose = container.drivetrain.GetState().Pose;
     container.turretVision.SimPeriodic(robotPose);
     container.backLeftVision.SimPeriodic(robotPose);
