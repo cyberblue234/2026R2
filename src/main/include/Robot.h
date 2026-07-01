@@ -36,6 +36,7 @@ private:
     bool configuredWonAuto = false;
     bool wonAuto = false;
 
+    // The object of the RobotContainer should be here every time
     RobotContainer container;
     Telemetry telemetry{container};
 };
