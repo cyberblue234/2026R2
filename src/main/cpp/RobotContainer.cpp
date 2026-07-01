@@ -8,13 +8,16 @@ using namespace RobotContainerConstants;
 
 RobotContainer::RobotContainer()
 {
+	// Needs to be called in the constructor of RobotContainer. Technically, all of the code found in ConfigureBindings could be put here, but it helps keep the code more organized
     ConfigureBindings();
 
+	// This is how we put autos from Pathplanner automatically to the smart dashboard 
     std::vector<std::string> autos = pathplanner::AutoBuilder::getAllAutoNames();
     autoChooser.SetDefaultOption("Nothing", "Nothing");
 	for (auto i = autos.begin(); i != autos.end(); ++i)
 	{
 		autoChooser.AddOption(*i, *i);
+		// This was used to automatically flip left side autos to the right side without having to use the Pathplanner GUI to make both
         std::size_t leftPos = i->find("Left");
         // Only add the right version of the path if it's not a depot path, since depot paths are one-sided
         if(leftPos != std::string::npos && i->find("Depot") == std::string::npos)
@@ -24,14 +27,16 @@ RobotContainer::RobotContainer()
         }
 	}
 
+	// Immediately schedule some auto shoot and physics commands
     frc2::CommandScheduler::GetInstance().Schedule(fuelUpdateCommand);
     frc2::CommandScheduler::GetInstance().Schedule(UpdateTargetCommand());
     frc2::CommandScheduler::GetInstance().Schedule(UpdateAutoShootPhysicsCommand());
 
+	// pathplanner::NamedCommands::registerCommand function is how we use commands that are defined in our code with the Pathplanner GUI. More info in the doc
     pathplanner::NamedCommands::registerCommand("Enable Vision", frc2::cmd::RunOnce([this] { visionEnabled = true; }));
     pathplanner::NamedCommands::registerCommand("Disable Vision", frc2::cmd::RunOnce([this] { visionEnabled = false; }));
 
-    // Stars flywheel
+    // Starts flywheel
     pathplanner::NamedCommands::registerCommand("Prepare Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 3600_rpm}; }));
     // For some reason the default commands aren't registering during autonomous routines, so manually adding stop commands
     pathplanner::NamedCommands::registerCommand("Stop Launcher", launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 0_rpm}; }));
@@ -51,32 +56,37 @@ RobotContainer::RobotContainer()
 
     pathplanner::NamedCommands::registerCommand("Intake", intakeRoller.IntakeCommand().AlongWith(intakePivot.SetPositionToGroundCommand()));
 
+	// this configure function is how we easily tell Pathplanner how to drive our robot
     pathplanner::AutoBuilder::configure
     (
-        [this] { return drivetrain.GetState().Pose; },
-        [this](const frc::Pose2d& pose) { drivetrain.ResetPose(pose); },
-        [this] { return drivetrain.GetState().Speeds; },
+        [this] { return drivetrain.GetState().Pose; }, // Tells Pathplanner the position of the robot
+        [this](const frc::Pose2d& pose) { drivetrain.ResetPose(pose); }, // Tells Pathplanner how to reset the position
+        [this] { return drivetrain.GetState().Speeds; }, // Tells Pathplanner the currents ChassisSpeeds of the robot
         [this](const frc::ChassisSpeeds& speeds, const pathplanner::DriveFeedforwards& feedforwards) {
             autonSetSpeeds = speeds;
             autonSetFeedforwards = feedforwards;
             drivetrain.SetControl(autonDrive.WithSpeeds(speeds).WithWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX).WithWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY));
-        },
+        }, // Tells Pathplanner how to drive the robot
         std::make_shared<pathplanner::PPHolonomicDriveController>(
             pathplanner::PIDConstants{PathPlannerConstants::Translation::kP, PathPlannerConstants::Translation::kI, PathPlannerConstants::Translation::kD},
-            pathplanner::PIDConstants{PathPlannerConstants::Rotation::kP, PathPlannerConstants::Rotation::kI, PathPlannerConstants::Rotation::kD}),
-        PathPlannerConstants::kConfig,
+            pathplanner::PIDConstants{PathPlannerConstants::Rotation::kP, PathPlannerConstants::Rotation::kI, PathPlannerConstants::Rotation::kD}), 
+		// Gives Pathplanner PID values for motion (Translation) and rotation. Need to be tuned for every robot. I've never gotten this to be very good.
+        PathPlannerConstants::kConfig, // A config object located in the Constants.h file
         []() 
         { 
             auto alliance = frc::DriverStation::GetAlliance();
             if (alliance) {
-                return alliance.value() == frc::DriverStation::Alliance::kRed;
+                return alliance.value() == frc::DriverStation::Alliance::kRed; // Depending on which side of the field you make the autos on, checking which Alliance this equals will change. 
+																			   // This should return true when you want to flip the auto. So, if you used Pathplanner to make autos on the Blue side, you should check if alliance.value() == frc::DriverStation::Alliance::kRed. Vice versa if autos were made on Red side
             }
             return false;
-        },
+        }, // Tells Pathplanner which alliance to automatically flip sides of the field
         &drivetrain
     );
 
+	// This tells the drivetrain how much to trust the wheel encoders. Higher values = less trust
     drivetrain.SetStateStdDevs(std::array<double, 3>{0.5, 0.5, 3});
+	// I don't think this ever worked but here's an idea:
     // When the Pigeon 2 detects a sudden acceleration (like from going over the bump), increase the standard deviations for 0.5 seconds to trust the wheel encoders less, then set them back to normal
     frc2::Trigger([this] { return units::math::abs(drivetrain.GetPigeon2().GetAccelerationZ().GetValue()) > 0.5_mps_sq; }).Debounce(60_ms)
         .OnTrue(
@@ -90,7 +100,7 @@ RobotContainer::RobotContainer()
 }
 
 std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
-{
+{  
 	std::string auton = autoChooser.GetSelected();
     std::size_t rightPos = auton.find("Right");
     if(rightPos != std::string::npos)    
