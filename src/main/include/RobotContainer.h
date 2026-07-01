@@ -32,6 +32,7 @@
 
 #include "sim/Fuel.hpp"
 
+// Constants useful for the RobotContainer
 namespace RobotContainerConstants
 {
     namespace DriveConstants
@@ -115,16 +116,19 @@ class RobotContainer
 public:
     RobotContainer();
 
+    // Checks if the robot is rotated close enough to the rotation needed to shoot the fuel into the hub
     bool IsAlignmentWithinTolerances()
     {
         return units::math::abs(frc::Rotation2d(targetYaw).RelativeTo(drivetrain.GetState().Pose.Rotation()).Degrees()) < yawTolerance;
     }
 
+    // The controller and control board ojects. 
     frc2::CommandXboxController joystick{
         OperatorConstants::kDriverControllerPort};
 
     frc2::CommandJoystick controlBoard{
         OperatorConstants::kControlBoardPort};
+    // This one is so we can get normal values, instead of creating commands -- probably a better way to do it but this works.
     frc::Joystick controlBoardRegular{
         OperatorConstants::kControlBoardPort
     };
@@ -181,6 +185,7 @@ public:
 
     bool visionEnabled = true;
 
+    // This is how we register our vision data with the drivetrain
     std::function<void(frc::Pose2d pose, units::second_t timestamp,
                           Eigen::Matrix<double, 3, 1> stddevs)> visionMeasurementConsumer =  
             [=, this](frc::Pose2d pose, units::second_t timestamp,
@@ -193,6 +198,7 @@ public:
                 }
             };
 
+    // We make a Vision object for every camera running PhotonVision
     frc::Pose3d turretVisionPose;
     Vision turretVision
     {
@@ -233,6 +239,7 @@ public:
         [this] { return launcher.GetLoss(); }
     );
 
+    // Returns a command that includes the path following and the commands to perform actions during autonomous (like shooting)
     std::optional<frc2::CommandPtr> GetAutonomousCommand();
     frc::SendableChooser<std::string> autoChooser;
 
