@@ -102,6 +102,8 @@ RobotContainer::RobotContainer()
 std::optional<frc2::CommandPtr> RobotContainer::GetAutonomousCommand()
 {  
 	std::string auton = autoChooser.GetSelected();
+    // If any autos have "Right" in the name, Pathplanner will use the "Left" version of the auto and flip it
+    // No autos should be made with "Right" in the name because of this
     std::size_t rightPos = auton.find("Right");
     if(rightPos != std::string::npos)    
     {
