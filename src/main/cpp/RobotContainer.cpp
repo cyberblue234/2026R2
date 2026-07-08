@@ -127,15 +127,6 @@ void RobotContainer::ConfigureBindings()
                 .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate)); // Drive counterclockwise with negative X (left)
         }).WithName("Drive")
     ); // Drive field centric
-    joystick.LeftTrigger().WhileTrue
-    (
-        drivetrain.ApplyRequest([this]() -> auto&& {
-            return driveRobotCentric
-                    .WithVelocityX(driveXLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftY()) * DriveConstants::kMaxSpeed / 3)) // Drive forward with negative Y (forward)
-                    .WithVelocityY(driveYLimiter.Calculate(-SquareAndPreserveSign(joystick.GetLeftX()) * DriveConstants::kMaxSpeed / 3)) // Drive left with negative X (left)
-                    .WithRotationalRate(driveYawLimiter.Calculate(-joystick.GetRightX() * DriveConstants::kMaxAngularRate / 3)); // Drive counterclockwise with negative X (left)
-           }).WithName("Drive Robot Centric")
-    ); // Drive robot centric
     joystick.RightTrigger().WhileTrue(Align()); // Align to Hub or Pass position
     joystick.A().WhileTrue(drivetrain.ApplyRequest([this] { return brake; }).WithName("Brake")); // Set wheels to X state
 
@@ -143,10 +134,12 @@ void RobotContainer::ConfigureBindings()
     launcher.SetDefaultCommand(
         frc2::cmd::Either
         (
-            launcher.StopMotorsCommand(),
+            launcher.StopMotorsCommand(), // In test mode we don't want the launcher to be constantly running
             frc2::cmd::Either
             (
+                // When the target is the hub, set the launcher angle to 70 degrees (TargetConstants::kLauncherAngle) and run a constant 1500 rpm
                 launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kLauncherAngle, 1500_rpm}; }).Until([this] { return target != Targets::Hub; }),
+                // When the target is the pass, set the launcher angle to 52 degrees (TargetConstants::kPassLauncherAngle) and run a constant 1500 rpm
                 launcher.LaunchCommand([this] { return LauncherState{TargetConstants::kPassLauncherAngle, 1500_rpm}; }).Until([this] { return target != Targets::Pass; }),
                 [this] { return target != Targets::Pass; }
             ),
@@ -154,13 +147,16 @@ void RobotContainer::ConfigureBindings()
         ).WithName("Launcher Default")
     );
 
+    // Increase manual launcher set speed
     joystick.Back().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  launcherSetSpeed += 50_rpm; }));
+    // Decrease manual launcher set speed to a min of 0 rpm
     joystick.Start().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] {  
         launcherSetSpeed -= 50_rpm; 
         if (launcherSetSpeed < 0_rpm) launcherSetSpeed = 0_rpm; }));
 
-    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset += 0.1_m; if (passOffset > 2_m) passOffset = 2.5_m; }));
-    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset -= 0.1_m; if (passOffset < -2_m) passOffset = -2.5_m; }));
+    // Change the pass offset, with a limit. This adjusts where the shot lands when we do a pass
+    joystick.LeftBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset += 0.1_m; if (passOffset > 2_m) passOffset = 2_m; }));
+    joystick.RightBumper().Debounce(60_ms).WhileTrue(frc2::cmd::Run([this] { passOffset -= 0.1_m; if (passOffset < -2_m) passOffset = -2_m; }));
 
     controlBoard.Button(OperatorConstants::kLaunchButton).WhileTrue
     (
@@ -170,21 +166,28 @@ void RobotContainer::ConfigureBindings()
             Launch(), // Run auto launch otherwise
             [this] { return target == Targets::Manual; }
         ).WithName("Launch")
-    ).OnFalse(
+    ).OnFalse( // When we stop pressing the launch button:
         frc2::cmd::Parallel
         (
+            // Sets the intake pivot to either the ground or up depending on the switch
+            // AsProxy() means that if the commands inside of IntakePivotDefaultCommand() end, the overall larger Parallel command that all of these subsequent commands are in will not end
+            // This is not default behavior due to how command based works, so it can be very important to have the AsProxy()
+            // Learn more about AsProxy(): https://docs.wpilib.org/en/stable/docs/software/commandbased/command-compositions.html#scheduling-other-commands
             IntakePivotDefaultCommand().AsProxy(),
             frc2::cmd::Either
             (
+                // Either turn the intake on or off depending on the intake switch
                 intakeRoller.IntakeCommand().Repeatedly().Until([this] { return !controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }),
                 intakeRoller.StopMotorCommand(),
                 [this] { return controlBoardRegular.GetRawButton(OperatorConstants::kIntakeSwitch); }
-            ).WithName("After Launch Intake").AsProxy()
-        )
+            ).WithName("After Launch Intake").AsProxy() // This is also AsProxy()
+        ) // The idea with making the commands within this Parallel proxies is that if something else pulls the attention of one of the commands (like if the intake switch is toggled), the other command within the Parallel will still be running
     );
 
     // Intake Roller Controls
+    // Turn on the intake
     controlBoard.Button(OperatorConstants::kIntakeSwitch).WhileTrue(intakeRoller.IntakeCommand());
+    // Eject -- runs all of the eject commands in the subsystems
     controlBoard.Button(OperatorConstants::kEjectButton).WhileTrue(
         frc2::cmd::Parallel
         (
@@ -193,88 +196,95 @@ void RobotContainer::ConfigureBindings()
     );
 
     // Intake Pivot Controls
+    // When the switch is on, the intake goes into the robot. When it is off, it goes to the ground
     controlBoard.Button(OperatorConstants::kIntakeTogglePositionSwitch)
         .OnTrue(intakePivot.SetPositionToHomeCommand())
         .OnFalse(intakePivot.SetPositionToGroundCommand());
+    // Manually set the speed of the intake pivot motor
     controlBoard.Button(OperatorConstants::kManualIntakePivotUp).WhileTrue(intakePivot.SetSpeedCommand(-IntakeConstants::kManualSpeed));
     controlBoard.Button(OperatorConstants::kManualIntakePivotDown).WhileTrue(intakePivot.SetSpeedCommand(IntakeConstants::kManualSpeed));
 
     // Other Controls
+    // Reset the gyro
     joystick.Y().Debounce(60_ms).OnTrue(frc2::cmd::RunOnce([this] {drivetrain.SeedFieldCentric(); }));
 }
 
 frc2::CommandPtr RobotContainer::UpdateAutoShootPhysicsCommand()
 {
+    // This command deals with all of the targeting information. This is how we automatically aim and shoot
 return frc2::cmd::Run
     (
         [this]
         {
             auto drivetrainState = drivetrain.GetState();
-            frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose};
-            frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z());
+            frc::Pose3d robotPose = frc::Pose3d{drivetrainState.Pose}; // Gets the position of the robot
+            frc::ChassisSpeeds robotSpeeds = frc::ChassisSpeeds::FromRobotRelativeSpeeds(drivetrainState.Speeds, robotPose.Rotation().Z()); // Speed of the robot
+            // The angle of the turret in field space
             units::radian_t turretTheta = robotPose.Rotation().Z() + units::math::atan2(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
+            // The radius of the center of the turret to the center of the robot
             units::meter_t kTurretRadius = units::math::hypot(LauncherConstants::kTurretOffset.Y(), LauncherConstants::kTurretOffset.X());
+            // The position of the turret on the field -- used for more accurate targeting than just using the robot position
             frc::Translation3d turretPose
             {
                 robotPose.X() - units::math::cos(turretTheta) * kTurretRadius,
                 robotPose.Y() - units::math::sin(turretTheta) * kTurretRadius,
                 robotPose.Z() + LauncherConstants::kTurretOffset.Z()
             };
-            units::meters_per_second_t turretVx = robotSpeeds.vx; // + units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::sin(turretTheta) * kTurretRadius).value()};
-            units::meters_per_second_t turretVy = robotSpeeds.vy; // - units::meters_per_second_t{(drivetrain.GetVelocityYaw() * units::math::cos(turretTheta) * kTurretRadius).value()};
+            // Using the robot speed as the turret speed is a good enough approximation (and the other math didn't really work)
+            units::meters_per_second_t turretVx = robotSpeeds.vx; 
+            units::meters_per_second_t turretVy = robotSpeeds.vy;
             
             frc::Translation3d targetPose;
             units::meter_t toleranceRadius;
-            units::meter_t zOffset;
             std::optional<frc::DriverStation::Alliance> alliance = frc::DriverStation::GetAlliance();
-            if (!alliance) alliance = frc::DriverStation::Alliance::kBlue;
+            if (!alliance) alliance = frc::DriverStation::Alliance::kBlue; // If the alliance is not set for some reason, set it to blue
             if (target == Targets::Pass)
             {
+                // Set the target to either the blue or red "PassPose", the position on the field where the fuel should land when passing
+                // This includes our pass offset, set by the left and right bumpers on the driver controller
                 targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue 
                         ? frc::Translation3d{FieldConstants::kBluePassPose.X(), FieldConstants::kBluePassPose.Y() + passOffset, FieldConstants::kBluePassPose.Z()} 
                         : frc::Translation3d{FieldConstants::kRedPassPose.X(), FieldConstants::kRedPassPose.Y() - passOffset, FieldConstants::kRedPassPose.Z()};
-                toleranceRadius = TargetConstants::kPassToleranceRadius;
-                zOffset = TargetConstants::kPassZOffset;
+                toleranceRadius = TargetConstants::kPassToleranceRadius; // Set our tolerance (high for passing)
             }
             else
             {
+                // Mostly the same as in passing, but different constants. Lower tolerance and zOffset
                 targetPose = alliance.value() == frc::DriverStation::Alliance::kBlue ? FieldConstants::kBlueHubPose : FieldConstants::kRedHubPose;
                 toleranceRadius = TargetConstants::kHubToleranceRadius;
-                zOffset = TargetConstants::kHubZOffset;
             }
                 
             units::meter_t deltaZ = targetPose.Z() - turretPose.Z();
 
             units::standard_gravity_t g{-1};
-            // units::meters_per_second_t vz = units::math::sqrt(2 * (deltaZ + zOffset) * -g);
-            // units::second_t timeOfFlight = (-vz - units::math::sqrt(units::math::pow<2>(vz) + 2 * g * deltaZ)) / g;
+
             units::meter_t deltaX = targetPose.X() - turretPose.X();
             units::meter_t deltaY = targetPose.Y() - turretPose.Y();
-            // units::meters_per_second_t vx = deltaX / timeOfFlight - turretVx;
-            // units::meters_per_second_t vy = deltaY / timeOfFlight - turretVy;
-            // pitch = units::math::atan2(vz, units::math::hypot(vx, vy)) - robotPose.Rotation().Y();
-            // frc::SmartDashboard::PutNumber("Generic/Desired Pitch (deg)", pitch.value());
+
+            // The distance needed to be covered in the XY plane
             units::meter_t deltaR = units::math::hypot(deltaX, deltaY);
+            // Calculate how much time the fuel will be in the air pased on our values
             units::second_t timeOfFlight = units::math::sqrt((2 * (deltaR * units::math::tan(launcher.GetLauncherAngle()) - deltaZ)) / -g);
+            // Based on the time of flight, calculate the velocities in the 3 directions
             units::meters_per_second_t vx = deltaX / timeOfFlight - turretVx;
             units::meters_per_second_t vy = deltaY / timeOfFlight - turretVy;
-            units::meters_per_second_t vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight;
+            units::meters_per_second_t vz = (deltaZ - 0.5 * g * units::math::pow<2>(timeOfFlight)) / timeOfFlight; // Needs to include acceleration of gravity (Δx = vt + 1/2at²)
             auto v_sq = vx*vx + vy*vy + vz*vz;
-            units::meters_per_second_t v = units::math::sqrt(v_sq);
-            omega = units::revolutions_per_minute_t{(launcher.GetSpeedRatio() * v).value()}; //units::radians_per_second_t{sqrt(((LauncherConstants::kFuelMass * v_sq).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            units::meters_per_second_t v = units::math::sqrt(v_sq); // Find the magnitude of the velocity --> the angle is based on the current launch angle
+            omega = units::revolutions_per_minute_t{(launcher.GetSpeedRatio() * v).value()}; // Use our tuned variable "speed ratio" to determine how many RPMs the launcher wheel needs to reach to make the shot
             frc::SmartDashboard::PutNumber("Generic/Desired Omega (rpm)", omega.convert<units::revolutions_per_minute>().value());
             
+            // Figure out where the robot needs to be angled based on our velocities
             targetYaw = units::math::atan2(vy, vx);
+            // Find the tolerance in the yaw direction
             yawTolerance = units::math::atan(toleranceRadius / deltaR);
             frc::SmartDashboard::PutNumber("Generic/Target Yaw (deg)", targetYaw.value());
             frc::SmartDashboard::PutNumber("Generic/Yaw tolerance (deg)", yawTolerance.value());
+            // Find the maximum velocity the fuel can go at while still making the shot, use to find omegaTolerance
             units::meters_per_second_t maxVr = units::math::hypot(vx, vy) + toleranceRadius / timeOfFlight;
-            units::revolutions_per_minute_t maxOmega{(launcher.GetSpeedRatio() * units::math::hypot(maxVr, vz)).value()}; //{sqrt(((LauncherConstants::kFuelMass * (maxVr*maxVr + vz*vz)).value() / ((1 - launcher.GetLoss()) * LauncherConstants::kShooterMOI - LauncherConstants::kFuelMOIInFlywheel).value()))};
+            units::revolutions_per_minute_t maxOmega{(launcher.GetSpeedRatio() * units::math::hypot(maxVr, vz)).value()};
             omegaTolerance = maxOmega - omega;
             frc::SmartDashboard::PutNumber("Generic/Omega Tolerance (rpm)", omegaTolerance.convert<units::revolutions_per_minute>().value());
-            // auto minPitch = units::math::acos(maxVr / v);
-            // pitchTolerance = pitch - minPitch;
-            // frc::SmartDashboard::PutNumber("Generic/Pitch Tolerance (deg)", pitchTolerance.value());
         }
     ).IgnoringDisable(true);
 }

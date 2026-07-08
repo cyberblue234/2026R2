@@ -57,8 +57,6 @@ namespace RobotContainerConstants
 
         inline constexpr units::meter_t kHubToleranceRadius = 24_in;
         inline constexpr units::meter_t kPassToleranceRadius = 2_m;
-        inline constexpr units::meter_t kHubZOffset = 1.25_m;
-        inline constexpr units::meter_t kPassZOffset = 4_m;
 
         inline constexpr units::degree_t kLauncherAngle = 70_deg;
         inline constexpr units::degree_t kPassLauncherAngle = 52_deg;
@@ -199,6 +197,7 @@ public:
             };
 
     // We make a Vision object for every camera running PhotonVision
+    // The turretVisionPose variable is used for logging where each camera thinks it is on the field
     frc::Pose3d turretVisionPose;
     Vision turretVision
     {

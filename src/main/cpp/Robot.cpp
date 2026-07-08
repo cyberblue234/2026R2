@@ -56,6 +56,7 @@ void Robot::RobotPeriodic()
     }
 
     // More useful driver info for the 2026 season -- match timings and current shifts
+    // "time" counts down as the match progresses
     units::second_t time = frc::DriverStation::GetMatchTime();
     frc::SmartDashboard::PutNumber("Generic/Match Time", time.value());
 
@@ -70,7 +71,7 @@ void Robot::RobotPeriodic()
         // Fourth shift
         else if (time <= GameConstants::kEndgamePeriod + GameConstants::kShiftTimes)
         {
-            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod).value());
+            frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod).value()); // Shows how much time is left in the shift
             frc::SmartDashboard::PutBoolean("Generic/Hub Active", wonAuto);
         }
         // Third shift
@@ -83,19 +84,19 @@ void Robot::RobotPeriodic()
         else if (time <= GameConstants::kEndgamePeriod + 3 * GameConstants::kShiftTimes)
         {
             frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 2 * GameConstants::kShiftTimes).value());
-            frc::SmartDashboard::PutBoolean("Generic/Hub Active", wonAuto);
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", wonAuto); // The hub is only active if we won auto
         }
         // First shift
         else if (time <= GameConstants::kEndgamePeriod + 4 * GameConstants::kShiftTimes)
         {
             frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 3 * GameConstants::kShiftTimes).value());
-            frc::SmartDashboard::PutBoolean("Generic/Hub Active", !wonAuto);
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", !wonAuto); // The hub is only active if we lost auto
         }
         // Transition period
         else if (time <= GameConstants::kEndgamePeriod + 4 * GameConstants::kShiftTimes + GameConstants::kTransitionShiftTime)
         {
             frc::SmartDashboard::PutNumber("Generic/Shift Time", (time - GameConstants::kEndgamePeriod - 4 * GameConstants::kShiftTimes).value());
-            frc::SmartDashboard::PutBoolean("Generic/Hub Active", true);
+            frc::SmartDashboard::PutBoolean("Generic/Hub Active", true); // The hub is always active during transition
         }
     }
     else

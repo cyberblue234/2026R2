@@ -39,6 +39,7 @@
 
 #include "Constants.h"
 
+/// @brief Constants for our PhotonVision based cameras.
 namespace VisionConstants
 {
 	namespace TurretCamera
@@ -72,6 +73,7 @@ namespace VisionConstants
 
 }
 
+/// @brief Taken from PhotonVision docs. Used to create objects that represent the real world cameras running PhotonVision on them
 class Vision
 {
 public:
